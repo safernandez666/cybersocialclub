@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import {
   Shield,
   QrCode,
@@ -12,9 +12,7 @@ import {
   Linkedin,
   Instagram,
   ArrowRight,
-  Users,
-  Globe,
-  Sparkles,
+  ArrowUpRight,
 } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
@@ -51,23 +49,28 @@ function Counter({ target, suffix = "" }: { target: number; suffix?: string }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Fade-in wrapper                                                     */
+/* Reveal — scroll-triggered fade with configurable direction          */
 /* ------------------------------------------------------------------ */
-function FadeIn({
+function Reveal({
   children,
   delay = 0,
   className = "",
+  direction = "up",
 }: {
   children: React.ReactNode;
   delay?: number;
   className?: string;
+  direction?: "up" | "left" | "right" | "none";
 }) {
+  const y = direction === "up" ? 40 : 0;
+  const x = direction === "left" ? -40 : direction === "right" ? 40 : 0;
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.5, delay, ease: "easeOut" }}
+      initial={{ opacity: 0, y, x }}
+      whileInView={{ opacity: 1, y: 0, x: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.8, delay, ease: [0.25, 0.1, 0.25, 1] }}
       className={className}
     >
       {children}
@@ -76,191 +79,280 @@ function FadeIn({
 }
 
 /* ------------------------------------------------------------------ */
+/* Section label — monospace accent                                    */
+/* ------------------------------------------------------------------ */
+function SectionLabel({ text, number }: { text: string; number: string }) {
+  return (
+    <div className="mb-12 flex items-center gap-4">
+      <span className="font-mono text-xs tracking-widest text-csc-orange/70">
+        {number}
+      </span>
+      <div className="h-px flex-1 bg-white/5" />
+      <span className="font-mono text-xs uppercase tracking-widest text-white/30">
+        {text}
+      </span>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* Page                                                                */
 /* ------------------------------------------------------------------ */
 export default function Home() {
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+  const heroScale = useTransform(scrollYProgress, [0, 0.8], [1, 0.95]);
+
   return (
-    <div className="min-h-screen bg-[#0C0A09]">
+    <div className="min-h-screen bg-[#0A0A0A]">
       {/* ---- HERO ---- */}
-      <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 pt-20">
-        {/* Gradient mesh background */}
+      <motion.section
+        ref={heroRef}
+        style={{ opacity: heroOpacity, scale: heroScale }}
+        className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4"
+      >
+        {/* Ambient glow */}
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/2 top-1/4 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-csc-orange/8 blur-[150px]" />
-          <div className="absolute right-1/4 top-2/3 h-[300px] w-[300px] rounded-full bg-csc-amber/5 blur-[100px]" />
-          <div className="absolute left-1/4 bottom-1/4 h-[200px] w-[200px] rounded-full bg-csc-wine/10 blur-[80px]" />
+          <div className="absolute left-1/2 top-1/3 h-[500px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-csc-orange/[0.06] blur-[180px]" />
         </div>
 
-        {/* Grid pattern overlay */}
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(232,123,30,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(232,123,30,0.03)_1px,transparent_1px)] bg-[size:64px_64px]" />
-
-        <FadeIn className="relative z-10 flex flex-col items-center text-center">
+        <Reveal className="relative z-10 flex flex-col items-center text-center">
           <Image
             src="/logos/logo-light.png"
             alt="Cyber Social Club"
             width={400}
             height={168}
-            className="mb-8 h-auto w-64 sm:w-80 lg:w-[380px]"
+            className="mb-10 h-auto w-56 sm:w-72 lg:w-[320px]"
             priority
           />
-          <p className="mb-10 max-w-md text-lg text-white/50">
-            La comunidad de ciberseguridad más grande de habla hispana
+
+          <h1 className="mb-6 max-w-3xl text-4xl font-light leading-[1.1] tracking-tight text-white sm:text-5xl lg:text-7xl">
+            Where <span className="text-csc-orange">Cyber</span> Minds{" "}
+            <span className="italic">Connect</span>
+          </h1>
+
+          <p className="mb-12 max-w-md font-mono text-sm leading-relaxed text-white/35">
+            La comunidad de ciberseguridad más grande
+            <br />
+            de habla hispana
           </p>
+
           <div className="flex flex-col gap-3 sm:flex-row">
             <Link
               href="/register"
-              className="group inline-flex items-center gap-2 rounded-full bg-csc-orange px-8 py-3.5 text-sm font-semibold text-white transition-all hover:bg-csc-amber hover:shadow-lg hover:shadow-csc-orange/25"
+              className="group inline-flex items-center gap-3 rounded-full bg-white px-8 py-4 text-sm font-medium text-[#0A0A0A] transition-all hover:bg-csc-orange hover:text-white"
             >
               Únete al Club
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
             <Link
-              href="#beneficios"
-              className="inline-flex items-center gap-2 rounded-full border border-white/10 px-8 py-3.5 text-sm font-medium text-white/70 transition-all hover:border-white/20 hover:text-white"
+              href="#about"
+              className="inline-flex items-center gap-2 rounded-full px-8 py-4 text-sm text-white/50 transition-all hover:text-white"
             >
               Descubrí más
             </Link>
           </div>
-        </FadeIn>
+        </Reveal>
 
-        {/* Scroll indicator */}
+        {/* Scroll line */}
         <motion.div
-          className="absolute bottom-8 text-white/20"
-          animate={{ y: [0, 6, 0] }}
-          transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+          className="absolute bottom-12 flex flex-col items-center gap-3"
+          animate={{ opacity: [0.3, 0.6, 0.3] }}
+          transition={{ repeat: Infinity, duration: 3 }}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <path d="M12 5v14M5 12l7 7 7-7" />
-          </svg>
+          <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/25">
+            Scroll
+          </span>
+          <div className="h-8 w-px bg-gradient-to-b from-white/20 to-transparent" />
         </motion.div>
-      </section>
+      </motion.section>
 
-      {/* ---- STATS ---- */}
-      <section className="relative border-y border-white/5 bg-white/[0.02] py-20">
-        <div className="mx-auto grid max-w-5xl grid-cols-2 gap-y-10 px-4 sm:grid-cols-4">
-          {[
-            { value: 500, suffix: "+", label: "Miembros", icon: Users },
-            { value: 50, suffix: "+", label: "Eventos", icon: CalendarDays },
-            { value: 20, suffix: "+", label: "Países", icon: Globe },
-            { value: 100, suffix: "%", label: "Cyber", icon: Shield },
-          ].map((stat, i) => (
-            <FadeIn key={stat.label} delay={i * 0.1} className="text-center">
-              <stat.icon className="mx-auto mb-3 h-5 w-5 text-csc-orange/60" />
-              <div className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                <Counter target={stat.value} suffix={stat.suffix} />
+      {/* ---- ABOUT ---- */}
+      <section id="about" className="px-4 py-32 sm:px-8">
+        <div className="mx-auto max-w-5xl">
+          <SectionLabel number="01" text="Nosotros" />
+
+          <div className="grid gap-16 lg:grid-cols-2 lg:gap-24">
+            <Reveal>
+              <h2 className="text-3xl font-light leading-snug tracking-tight text-white sm:text-4xl lg:text-5xl">
+                Una comunidad que conecta a los{" "}
+                <span className="text-csc-orange">profesionales de ciberseguridad</span>{" "}
+                de toda Latinoamérica
+              </h2>
+            </Reveal>
+
+            <Reveal delay={0.2}>
+              <p className="text-base leading-relaxed text-white/40 lg:pt-4">
+                Cyber Social Club nació para crear un espacio donde CISOs, analistas,
+                managers y partners puedan compartir experiencias, aprender y crecer juntos.
+                Con eventos exclusivos, una credencial digital verificable y una red de
+                contactos que se expande cada día.
+              </p>
+              <div className="mt-10 grid grid-cols-2 gap-8">
+                {[
+                  { value: 500, suffix: "+", label: "Miembros activos" },
+                  { value: 20, suffix: "+", label: "Países" },
+                  { value: 50, suffix: "+", label: "Eventos realizados" },
+                  { value: 100, suffix: "%", label: "Ciberseguridad" },
+                ].map((stat, i) => (
+                  <div key={stat.label}>
+                    <div className="text-2xl font-semibold tracking-tight text-white">
+                      <Counter target={stat.value} suffix={stat.suffix} />
+                    </div>
+                    <div className="mt-1 font-mono text-xs text-white/25">
+                      {stat.label}
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div className="mt-1 text-sm text-white/40">{stat.label}</div>
-            </FadeIn>
-          ))}
+            </Reveal>
+          </div>
         </div>
       </section>
 
-      {/* ---- FEATURES ---- */}
-      <section id="beneficios" className="py-28 px-4">
-        <div className="mx-auto max-w-6xl">
-          <FadeIn className="mb-16 text-center">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-csc-orange/20 bg-csc-orange/5 px-4 py-1.5 text-xs font-medium text-csc-orange">
-              <Sparkles className="h-3.5 w-3.5" />
-              Beneficios
-            </div>
-            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
-              Todo lo que obtenés
-            </h2>
-            <p className="mx-auto mt-4 max-w-lg text-base text-white/40">
-              Beneficios exclusivos diseñados para profesionales de ciberseguridad
-            </p>
-          </FadeIn>
+      {/* ---- BENEFICIOS ---- */}
+      <section id="beneficios" className="px-4 py-32 sm:px-8">
+        <div className="mx-auto max-w-5xl">
+          <SectionLabel number="02" text="Beneficios" />
 
-          <div className="grid gap-6 md:grid-cols-3">
+          <Reveal>
+            <h2 className="mb-20 max-w-2xl text-3xl font-light leading-snug tracking-tight text-white sm:text-4xl">
+              Todo lo que necesitás en{" "}
+              <span className="italic text-csc-orange">un solo lugar</span>
+            </h2>
+          </Reveal>
+
+          <div className="space-y-0">
             {[
               {
                 icon: QrCode,
                 title: "Credencial Digital",
-                desc: "Una credencial única con QR verificable que podés mostrar en cualquier evento. Siempre en tu bolsillo.",
+                desc: "Una credencial única con QR verificable que podés mostrar en cualquier evento. Tu identidad profesional, siempre en tu bolsillo.",
+                number: "01",
               },
               {
                 icon: CalendarDays,
                 title: "Eventos Exclusivos",
-                desc: "Acceso a meetups privados, workshops y sesiones de networking con los mejores profesionales.",
+                desc: "Meetups privados, workshops técnicos y sesiones de networking con los mejores profesionales de ciberseguridad de la región.",
+                number: "02",
               },
               {
                 icon: Network,
                 title: "Red Global",
-                desc: "Explorá el directorio de miembros, conectá con CISOs, analistas y partners de todo el mundo.",
+                desc: "Conectá con CISOs, analistas, managers y partners de todo el mundo. Un directorio verificado de profesionales.",
+                number: "03",
               },
             ].map((feature, i) => (
-              <FadeIn key={feature.title} delay={i * 0.12}>
-                <div className="group relative rounded-2xl border border-white/5 bg-white/[0.02] p-8 transition-all duration-300 hover:border-csc-orange/20 hover:bg-white/[0.04]">
-                  <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-csc-orange/10 text-csc-orange transition-colors group-hover:bg-csc-orange group-hover:text-white">
-                    <feature.icon className="h-5 w-5" />
+              <Reveal key={feature.title} delay={i * 0.1}>
+                <div className="group flex flex-col gap-6 border-t border-white/5 py-10 sm:flex-row sm:items-start sm:gap-12 lg:py-14">
+                  <div className="flex shrink-0 items-center gap-4">
+                    <span className="font-mono text-xs text-white/15">{feature.number}</span>
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-white/5 text-white/40 transition-all group-hover:border-csc-orange/30 group-hover:text-csc-orange">
+                      <feature.icon className="h-5 w-5" />
+                    </div>
                   </div>
-                  <h3 className="mb-2 text-lg font-semibold text-white">
-                    {feature.title}
-                  </h3>
-                  <p className="text-sm leading-relaxed text-white/40">
-                    {feature.desc}
-                  </p>
+                  <div className="flex-1">
+                    <h3 className="mb-2 text-xl font-medium text-white transition-colors group-hover:text-csc-orange">
+                      {feature.title}
+                    </h3>
+                    <p className="max-w-lg text-sm leading-relaxed text-white/35">
+                      {feature.desc}
+                    </p>
+                  </div>
+                  <ArrowUpRight className="hidden h-5 w-5 shrink-0 text-white/10 transition-all group-hover:text-csc-orange sm:block" />
                 </div>
-              </FadeIn>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
+      {/* ---- MARQUEE DIVIDER ---- */}
+      <div className="overflow-hidden border-y border-white/5 py-6">
+        <motion.div
+          className="flex whitespace-nowrap"
+          animate={{ x: ["0%", "-50%"] }}
+          transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
+        >
+          {Array.from({ length: 8 }).map((_, i) => (
+            <span
+              key={i}
+              className="mx-8 font-mono text-sm uppercase tracking-[0.4em] text-white/[0.06]"
+            >
+              Cyber Social Club &mdash; Where Cyber Minds Connect &mdash;
+            </span>
+          ))}
+        </motion.div>
+      </div>
+
       {/* ---- CTA ---- */}
-      <section className="relative overflow-hidden py-28 px-4">
+      <section className="relative px-4 py-40 sm:px-8">
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/2 top-1/2 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-csc-orange/5 blur-[120px]" />
+          <div className="absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-csc-orange/[0.04] blur-[150px]" />
         </div>
-        <FadeIn className="relative z-10 mx-auto max-w-xl text-center">
-          <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-csc-orange/10">
+
+        <Reveal className="relative z-10 mx-auto max-w-2xl text-center">
+          <div className="mx-auto mb-8 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/5">
             <Shield className="h-7 w-7 text-csc-orange" />
           </div>
-          <h2 className="mb-4 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-            ¿Listo para conectar?
+          <h2 className="mb-5 text-3xl font-light tracking-tight text-white sm:text-4xl lg:text-5xl">
+            ¿Listo para <span className="italic text-csc-orange">conectar</span>?
           </h2>
-          <p className="mb-8 text-white/40">
-            Sumate a la comunidad de ciberseguridad que más crece en Latinoamérica.
+          <p className="mb-10 font-mono text-sm text-white/30">
+            Sumate a la comunidad que más crece en Latinoamérica
           </p>
           <Link
             href="/register"
-            className="group inline-flex items-center gap-2 rounded-full bg-csc-orange px-8 py-3.5 text-sm font-semibold text-white transition-all hover:bg-csc-amber hover:shadow-lg hover:shadow-csc-orange/25"
+            className="group inline-flex items-center gap-3 rounded-full bg-csc-orange px-10 py-4 text-sm font-medium text-white transition-all hover:bg-csc-amber hover:shadow-xl hover:shadow-csc-orange/20"
           >
             Registrate Ahora
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
-        </FadeIn>
+        </Reveal>
       </section>
 
       {/* ---- FOOTER ---- */}
-      <footer className="border-t border-white/5 bg-[#0C0A09] py-12 px-4">
-        <div className="mx-auto flex max-w-6xl flex-col items-center gap-8 sm:flex-row sm:justify-between">
-          <Image
-            src="/logos/logo-light.png"
-            alt="CSC"
-            width={120}
-            height={34}
-            className="h-7 w-auto opacity-50"
-          />
-          <div className="flex items-center gap-3">
-            {[
-              { icon: Linkedin, href: "https://www.linkedin.com/company/cyber-social-club-ar/", label: "LinkedIn" },
-              { icon: Instagram, href: "https://www.instagram.com/cybersocialclub/", label: "Instagram" },
-            ].map(({ icon: Icon, href, label }) => (
-              <a
-                key={label}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/5 text-white/30 transition-all hover:border-white/15 hover:text-csc-orange"
-                aria-label={label}
-              >
-                <Icon className="h-4 w-4" />
-              </a>
-            ))}
+      <footer className="border-t border-white/5 px-4 py-16 sm:px-8">
+        <div className="mx-auto flex max-w-5xl flex-col gap-12">
+          <div className="flex flex-col items-start justify-between gap-8 sm:flex-row sm:items-center">
+            <Image
+              src="/logos/logo-light.png"
+              alt="CSC"
+              width={120}
+              height={34}
+              className="h-6 w-auto opacity-40"
+            />
+            <div className="flex items-center gap-4">
+              {[
+                { icon: Linkedin, href: "https://www.linkedin.com/company/cyber-social-club-ar/", label: "LinkedIn" },
+                { icon: Instagram, href: "https://www.instagram.com/cybersocialclub/", label: "Instagram" },
+              ].map(({ icon: Icon, href, label }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 font-mono text-xs text-white/25 transition-colors hover:text-csc-orange"
+                  aria-label={label}
+                >
+                  <Icon className="h-4 w-4" />
+                  {label}
+                </a>
+              ))}
+            </div>
           </div>
-          <p className="text-xs text-white/25">
-            &copy; {new Date().getFullYear()} Cyber Social Club
-          </p>
+          <div className="flex flex-col items-start justify-between gap-4 border-t border-white/5 pt-8 sm:flex-row sm:items-center">
+            <p className="font-mono text-xs text-white/15">
+              &copy; {new Date().getFullYear()} Cyber Social Club. Todos los derechos reservados.
+            </p>
+            <p className="font-mono text-xs text-white/15">
+              cybersocialclub.com.ar
+            </p>
+          </div>
         </div>
       </footer>
     </div>
