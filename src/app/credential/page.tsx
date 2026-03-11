@@ -68,12 +68,12 @@ function CredentialContent() {
         <p className="mb-8 font-mono text-xs text-white/20">
           El link puede haber expirado o ser inválido
         </p>
-        <Link
-          href="/"
+        <a
+          href="https://socios.cybersocialclub.com.ar"
           className="rounded-full border border-white/10 px-6 py-2 font-mono text-xs text-white/40 transition-all hover:text-white"
         >
           Volver al inicio
-        </Link>
+        </a>
       </div>
     );
   }
@@ -168,12 +168,18 @@ function CredentialContent() {
 
           {/* QR Section */}
           <div className="flex flex-col items-center border-t border-white/5 px-6 py-6">
-            <div className="rounded-2xl bg-[#0A0A0A] p-4">
-              <img src={data.qr} alt="QR de verificación" className="h-32 w-32" />
-            </div>
-            <p className="mt-3 font-mono text-[10px] uppercase tracking-widest text-white/15">
-              Escaneá para verificar
-            </p>
+            {data.qr ? (
+              <>
+                <div className="rounded-2xl bg-[#0A0A0A] p-4">
+                  <img src={data.qr} alt="QR de verificación" className="h-32 w-32" />
+                </div>
+                <p className="mt-3 font-mono text-[10px] uppercase tracking-widest text-white/15">
+                  Escaneá para verificar
+                </p>
+              </>
+            ) : (
+              <p className="font-mono text-xs text-white/20">QR no disponible</p>
+            )}
           </div>
 
           {/* Status Bar */}
@@ -195,6 +201,14 @@ function CredentialContent() {
           >
             <Download className="h-4 w-4" />
             Descargar Credencial PDF
+          </a>
+        </div>
+        <div className="mt-4 text-center">
+          <a
+            href="https://socios.cybersocialclub.com.ar"
+            className="font-mono text-xs text-white/30 transition-colors hover:text-white/60"
+          >
+            ← Volver al inicio
           </a>
         </div>
       </div>

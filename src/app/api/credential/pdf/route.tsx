@@ -141,11 +141,23 @@ export async function GET(req: NextRequest) {
   }
 
   const verifyUrl = `${getAppUrl()}/api/verify?member=${member.member_number}`;
-  const qrDataUrl = await QRCode.toDataURL(verifyUrl, {
-    width: 300,
-    margin: 1,
-    color: { dark: "#E87B1E", light: "#141211" },
-  });
+  let qrDataUrl = "";
+  try {
+    qrDataUrl = await QRCode.toDataURL(verifyUrl, {
+      width: 300,
+      margin: 1,
+      color: { dark: "#E87B1E", light: "#141211" },
+    });
+  } catch {
+    // Fallback: generate SVG and convert to data URL
+    const svgString = await QRCode.toString(verifyUrl, {
+      type: "svg",
+      width: 300,
+      margin: 1,
+      color: { dark: "#E87B1E", light: "#141211" },
+    });
+    qrDataUrl = `data:image/svg+xml;base64,${Buffer.from(svgString).toString("base64")}`;
+  }
 
   const memberSince = new Date(member.created_at).toLocaleDateString("es-AR", {
     month: "long",

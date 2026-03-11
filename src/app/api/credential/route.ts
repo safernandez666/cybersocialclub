@@ -31,13 +31,20 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  // Generate QR code as data URL (points to verify endpoint)
+  // Generate QR code as SVG data URL (no canvas dependency needed)
   const verifyUrl = `${getAppUrl()}/api/verify?member=${member.member_number}`;
-  const qrDataUrl = await QRCode.toDataURL(verifyUrl, {
-    width: 200,
-    margin: 1,
-    color: { dark: "#E87B1E", light: "#141211" },
-  });
+  let qrDataUrl = "";
+  try {
+    const svgString = await QRCode.toString(verifyUrl, {
+      type: "svg",
+      width: 200,
+      margin: 1,
+      color: { dark: "#E87B1E", light: "#141211" },
+    });
+    qrDataUrl = `data:image/svg+xml;base64,${Buffer.from(svgString).toString("base64")}`;
+  } catch (qrError) {
+    console.error("QR generation failed:", qrError);
+  }
 
   return NextResponse.json({ ...member, qr: qrDataUrl, verify_url: verifyUrl });
 }
