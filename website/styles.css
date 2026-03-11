@@ -814,27 +814,17 @@ img {
 .carousel-prev { left: 1rem; }
 .carousel-next { right: 1rem; }
 
-.carousel-dots {
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-top: 1.5rem;
+.carousel-counter {
+  text-align: center;
+  margin-top: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  color: var(--color-white-40);
 }
 
-.carousel-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--color-white-15);
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.carousel-dot.active {
-  background: var(--color-accent);
-  width: 24px;
-  border-radius: 4px;
+.carousel-current {
+  color: var(--color-accent);
+  font-weight: 600;
 }
 
 @media (max-width: 768px) {

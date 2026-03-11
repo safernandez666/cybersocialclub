@@ -156,29 +156,18 @@
   const images = document.querySelectorAll('.carousel-img');
   const prevBtn = document.querySelector('.carousel-prev');
   const nextBtn = document.querySelector('.carousel-next');
-  const dotsContainer = document.querySelector('.carousel-dots');
+  const counterCurrent = document.querySelector('.carousel-current');
 
   if (track && images.length > 0) {
     let current = 0;
     const total = images.length;
-
-    // Create dots
-    for (let i = 0; i < total; i++) {
-      const dot = document.createElement('button');
-      dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
-      dot.setAttribute('aria-label', 'Go to photo ' + (i + 1));
-      dot.addEventListener('click', function() { goTo(i); });
-      dotsContainer.appendChild(dot);
-    }
 
     function goTo(index) {
       current = index;
       if (current < 0) current = total - 1;
       if (current >= total) current = 0;
       track.style.transform = 'translateX(-' + (current * 100) + '%)';
-      document.querySelectorAll('.carousel-dot').forEach(function(d, i) {
-        d.classList.toggle('active', i === current);
-      });
+      if (counterCurrent) counterCurrent.textContent = current + 1;
     }
 
     prevBtn.addEventListener('click', function() { goTo(current - 1); });
