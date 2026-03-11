@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { sendWelcomeEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -42,6 +43,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Este email ya está registrado" }, { status: 409 });
     }
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // Send welcome email (non-blocking — don't fail registration if email fails)
+  try {
+    await sendWelcomeEmail(email, full_name);
+  } catch (emailError) {
+    console.error("Failed to send welcome email:", emailError);
   }
 
   return NextResponse.json({ success: true, message: "Registro exitoso" }, { status: 201 });
