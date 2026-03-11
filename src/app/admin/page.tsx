@@ -25,21 +25,30 @@ export default function AdminPage() {
   const [authenticated, setAuthenticated] = useState(false);
   const [filter, setFilter] = useState<string>("pending");
   const [processing, setProcessing] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchMembers = async (key: string) => {
+    setError(null);
     try {
       const res = await fetch(`/api/admin/members?status=${filter}`, {
         headers: { "x-admin-key": key },
       });
       if (res.status === 401) {
         setAuthenticated(false);
+        setError("Clave incorrecta");
+        return;
+      }
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        setError(errData.error || `Error del servidor (${res.status})`);
         return;
       }
       const data = await res.json();
-      setMembers(data);
+      setMembers(Array.isArray(data) ? data : []);
       setAuthenticated(true);
-    } catch {
-      console.error("Error fetching members");
+    } catch (err) {
+      setError("Error de conexión");
+      console.error("Error fetching members:", err);
     } finally {
       setLoading(false);
     }
@@ -93,6 +102,11 @@ export default function AdminPage() {
         <form onSubmit={handleLogin} className="w-full max-w-sm">
           <h1 className="mb-2 font-mono text-xl text-white">Panel de Administración</h1>
           <p className="mb-8 font-mono text-xs text-white/30">Ingresá la clave de admin para continuar</p>
+          {error && (
+            <div className="mb-4 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 font-mono text-xs text-red-400">
+              {error}
+            </div>
+          )}
           <input
             type="password"
             value={adminKey}
