@@ -20,7 +20,7 @@ interface Member {
 
 export default function AdminPage() {
   const [members, setMembers] = useState<Member[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [adminKey, setAdminKey] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
   const [filter, setFilter] = useState<string>("pending");
