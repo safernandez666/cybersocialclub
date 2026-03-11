@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Sora } from "next/font/google";
 import localFont from "next/font/local";
 import { Navbar } from "@/components/navbar";
 import "./globals.css";
 
-const inter = Inter({
+const sora = Sora({
   variable: "--font-sans",
   subsets: ["latin"],
 });
@@ -28,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="es" className="dark scroll-smooth">
       <body
-        className={`${inter.variable} ${ethnocentric.variable} antialiased`}
+        className={`${sora.variable} ${ethnocentric.variable} antialiased`}
       >
         <Navbar />
         {children}

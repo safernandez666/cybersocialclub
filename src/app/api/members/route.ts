@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from("members")
     .insert({
       full_name,
@@ -35,9 +35,7 @@ export async function POST(req: NextRequest) {
       role_type: role_type || null,
       linkedin_url: linkedin_url || null,
       years_experience: years_experience ? parseInt(years_experience) : null,
-    })
-    .select()
-    .single();
+    });
 
   if (error) {
     if (error.code === "23505") {
@@ -46,7 +44,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json(data, { status: 201 });
+  return NextResponse.json({ success: true, message: "Registro exitoso" }, { status: 201 });
 }
 
 export async function GET(req: NextRequest) {
