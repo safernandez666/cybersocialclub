@@ -144,14 +144,14 @@ export default function Home() {
           <div className="flex flex-col gap-3 sm:flex-row">
             <Link
               href="/register"
-              className="group inline-flex items-center gap-3 rounded-full bg-white px-8 py-4 text-sm font-medium text-[#0A0A0A] transition-all hover:bg-csc-orange hover:text-white"
+              className="group inline-flex items-center gap-3 rounded-full bg-white px-8 py-4 font-mono text-sm font-medium text-[#0A0A0A] transition-all hover:bg-csc-orange hover:text-white"
             >
               Únete al Club
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
             <Link
               href="#about"
-              className="inline-flex items-center gap-2 rounded-full px-8 py-4 text-sm text-white/50 transition-all hover:text-white"
+              className="inline-flex items-center gap-2 rounded-full px-8 py-4 font-mono text-sm text-white/50 transition-all hover:text-white"
             >
               Descubrí más
             </Link>
@@ -307,7 +307,7 @@ export default function Home() {
           </p>
           <Link
             href="/register"
-            className="group inline-flex items-center gap-3 rounded-full bg-csc-orange px-10 py-4 text-sm font-medium text-white transition-all hover:bg-csc-amber hover:shadow-xl hover:shadow-csc-orange/20"
+            className="group inline-flex items-center gap-3 rounded-full bg-csc-orange px-10 py-4 font-mono text-sm font-medium text-white transition-all hover:bg-csc-amber hover:shadow-xl hover:shadow-csc-orange/20"
           >
             Registrate Ahora
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
