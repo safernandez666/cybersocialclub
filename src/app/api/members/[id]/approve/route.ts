@@ -64,7 +64,7 @@ export async function PATCH(
   }
 
   // Reject
-  const { error: updateError } = await supabase
+  const { error: updateError } = await supabaseAdmin
     .from("members")
     .update({ status: "rejected" })
     .eq("id", id);
