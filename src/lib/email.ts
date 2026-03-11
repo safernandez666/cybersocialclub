@@ -10,17 +10,18 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const FROM_EMAIL = process.env.SMTP_FROM || "info@cybersocialclub.com.ar";
 const FROM_NAME = "Cyber Social Club";
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "info@cybersocialclub.com.ar";
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://cybersocialclub.com.ar";
+
+function getFromEmail() { return process.env.SMTP_FROM || "info@cybersocialclub.com.ar"; }
+function getAdminEmail() { return process.env.ADMIN_EMAIL || "info@cybersocialclub.com.ar"; }
+function getAppUrl() { return process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || "https://socios.cybersocialclub.com.ar"; }
 
 export async function sendVerificationEmail(to: string, fullName: string, verificationToken: string) {
   const firstName = fullName.split(" ")[0];
-  const verifyUrl = `${APP_URL}/api/verify-email?token=${verificationToken}`;
+  const verifyUrl = `${getAppUrl()}/api/verify-email?token=${verificationToken}`;
 
   await transporter.sendMail({
-    from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
+    from: `"${FROM_NAME}" <${getFromEmail()}>`,
     to,
     subject: `${firstName}, verificá tu email para Cyber Social Club`,
     html: `
@@ -63,7 +64,7 @@ export async function sendWelcomeEmail(to: string, fullName: string) {
   const firstName = fullName.split(" ")[0];
 
   await transporter.sendMail({
-    from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
+    from: `"${FROM_NAME}" <${getFromEmail()}>`,
     to,
     subject: `¡Bienvenido a Cyber Social Club, ${firstName}!`,
     html: `
@@ -114,8 +115,8 @@ export async function sendAdminNotification(member: {
   role_type: string;
 }) {
   await transporter.sendMail({
-    from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
-    to: ADMIN_EMAIL,
+    from: `"${FROM_NAME}" <${getFromEmail()}>`,
+    to: getAdminEmail(),
     subject: `🆕 Nueva solicitud de membresía: ${member.full_name}`,
     html: `
 <!DOCTYPE html>
@@ -140,7 +141,7 @@ export async function sendAdminNotification(member: {
         <tr><td style="color:rgba(255,255,255,0.3);font-size:13px;padding:8px 0;">Rol</td><td style="color:#E87B1E;font-size:14px;font-weight:600;padding:8px 0;text-align:right;">${member.role_type}</td></tr>
       </table>
       <div style="margin-top:24px;text-align:center;">
-        <a href="${APP_URL}/admin" style="display:inline-block;background-color:#E87B1E;color:#FFFFFF;text-decoration:none;padding:12px 32px;border-radius:50px;font-size:14px;font-weight:600;">Revisar en Panel de Admin</a>
+        <a href="${getAppUrl()}/admin" style="display:inline-block;background-color:#E87B1E;color:#FFFFFF;text-decoration:none;padding:12px 32px;border-radius:50px;font-size:14px;font-weight:600;">Revisar en Panel de Admin</a>
       </div>
     </div>
   </div>
@@ -151,11 +152,11 @@ export async function sendAdminNotification(member: {
 
 export async function sendApprovalEmail(to: string, fullName: string, memberNumber: string, credentialToken: string) {
   const firstName = fullName.split(" ")[0];
-  const credentialUrl = `${APP_URL}/credential?token=${credentialToken}`;
-  const pdfUrl = `${APP_URL}/api/credential/pdf?token=${credentialToken}`;
+  const credentialUrl = `${getAppUrl()}/credential?token=${credentialToken}`;
+  const pdfUrl = `${getAppUrl()}/api/credential/pdf?token=${credentialToken}`;
 
   await transporter.sendMail({
-    from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
+    from: `"${FROM_NAME}" <${getFromEmail()}>`,
     to,
     subject: `¡Membresía aprobada! Tu credencial ${memberNumber} está lista`,
     html: `

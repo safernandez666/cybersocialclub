@@ -4,7 +4,7 @@ import QRCode from "qrcode";
 import React from "react";
 import { renderToBuffer, Document, Page, View, Text, Image, StyleSheet } from "@react-pdf/renderer";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://cybersocialclub.com.ar";
+function getAppUrl() { return process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || "https://socios.cybersocialclub.com.ar"; }
 
 const styles = StyleSheet.create({
   page: {
@@ -132,7 +132,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Credencial no encontrada" }, { status: 404 });
   }
 
-  const verifyUrl = `${APP_URL}/api/verify?member=${member.member_number}`;
+  const verifyUrl = `${getAppUrl()}/api/verify?member=${member.member_number}`;
   const qrDataUrl = await QRCode.toDataURL(verifyUrl, {
     width: 300,
     margin: 1,

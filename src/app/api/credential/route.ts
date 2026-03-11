@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import QRCode from "qrcode";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://cybersocialclub.com.ar";
+function getAppUrl() { return process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || "https://socios.cybersocialclub.com.ar"; }
 
 // GET /api/credential?token=xxx — returns member data for credential page
 export async function GET(req: NextRequest) {
@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
   }
 
   // Generate QR code as data URL (points to verify endpoint)
-  const verifyUrl = `${APP_URL}/api/verify?member=${member.member_number}`;
+  const verifyUrl = `${getAppUrl()}/api/verify?member=${member.member_number}`;
   const qrDataUrl = await QRCode.toDataURL(verifyUrl, {
     width: 200,
     margin: 1,
