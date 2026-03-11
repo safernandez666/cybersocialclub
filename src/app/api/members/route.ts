@@ -7,7 +7,21 @@ export async function POST(req: NextRequest) {
   const { full_name, email, phone, company, job_title, role_type, linkedin_url, years_experience } = body;
 
   if (!full_name || !email) {
-    return NextResponse.json({ error: "full_name and email are required" }, { status: 400 });
+    return NextResponse.json({ error: "Nombre y email son obligatorios" }, { status: 400 });
+  }
+
+  // Validate corporate email — block free providers
+  const freeProviders = [
+    "gmail.com", "hotmail.com", "outlook.com", "yahoo.com", "yahoo.com.ar",
+    "live.com", "aol.com", "icloud.com", "mail.com", "protonmail.com",
+    "proton.me", "zoho.com", "yandex.com", "gmx.com", "tutanota.com",
+  ];
+  const emailDomain = email.split("@")[1]?.toLowerCase();
+  if (!emailDomain || freeProviders.includes(emailDomain)) {
+    return NextResponse.json(
+      { error: "Se requiere un email corporativo. No se aceptan emails personales (Gmail, Hotmail, etc.)" },
+      { status: 400 }
+    );
   }
 
   const { data, error } = await supabase

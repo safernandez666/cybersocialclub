@@ -114,6 +114,12 @@ export default function RegisterPage() {
       if (!form.email.trim()) errs.email = "El email es obligatorio";
       else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
         errs.email = "Email inválido";
+      else {
+        const freeProviders = ["gmail.com","hotmail.com","outlook.com","yahoo.com","live.com","aol.com","icloud.com","protonmail.com","proton.me"];
+        const domain = form.email.split("@")[1]?.toLowerCase();
+        if (domain && freeProviders.includes(domain))
+          errs.email = "Se requiere un email corporativo";
+      }
     }
     if (s === 1) {
       if (!form.company.trim()) errs.company = "La empresa es obligatoria";
