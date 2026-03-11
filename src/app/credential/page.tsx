@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -19,6 +19,14 @@ interface CredentialData {
 }
 
 export default function CredentialPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-[#0A0A0A]"><div className="font-mono text-sm text-white/30">Cargando...</div></div>}>
+      <CredentialContent />
+    </Suspense>
+  );
+}
+
+function CredentialContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const [data, setData] = useState<CredentialData | null>(null);
