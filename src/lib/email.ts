@@ -1,16 +1,24 @@
-import sgMail from "@sendgrid/mail";
+import nodemailer from "nodemailer";
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: parseInt(process.env.SMTP_PORT || "587"),
+  secure: false,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
 
-const FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL || "info@cybersocialclub.com";
+const FROM_EMAIL = process.env.SMTP_FROM || "info@cybersocialclub.com.ar";
 const FROM_NAME = "Cyber Social Club";
 
 export async function sendWelcomeEmail(to: string, fullName: string) {
   const firstName = fullName.split(" ")[0];
 
-  const msg = {
+  await transporter.sendMail({
+    from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
     to,
-    from: { email: FROM_EMAIL, name: FROM_NAME },
     subject: `¡Bienvenido a Cyber Social Club, ${firstName}!`,
     html: `
 <!DOCTYPE html>
@@ -19,7 +27,7 @@ export async function sendWelcomeEmail(to: string, fullName: string) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="margin:0;padding:0;background-color:#0C0A09;font-family:'Helvetica Neue',Arial,sans-serif;">
+<body style="margin:0;padding:0;background-color:#0A0A0A;font-family:'Helvetica Neue',Arial,sans-serif;">
   <div style="max-width:560px;margin:0 auto;padding:48px 24px;">
 
     <div style="text-align:center;margin-bottom:40px;">
@@ -55,7 +63,5 @@ export async function sendWelcomeEmail(to: string, fullName: string) {
   </div>
 </body>
 </html>`,
-  };
-
-  await sgMail.send(msg);
+  });
 }
