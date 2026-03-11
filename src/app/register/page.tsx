@@ -4,8 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -15,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CheckCircle, ArrowLeft, ArrowRight, User, Briefcase, ClipboardCheck } from "lucide-react";
+import { CheckCircle, ArrowLeft, ArrowRight } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
@@ -44,12 +43,7 @@ const initialForm: FormData = {
   acceptTerms: false,
 };
 
-const steps = [
-  { label: "Datos Personales", icon: User },
-  { label: "Info Profesional", icon: Briefcase },
-  { label: "Revisar y Enviar", icon: ClipboardCheck },
-];
-
+const steps = ["Datos Personales", "Info Profesional", "Revisar y Enviar"];
 const roleOptions = ["CISO", "Manager", "Analyst", "Partner", "Sponsor"];
 const experienceOptions = ["0-2", "3-5", "6-10", "10+"];
 
@@ -58,31 +52,31 @@ const experienceOptions = ["0-2", "3-5", "6-10", "10+"];
 /* ------------------------------------------------------------------ */
 function StepIndicator({ current }: { current: number }) {
   return (
-    <div className="mb-10 flex items-center justify-center gap-2">
-      {steps.map((step, i) => (
-        <div key={step.label} className="flex items-center gap-2">
+    <div className="mb-12 flex items-center justify-center gap-2">
+      {steps.map((label, i) => (
+        <div key={label} className="flex items-center gap-2">
           <div
-            className={`flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-bold transition-all ${
+            className={`flex h-9 w-9 items-center justify-center rounded-full border font-mono text-xs transition-all ${
               i < current
                 ? "border-csc-orange bg-csc-orange text-white"
                 : i === current
                 ? "border-csc-orange text-csc-orange"
-                : "border-white/10 text-white/25"
+                : "border-white/10 text-white/20"
             }`}
           >
-            {i < current ? <CheckCircle className="h-5 w-5" /> : i + 1}
+            {i < current ? <CheckCircle className="h-4 w-4" /> : `0${i + 1}`}
           </div>
           <span
-            className={`hidden text-sm sm:inline ${
-              i === current ? "font-medium text-white" : "text-white/40/50"
+            className={`hidden font-mono text-xs uppercase tracking-widest sm:inline ${
+              i === current ? "text-white/60" : "text-white/20"
             }`}
           >
-            {step.label}
+            {label}
           </span>
           {i < steps.length - 1 && (
             <div
-              className={`mx-2 h-px w-8 sm:w-12 ${
-                i < current ? "bg-csc-orange" : "bg-white/10"
+              className={`mx-2 h-px w-6 sm:w-10 ${
+                i < current ? "bg-csc-orange" : "bg-white/5"
               }`}
             />
           )}
@@ -106,7 +100,6 @@ export default function RegisterPage() {
   const set = (field: keyof FormData, value: string | boolean) =>
     setForm((prev) => ({ ...prev, [field]: value }));
 
-  /* Validation */
   function validateStep(s: number): boolean {
     const errs: typeof errors = {};
     if (s === 0) {
@@ -171,37 +164,41 @@ export default function RegisterPage() {
     }
   }
 
-  /* Slide transition variants */
   const variants = {
-    enter: { opacity: 0, x: 40 },
+    enter: { opacity: 0, x: 30 },
     center: { opacity: 1, x: 0 },
-    exit: { opacity: 0, x: -40 },
+    exit: { opacity: 0, x: -30 },
   };
 
+  const inputClass = "border-white/5 bg-[#0A0A0A] text-white font-mono text-sm placeholder:text-white/20";
+  const labelClass = "font-mono text-xs uppercase tracking-widest text-white/40";
+
+  /* ---- Success ---- */
   if (submitted) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0C0A09] px-4 pt-16">
+      <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A] px-4 pt-16">
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
           className="text-center"
         >
-          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-csc-orange/10">
-            <CheckCircle className="h-10 w-10 text-csc-orange" />
+          <div className="mx-auto mb-8 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/5">
+            <CheckCircle className="h-8 w-8 text-csc-orange" />
           </div>
-          <h1 className="mb-3 text-3xl font-bold text-white">
-            Bienvenido al Club!
+          <h1 className="mb-3 text-3xl font-light tracking-tight text-white">
+            Bienvenido al <span className="italic text-csc-orange">Club</span>
           </h1>
-          <p className="mb-2 text-white/40">
+          <p className="mb-2 font-mono text-sm text-white/35">
             Tu membresía está siendo revisada.
           </p>
-          <p className="mb-8 text-sm text-white/40/70">
-            Te enviaremos una confirmación a <strong className="text-csc-amber">{form.email}</strong> cuando
-            sea aprobada.
+          <p className="mb-10 font-mono text-xs text-white/25">
+            Te enviaremos una confirmación a{" "}
+            <strong className="text-csc-orange">{form.email}</strong>
           </p>
           <Link
             href="/"
-            className={buttonVariants({ className: "bg-csc-orange text-white hover:bg-csc-amber" })}
+            className="inline-flex items-center gap-2 rounded-full bg-white/5 px-6 py-3 font-mono text-xs uppercase tracking-widest text-white/60 transition-all hover:bg-csc-orange hover:text-white"
           >
             Volver al Inicio
           </Link>
@@ -210,281 +207,300 @@ export default function RegisterPage() {
     );
   }
 
+  /* ---- Form ---- */
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#0C0A09] px-4 py-24">
+    <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A] px-4 py-24">
       <div className="w-full max-w-xl">
-        {/* Logo */}
-        <div className="mb-8 flex justify-center">
+        <div className="mb-10 flex justify-center">
           <Image
             src="/logos/logo-light.png"
             alt="CSC"
-            width={160}
-            height={46}
-            className="h-10 w-auto"
+            width={140}
+            height={40}
+            className="h-8 w-auto"
           />
         </div>
 
         <StepIndicator current={step} />
 
-        <Card className="border-white/5 bg-[#141211]">
-          <CardContent className="p-6 sm:p-8">
-            <AnimatePresence mode="wait">
-              {/* STEP 0 — Personal */}
-              {step === 0 && (
-                <motion.div
-                  key="step0"
-                  variants={variants}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                  transition={{ duration: 0.3 }}
-                  className="space-y-5"
-                >
-                  <h2 className="text-xl font-semibold text-white">
+        <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 sm:p-8">
+          <AnimatePresence mode="wait">
+            {/* STEP 0 — Personal */}
+            {step === 0 && (
+              <motion.div
+                key="step0"
+                variants={variants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.3 }}
+                className="space-y-6"
+              >
+                <div className="mb-8 flex items-center gap-3">
+                  <span className="font-mono text-xs text-csc-orange/70">01</span>
+                  <div className="h-px flex-1 bg-white/5" />
+                  <span className="font-mono text-xs uppercase tracking-widest text-white/30">
                     Datos Personales
-                  </h2>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="fullName">
-                      Nombre Completo <span className="text-csc-wine">*</span>
-                    </Label>
-                    <Input
-                      id="fullName"
-                      placeholder="Juan Pérez"
-                      value={form.fullName}
-                      onChange={(e) => set("fullName", e.target.value)}
-                      className="border-white/10 bg-[#0C0A09] text-white placeholder:text-white/40/40"
-                    />
-                    {errors.fullName && (
-                      <p className="text-xs text-csc-wine">{errors.fullName}</p>
-                    )}
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="email">
-                      Email <span className="text-csc-wine">*</span>
-                    </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="john@company.com"
-                      value={form.email}
-                      onChange={(e) => set("email", e.target.value)}
-                      className="border-white/10 bg-[#0C0A09] text-white placeholder:text-white/40/40"
-                    />
-                    {errors.email && (
-                      <p className="text-xs text-csc-wine">{errors.email}</p>
-                    )}
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="phone">Teléfono (opcional)</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      placeholder="+54 11 1234 5678"
-                      value={form.phone}
-                      onChange={(e) => set("phone", e.target.value)}
-                      className="border-white/10 bg-[#0C0A09] text-white placeholder:text-white/40/40"
-                    />
-                  </div>
-                </motion.div>
-              )}
+                  </span>
+                </div>
 
-              {/* STEP 1 — Professional */}
-              {step === 1 && (
-                <motion.div
-                  key="step1"
-                  variants={variants}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                  transition={{ duration: 0.3 }}
-                  className="space-y-5"
-                >
-                  <h2 className="text-xl font-semibold text-white">
-                    Información Profesional
-                  </h2>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="company">
-                      Empresa <span className="text-csc-wine">*</span>
-                    </Label>
-                    <Input
-                      id="company"
-                      placeholder="Acme Corp"
-                      value={form.company}
-                      onChange={(e) => set("company", e.target.value)}
-                      className="border-white/10 bg-[#0C0A09] text-white placeholder:text-white/40/40"
-                    />
-                    {errors.company && (
-                      <p className="text-xs text-csc-wine">{errors.company}</p>
-                    )}
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="jobTitle">
-                      Cargo <span className="text-csc-wine">*</span>
-                    </Label>
-                    <Input
-                      id="jobTitle"
-                      placeholder="Security Engineer"
-                      value={form.jobTitle}
-                      onChange={(e) => set("jobTitle", e.target.value)}
-                      className="border-white/10 bg-[#0C0A09] text-white placeholder:text-white/40/40"
-                    />
-                    {errors.jobTitle && (
-                      <p className="text-xs text-csc-wine">{errors.jobTitle}</p>
-                    )}
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label>
-                      Tipo de Rol <span className="text-csc-wine">*</span>
-                    </Label>
-                    <Select
-                      value={form.roleType}
-                      onValueChange={(v) => set("roleType", v ?? "")}
-                    >
-                      <SelectTrigger className="border-white/10 bg-[#0C0A09] text-white">
-                        <SelectValue placeholder="Seleccioná un rol" />
-                      </SelectTrigger>
-                      <SelectContent className="border-white/10 bg-[#141211]">
-                        {roleOptions.map((r) => (
-                          <SelectItem key={r} value={r}>
-                            {r}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {errors.roleType && (
-                      <p className="text-xs text-csc-wine">{errors.roleType}</p>
-                    )}
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="linkedIn">LinkedIn URL</Label>
-                    <Input
-                      id="linkedIn"
-                      placeholder="https://linkedin.com/in/johndoe"
-                      value={form.linkedIn}
-                      onChange={(e) => set("linkedIn", e.target.value)}
-                      className="border-white/10 bg-[#0C0A09] text-white placeholder:text-white/40/40"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label>Años de Experiencia</Label>
-                    <Select
-                      value={form.yearsExp}
-                      onValueChange={(v) => set("yearsExp", v ?? "")}
-                    >
-                      <SelectTrigger className="border-white/10 bg-[#0C0A09] text-white">
-                        <SelectValue placeholder="Seleccioná un rango" />
-                      </SelectTrigger>
-                      <SelectContent className="border-white/10 bg-[#141211]">
-                        {experienceOptions.map((o) => (
-                          <SelectItem key={o} value={o}>
-                            {o} años
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </motion.div>
-              )}
-
-              {/* STEP 2 — Review */}
-              {step === 2 && (
-                <motion.div
-                  key="step2"
-                  variants={variants}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                  transition={{ duration: 0.3 }}
-                  className="space-y-5"
-                >
-                  <h2 className="text-xl font-semibold text-white">
-                    Revisá tu Información
-                  </h2>
-
-                  <div className="space-y-3 rounded-lg border border-white/5 bg-[#0C0A09] p-4 text-sm">
-                    {[
-                      ["Nombre", form.fullName],
-                      ["Email", form.email],
-                      ["Teléfono", form.phone || "N/A"],
-                      ["Empresa", form.company],
-                      ["Cargo", form.jobTitle],
-                      ["Rol", form.roleType],
-                      ["LinkedIn", form.linkedIn || "N/A"],
-                      ["Experiencia", form.yearsExp ? `${form.yearsExp} años` : "N/A"],
-                    ].map(([label, value]) => (
-                      <div key={label} className="flex justify-between">
-                        <span className="text-white/40">{label}</span>
-                        <span className="font-medium text-white">{value}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <input
-                      type="checkbox"
-                      id="terms"
-                      checked={form.acceptTerms}
-                      onChange={(e) => set("acceptTerms", e.target.checked)}
-                      className="mt-1 h-4 w-4 rounded accent-[#E87B1E]"
-                    />
-                    <label htmlFor="terms" className="text-sm text-white/40">
-                      Acepto los{" "}
-                      <span className="text-csc-orange underline cursor-pointer">
-                        Términos de Servicio
-                      </span>{" "}
-                      y la{" "}
-                      <span className="text-csc-orange underline cursor-pointer">
-                        Política de Privacidad
-                      </span>
-                    </label>
-                  </div>
-                  {errors.acceptTerms && (
-                    <p className="text-xs text-csc-wine">{errors.acceptTerms}</p>
+                <div className="space-y-1.5">
+                  <Label htmlFor="fullName" className={labelClass}>
+                    Nombre Completo <span className="text-csc-wine">*</span>
+                  </Label>
+                  <Input
+                    id="fullName"
+                    placeholder="Juan Pérez"
+                    value={form.fullName}
+                    onChange={(e) => set("fullName", e.target.value)}
+                    className={inputClass}
+                  />
+                  {errors.fullName && (
+                    <p className="font-mono text-xs text-csc-wine">{errors.fullName}</p>
                   )}
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {apiError && (
-              <p className="mt-4 text-sm text-csc-wine">{apiError}</p>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="email" className={labelClass}>
+                    Email Corporativo <span className="text-csc-wine">*</span>
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="nombre@empresa.com"
+                    value={form.email}
+                    onChange={(e) => set("email", e.target.value)}
+                    className={inputClass}
+                  />
+                  {errors.email && (
+                    <p className="font-mono text-xs text-csc-wine">{errors.email}</p>
+                  )}
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="phone" className={labelClass}>
+                    Teléfono <span className="text-white/15">(opcional)</span>
+                  </Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="+54 11 1234 5678"
+                    value={form.phone}
+                    onChange={(e) => set("phone", e.target.value)}
+                    className={inputClass}
+                  />
+                </div>
+              </motion.div>
             )}
 
-            {/* Navigation buttons */}
-            <div className="mt-8 flex justify-between">
-              {step > 0 ? (
-                <Button
-                  variant="ghost"
-                  onClick={prev}
-                  disabled={loading}
-                  className="text-white/40 hover:text-white"
-                >
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Atrás
-                </Button>
-              ) : (
-                <div />
-              )}
+            {/* STEP 1 — Professional */}
+            {step === 1 && (
+              <motion.div
+                key="step1"
+                variants={variants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.3 }}
+                className="space-y-6"
+              >
+                <div className="mb-8 flex items-center gap-3">
+                  <span className="font-mono text-xs text-csc-orange/70">02</span>
+                  <div className="h-px flex-1 bg-white/5" />
+                  <span className="font-mono text-xs uppercase tracking-widest text-white/30">
+                    Info Profesional
+                  </span>
+                </div>
 
-              {step < 2 ? (
-                <Button
-                  onClick={next}
-                  className="bg-csc-orange text-white hover:bg-csc-amber"
-                >
-                  Siguiente
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              ) : (
-                <Button
-                  onClick={submit}
-                  disabled={loading}
-                  className="bg-csc-orange text-white hover:bg-csc-amber"
-                >
-                  {loading ? "Enviando..." : "Enviar Solicitud"}
-                </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                <div className="space-y-1.5">
+                  <Label htmlFor="company" className={labelClass}>
+                    Empresa <span className="text-csc-wine">*</span>
+                  </Label>
+                  <Input
+                    id="company"
+                    placeholder="Acme Corp"
+                    value={form.company}
+                    onChange={(e) => set("company", e.target.value)}
+                    className={inputClass}
+                  />
+                  {errors.company && (
+                    <p className="font-mono text-xs text-csc-wine">{errors.company}</p>
+                  )}
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="jobTitle" className={labelClass}>
+                    Cargo <span className="text-csc-wine">*</span>
+                  </Label>
+                  <Input
+                    id="jobTitle"
+                    placeholder="Security Engineer"
+                    value={form.jobTitle}
+                    onChange={(e) => set("jobTitle", e.target.value)}
+                    className={inputClass}
+                  />
+                  {errors.jobTitle && (
+                    <p className="font-mono text-xs text-csc-wine">{errors.jobTitle}</p>
+                  )}
+                </div>
+                <div className="space-y-1.5">
+                  <Label className={labelClass}>
+                    Tipo de Rol <span className="text-csc-wine">*</span>
+                  </Label>
+                  <Select
+                    value={form.roleType}
+                    onValueChange={(v) => set("roleType", v ?? "")}
+                  >
+                    <SelectTrigger className={inputClass}>
+                      <SelectValue placeholder="Seleccioná un rol" />
+                    </SelectTrigger>
+                    <SelectContent className="border-white/5 bg-[#141211] font-mono text-sm">
+                      {roleOptions.map((r) => (
+                        <SelectItem key={r} value={r}>
+                          {r}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.roleType && (
+                    <p className="font-mono text-xs text-csc-wine">{errors.roleType}</p>
+                  )}
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="linkedIn" className={labelClass}>
+                    LinkedIn URL
+                  </Label>
+                  <Input
+                    id="linkedIn"
+                    placeholder="https://linkedin.com/in/..."
+                    value={form.linkedIn}
+                    onChange={(e) => set("linkedIn", e.target.value)}
+                    className={inputClass}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className={labelClass}>
+                    Años de Experiencia
+                  </Label>
+                  <Select
+                    value={form.yearsExp}
+                    onValueChange={(v) => set("yearsExp", v ?? "")}
+                  >
+                    <SelectTrigger className={inputClass}>
+                      <SelectValue placeholder="Seleccioná un rango" />
+                    </SelectTrigger>
+                    <SelectContent className="border-white/5 bg-[#141211] font-mono text-sm">
+                      {experienceOptions.map((o) => (
+                        <SelectItem key={o} value={o}>
+                          {o} años
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </motion.div>
+            )}
+
+            {/* STEP 2 — Review */}
+            {step === 2 && (
+              <motion.div
+                key="step2"
+                variants={variants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.3 }}
+                className="space-y-6"
+              >
+                <div className="mb-8 flex items-center gap-3">
+                  <span className="font-mono text-xs text-csc-orange/70">03</span>
+                  <div className="h-px flex-1 bg-white/5" />
+                  <span className="font-mono text-xs uppercase tracking-widest text-white/30">
+                    Revisar y Enviar
+                  </span>
+                </div>
+
+                <div className="space-y-3 rounded-xl border border-white/5 bg-[#0A0A0A] p-5">
+                  {[
+                    ["Nombre", form.fullName],
+                    ["Email", form.email],
+                    ["Teléfono", form.phone || "—"],
+                    ["Empresa", form.company],
+                    ["Cargo", form.jobTitle],
+                    ["Rol", form.roleType],
+                    ["LinkedIn", form.linkedIn || "—"],
+                    ["Experiencia", form.yearsExp ? `${form.yearsExp} años` : "—"],
+                  ].map(([label, value]) => (
+                    <div key={label} className="flex justify-between font-mono text-xs">
+                      <span className="uppercase tracking-widest text-white/25">{label}</span>
+                      <span className="text-white/70">{value}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    id="terms"
+                    checked={form.acceptTerms}
+                    onChange={(e) => set("acceptTerms", e.target.checked)}
+                    className="mt-1 h-4 w-4 rounded accent-[#E87B1E]"
+                  />
+                  <label htmlFor="terms" className="font-mono text-xs text-white/30">
+                    Acepto los{" "}
+                    <span className="text-csc-orange underline cursor-pointer">
+                      Términos de Servicio
+                    </span>{" "}
+                    y la{" "}
+                    <span className="text-csc-orange underline cursor-pointer">
+                      Política de Privacidad
+                    </span>
+                  </label>
+                </div>
+                {errors.acceptTerms && (
+                  <p className="font-mono text-xs text-csc-wine">{errors.acceptTerms}</p>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {apiError && (
+            <p className="mt-4 font-mono text-xs text-csc-wine">{apiError}</p>
+          )}
+
+          {/* Navigation */}
+          <div className="mt-10 flex justify-between">
+            {step > 0 ? (
+              <Button
+                variant="ghost"
+                onClick={prev}
+                disabled={loading}
+                className="font-mono text-xs uppercase tracking-widest text-white/30 hover:text-white"
+              >
+                <ArrowLeft className="mr-2 h-3.5 w-3.5" />
+                Atrás
+              </Button>
+            ) : (
+              <div />
+            )}
+
+            {step < 2 ? (
+              <button
+                onClick={next}
+                className="group inline-flex items-center gap-2 rounded-full bg-white/5 px-6 py-3 font-mono text-xs uppercase tracking-widest text-white/60 transition-all hover:bg-csc-orange hover:text-white"
+              >
+                Siguiente
+                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+              </button>
+            ) : (
+              <button
+                onClick={submit}
+                disabled={loading}
+                className="group inline-flex items-center gap-2 rounded-full bg-csc-orange px-6 py-3 font-mono text-xs uppercase tracking-widest text-white transition-all hover:bg-csc-amber hover:shadow-lg hover:shadow-csc-orange/20 disabled:opacity-50"
+              >
+                {loading ? "Enviando..." : "Enviar Solicitud"}
+                {!loading && <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />}
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
