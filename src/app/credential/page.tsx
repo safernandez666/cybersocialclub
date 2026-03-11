@@ -3,8 +3,9 @@
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { Download, ShieldCheck, Building2, Briefcase, UserCircle, Calendar } from "lucide-react";
+
+export const dynamic = "force-dynamic";
 
 interface CredentialData {
   member_number: string;
