@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { sendWelcomeEmail, sendAdminNotification } from "@/lib/email";
+import { randomBytes } from "crypto";
+import { sendVerificationEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -25,6 +26,8 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const verificationToken = randomBytes(32).toString("hex");
+
   const { error } = await supabase
     .from("members")
     .insert({
@@ -36,6 +39,8 @@ export async function POST(req: NextRequest) {
       role_type: role_type || null,
       linkedin_url: linkedin_url || null,
       years_experience: years_experience ? parseInt(years_experience) : null,
+      status: "pending_verification",
+      verification_token: verificationToken,
     });
 
   if (error) {
@@ -45,15 +50,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // Send emails (non-blocking — don't fail registration if email fails)
+  // Send verification email
   try {
-    await sendWelcomeEmail(email, full_name);
-    await sendAdminNotification({ full_name, email, company: company || "N/A", job_title: job_title || "N/A", role_type: role_type || "N/A" });
+    await sendVerificationEmail(email, full_name, verificationToken);
   } catch (emailError) {
-    console.error("Failed to send email:", emailError);
+    console.error("Failed to send verification email:", emailError);
   }
 
-  return NextResponse.json({ success: true, message: "Registro exitoso" }, { status: 201 });
+  return NextResponse.json({ success: true, message: "Te enviamos un email para verificar tu correo" }, { status: 201 });
 }
 
 export async function GET(req: NextRequest) {

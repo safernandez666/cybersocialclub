@@ -187,14 +187,16 @@ export default function RegisterPage() {
             <CheckCircle className="h-8 w-8 text-csc-orange" />
           </div>
           <h1 className="mb-3 text-3xl font-light tracking-tight text-white">
-            Bienvenido al <span className="italic text-csc-orange">Club</span>
+            Verificá tu <span className="italic text-csc-orange">email</span>
           </h1>
           <p className="mb-2 font-mono text-sm text-white/35">
-            Tu membresía está siendo revisada.
+            Te enviamos un email de verificación a:
+          </p>
+          <p className="mb-2 font-mono text-sm font-medium text-csc-orange">
+            {form.email}
           </p>
           <p className="mb-10 font-mono text-xs text-white/25">
-            Te enviaremos una confirmación a{" "}
-            <strong className="text-csc-orange">{form.email}</strong>
+            Revisá tu bandeja de entrada y hacé click en el link para continuar con tu solicitud.
           </p>
           <Link
             href="/"

@@ -1,0 +1,53 @@
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+import { sendAdminNotification } from "@/lib/email";
+
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+export async function GET(req: NextRequest) {
+  const token = req.nextUrl.searchParams.get("token");
+
+  if (!token) {
+    return NextResponse.redirect(new URL("/verify-email?status=error", req.url));
+  }
+
+  // Find member with this verification token
+  const { data: member, error: fetchError } = await supabaseAdmin
+    .from("members")
+    .select("*")
+    .eq("verification_token", token)
+    .eq("status", "pending_verification")
+    .single();
+
+  if (fetchError || !member) {
+    return NextResponse.redirect(new URL("/verify-email?status=invalid", req.url));
+  }
+
+  // Update status to pending (verified, awaiting admin approval)
+  const { error: updateError } = await supabaseAdmin
+    .from("members")
+    .update({ status: "pending", verification_token: null })
+    .eq("id", member.id);
+
+  if (updateError) {
+    return NextResponse.redirect(new URL("/verify-email?status=error", req.url));
+  }
+
+  // Now notify admin that a verified member is waiting approval
+  try {
+    await sendAdminNotification({
+      full_name: member.full_name,
+      email: member.email,
+      company: member.company || "N/A",
+      job_title: member.job_title || "N/A",
+      role_type: member.role_type || "N/A",
+    });
+  } catch (emailError) {
+    console.error("Failed to send admin notification:", emailError);
+  }
+
+  return NextResponse.redirect(new URL("/verify-email?status=success", req.url));
+}
