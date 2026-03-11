@@ -134,7 +134,7 @@ export default function Home() {
             { value: 100, suffix: "%", label: "Cyber" },
           ].map((stat, i) => (
             <FadeIn key={stat.label} delay={i * 0.1} className="text-center">
-              <div className="text-3xl font-extrabold text-csc-orange sm:text-4xl">
+              <div className="font-ethno text-3xl font-extrabold text-csc-orange sm:text-4xl">
                 <Counter target={stat.value} suffix={stat.suffix} />
               </div>
               <div className="mt-1 text-sm text-[#A68B6B]">{stat.label}</div>
@@ -147,7 +147,7 @@ export default function Home() {
       <section className="py-24 px-4">
         <div className="mx-auto max-w-6xl">
           <FadeIn className="mb-16 text-center">
-            <h2 className="text-3xl font-bold text-[#F5E6D3] sm:text-4xl">
+            <h2 className="font-ethno text-3xl font-bold text-[#F5E6D3] sm:text-4xl">
               Qué Obtenés
             </h2>
             <p className="mt-3 text-[#A68B6B]">
@@ -179,7 +179,7 @@ export default function Home() {
                     <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-csc-orange/10 text-csc-orange transition-colors group-hover:bg-csc-orange group-hover:text-white">
                       <feature.icon className="h-6 w-6" />
                     </div>
-                    <h3 className="mb-2 text-xl font-semibold text-[#F5E6D3]">
+                    <h3 className="font-ethno mb-2 text-xl font-semibold text-[#F5E6D3]">
                       {feature.title}
                     </h3>
                     <p className="text-sm leading-relaxed text-[#A68B6B]">
@@ -198,7 +198,7 @@ export default function Home() {
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-csc-orange/5 to-transparent" />
         <FadeIn className="relative z-10 mx-auto max-w-2xl text-center">
           <Shield className="mx-auto mb-6 h-12 w-12 text-csc-orange" />
-          <h2 className="mb-4 text-3xl font-bold text-[#F5E6D3] sm:text-4xl">
+          <h2 className="font-ethno mb-4 text-3xl font-bold text-[#F5E6D3] sm:text-4xl">
             ¿Listo para Conectar?
           </h2>
           <p className="mb-8 text-[#A68B6B]">

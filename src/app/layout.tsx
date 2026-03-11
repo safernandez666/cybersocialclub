@@ -14,6 +14,12 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const ethnocentric = localFont({
+  src: "../fonts/ethnocentric-rg.ttf",
+  variable: "--font-ethno",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Cyber Social Club",
   description: "Where Cyber Minds Connect",
@@ -27,7 +33,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${montserrat.variable} ${geistMono.variable} antialiased`}
+        className={`${montserrat.variable} ${geistMono.variable} ${ethnocentric.variable} antialiased`}
       >
         <Navbar />
         {children}
