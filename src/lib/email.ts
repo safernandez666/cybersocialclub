@@ -2,7 +2,7 @@ import sgMail from "@sendgrid/mail";
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
 
-const FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL || "noreply@cybersocialclub.com";
+const FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL || "info@cybersocialclub.com";
 const FROM_NAME = "Cyber Social Club";
 
 export async function sendWelcomeEmail(to: string, fullName: string) {
