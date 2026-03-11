@@ -136,9 +136,7 @@ export default function Home() {
           </h1>
 
           <p className="mb-12 max-w-md font-mono text-sm leading-relaxed text-white/35">
-            La comunidad de ciberseguridad más grande
-            <br />
-            de habla hispana
+            La comunidad que más crece en Latinoamérica
           </p>
 
           <div className="flex flex-col gap-3 sm:flex-row">
@@ -186,7 +184,7 @@ export default function Home() {
             </Reveal>
 
             <Reveal delay={0.2}>
-              <p className="text-base leading-relaxed text-white/40 lg:pt-4">
+              <p className="font-mono text-sm leading-relaxed text-white/40 lg:pt-4">
                 Cyber Social Club nació para crear un espacio donde CISOs, analistas,
                 managers y partners puedan compartir experiencias, aprender y crecer juntos.
                 Con eventos exclusivos, una credencial digital verificable y una red de
@@ -259,7 +257,7 @@ export default function Home() {
                     <h3 className="mb-2 text-xl font-medium text-white transition-colors group-hover:text-csc-orange">
                       {feature.title}
                     </h3>
-                    <p className="max-w-lg text-sm leading-relaxed text-white/35">
+                    <p className="max-w-lg font-mono text-sm leading-relaxed text-white/35">
                       {feature.desc}
                     </p>
                   </div>
