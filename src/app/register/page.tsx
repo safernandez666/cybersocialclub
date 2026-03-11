@@ -15,7 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import { CheckCircle, ArrowLeft, ArrowRight, User, Briefcase, ClipboardCheck } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
@@ -68,14 +67,14 @@ function StepIndicator({ current }: { current: number }) {
                 ? "border-csc-orange bg-csc-orange text-white"
                 : i === current
                 ? "border-csc-orange text-csc-orange"
-                : "border-[#A68B6B]/30 text-[#A68B6B]/50"
+                : "border-white/10 text-white/25"
             }`}
           >
             {i < current ? <CheckCircle className="h-5 w-5" /> : i + 1}
           </div>
           <span
             className={`hidden text-sm sm:inline ${
-              i === current ? "font-medium text-[#F5E6D3]" : "text-[#A68B6B]/50"
+              i === current ? "font-medium text-white" : "text-white/40/50"
             }`}
           >
             {step.label}
@@ -83,7 +82,7 @@ function StepIndicator({ current }: { current: number }) {
           {i < steps.length - 1 && (
             <div
               className={`mx-2 h-px w-8 sm:w-12 ${
-                i < current ? "bg-csc-orange" : "bg-[#A68B6B]/20"
+                i < current ? "bg-csc-orange" : "bg-white/10"
               }`}
             />
           )}
@@ -175,7 +174,7 @@ export default function RegisterPage() {
 
   if (submitted) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#1A0F08] px-4 pt-16">
+      <div className="flex min-h-screen items-center justify-center bg-[#0C0A09] px-4 pt-16">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -184,19 +183,19 @@ export default function RegisterPage() {
           <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-csc-orange/10">
             <CheckCircle className="h-10 w-10 text-csc-orange" />
           </div>
-          <h1 className="font-ethno mb-3 text-3xl font-bold text-[#F5E6D3]">
+          <h1 className="mb-3 text-3xl font-bold text-white">
             Bienvenido al Club!
           </h1>
-          <p className="mb-2 text-[#A68B6B]">
+          <p className="mb-2 text-white/40">
             Tu membresía está siendo revisada.
           </p>
-          <p className="mb-8 text-sm text-[#A68B6B]/70">
+          <p className="mb-8 text-sm text-white/40/70">
             Te enviaremos una confirmación a <strong className="text-csc-amber">{form.email}</strong> cuando
             sea aprobada.
           </p>
           <Link
             href="/"
-            className={buttonVariants({ className: "font-ethno bg-csc-orange text-white hover:bg-csc-amber" })}
+            className={buttonVariants({ className: "bg-csc-orange text-white hover:bg-csc-amber" })}
           >
             Volver al Inicio
           </Link>
@@ -206,7 +205,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#1A0F08] px-4 py-24">
+    <div className="flex min-h-screen items-center justify-center bg-[#0C0A09] px-4 py-24">
       <div className="w-full max-w-xl">
         {/* Logo */}
         <div className="mb-8 flex justify-center">
@@ -221,7 +220,7 @@ export default function RegisterPage() {
 
         <StepIndicator current={step} />
 
-        <Card className="border-csc-orange/10 bg-[#241609]">
+        <Card className="border-white/5 bg-[#141211]">
           <CardContent className="p-6 sm:p-8">
             <AnimatePresence mode="wait">
               {/* STEP 0 — Personal */}
@@ -235,7 +234,7 @@ export default function RegisterPage() {
                   transition={{ duration: 0.3 }}
                   className="space-y-5"
                 >
-                  <h2 className="font-ethno text-xl font-semibold text-[#F5E6D3]">
+                  <h2 className="text-xl font-semibold text-white">
                     Datos Personales
                   </h2>
                   <div className="space-y-1.5">
@@ -247,7 +246,7 @@ export default function RegisterPage() {
                       placeholder="Juan Pérez"
                       value={form.fullName}
                       onChange={(e) => set("fullName", e.target.value)}
-                      className="border-csc-orange/20 bg-[#1A0F08] text-[#F5E6D3] placeholder:text-[#A68B6B]/40"
+                      className="border-white/10 bg-[#0C0A09] text-white placeholder:text-white/40/40"
                     />
                     {errors.fullName && (
                       <p className="text-xs text-csc-wine">{errors.fullName}</p>
@@ -263,7 +262,7 @@ export default function RegisterPage() {
                       placeholder="john@company.com"
                       value={form.email}
                       onChange={(e) => set("email", e.target.value)}
-                      className="border-csc-orange/20 bg-[#1A0F08] text-[#F5E6D3] placeholder:text-[#A68B6B]/40"
+                      className="border-white/10 bg-[#0C0A09] text-white placeholder:text-white/40/40"
                     />
                     {errors.email && (
                       <p className="text-xs text-csc-wine">{errors.email}</p>
@@ -277,7 +276,7 @@ export default function RegisterPage() {
                       placeholder="+54 11 1234 5678"
                       value={form.phone}
                       onChange={(e) => set("phone", e.target.value)}
-                      className="border-csc-orange/20 bg-[#1A0F08] text-[#F5E6D3] placeholder:text-[#A68B6B]/40"
+                      className="border-white/10 bg-[#0C0A09] text-white placeholder:text-white/40/40"
                     />
                   </div>
                 </motion.div>
@@ -294,7 +293,7 @@ export default function RegisterPage() {
                   transition={{ duration: 0.3 }}
                   className="space-y-5"
                 >
-                  <h2 className="font-ethno text-xl font-semibold text-[#F5E6D3]">
+                  <h2 className="text-xl font-semibold text-white">
                     Información Profesional
                   </h2>
                   <div className="space-y-1.5">
@@ -306,7 +305,7 @@ export default function RegisterPage() {
                       placeholder="Acme Corp"
                       value={form.company}
                       onChange={(e) => set("company", e.target.value)}
-                      className="border-csc-orange/20 bg-[#1A0F08] text-[#F5E6D3] placeholder:text-[#A68B6B]/40"
+                      className="border-white/10 bg-[#0C0A09] text-white placeholder:text-white/40/40"
                     />
                     {errors.company && (
                       <p className="text-xs text-csc-wine">{errors.company}</p>
@@ -321,7 +320,7 @@ export default function RegisterPage() {
                       placeholder="Security Engineer"
                       value={form.jobTitle}
                       onChange={(e) => set("jobTitle", e.target.value)}
-                      className="border-csc-orange/20 bg-[#1A0F08] text-[#F5E6D3] placeholder:text-[#A68B6B]/40"
+                      className="border-white/10 bg-[#0C0A09] text-white placeholder:text-white/40/40"
                     />
                     {errors.jobTitle && (
                       <p className="text-xs text-csc-wine">{errors.jobTitle}</p>
@@ -335,10 +334,10 @@ export default function RegisterPage() {
                       value={form.roleType}
                       onValueChange={(v) => set("roleType", v ?? "")}
                     >
-                      <SelectTrigger className="border-csc-orange/20 bg-[#1A0F08] text-[#F5E6D3]">
+                      <SelectTrigger className="border-white/10 bg-[#0C0A09] text-white">
                         <SelectValue placeholder="Seleccioná un rol" />
                       </SelectTrigger>
-                      <SelectContent className="border-csc-orange/20 bg-[#241609]">
+                      <SelectContent className="border-white/10 bg-[#141211]">
                         {roleOptions.map((r) => (
                           <SelectItem key={r} value={r}>
                             {r}
@@ -357,7 +356,7 @@ export default function RegisterPage() {
                       placeholder="https://linkedin.com/in/johndoe"
                       value={form.linkedIn}
                       onChange={(e) => set("linkedIn", e.target.value)}
-                      className="border-csc-orange/20 bg-[#1A0F08] text-[#F5E6D3] placeholder:text-[#A68B6B]/40"
+                      className="border-white/10 bg-[#0C0A09] text-white placeholder:text-white/40/40"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -366,10 +365,10 @@ export default function RegisterPage() {
                       value={form.yearsExp}
                       onValueChange={(v) => set("yearsExp", v ?? "")}
                     >
-                      <SelectTrigger className="border-csc-orange/20 bg-[#1A0F08] text-[#F5E6D3]">
+                      <SelectTrigger className="border-white/10 bg-[#0C0A09] text-white">
                         <SelectValue placeholder="Seleccioná un rango" />
                       </SelectTrigger>
-                      <SelectContent className="border-csc-orange/20 bg-[#241609]">
+                      <SelectContent className="border-white/10 bg-[#141211]">
                         {experienceOptions.map((o) => (
                           <SelectItem key={o} value={o}>
                             {o} años
@@ -392,11 +391,11 @@ export default function RegisterPage() {
                   transition={{ duration: 0.3 }}
                   className="space-y-5"
                 >
-                  <h2 className="font-ethno text-xl font-semibold text-[#F5E6D3]">
+                  <h2 className="text-xl font-semibold text-white">
                     Revisá tu Información
                   </h2>
 
-                  <div className="space-y-3 rounded-lg border border-csc-orange/10 bg-[#1A0F08] p-4 text-sm">
+                  <div className="space-y-3 rounded-lg border border-white/5 bg-[#0C0A09] p-4 text-sm">
                     {[
                       ["Nombre", form.fullName],
                       ["Email", form.email],
@@ -408,8 +407,8 @@ export default function RegisterPage() {
                       ["Experiencia", form.yearsExp ? `${form.yearsExp} años` : "N/A"],
                     ].map(([label, value]) => (
                       <div key={label} className="flex justify-between">
-                        <span className="text-[#A68B6B]">{label}</span>
-                        <span className="font-medium text-[#F5E6D3]">{value}</span>
+                        <span className="text-white/40">{label}</span>
+                        <span className="font-medium text-white">{value}</span>
                       </div>
                     ))}
                   </div>
@@ -422,7 +421,7 @@ export default function RegisterPage() {
                       onChange={(e) => set("acceptTerms", e.target.checked)}
                       className="mt-1 h-4 w-4 rounded accent-[#E87B1E]"
                     />
-                    <label htmlFor="terms" className="text-sm text-[#A68B6B]">
+                    <label htmlFor="terms" className="text-sm text-white/40">
                       Acepto los{" "}
                       <span className="text-csc-orange underline cursor-pointer">
                         Términos de Servicio
@@ -451,7 +450,7 @@ export default function RegisterPage() {
                   variant="ghost"
                   onClick={prev}
                   disabled={loading}
-                  className="text-[#A68B6B] hover:text-[#F5E6D3]"
+                  className="text-white/40 hover:text-white"
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Atrás
@@ -463,7 +462,7 @@ export default function RegisterPage() {
               {step < 2 ? (
                 <Button
                   onClick={next}
-                  className="font-ethno bg-csc-orange text-white hover:bg-csc-amber"
+                  className="bg-csc-orange text-white hover:bg-csc-amber"
                 >
                   Siguiente
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -472,7 +471,7 @@ export default function RegisterPage() {
                 <Button
                   onClick={submit}
                   disabled={loading}
-                  className="font-ethno bg-csc-orange text-white hover:bg-csc-amber"
+                  className="bg-csc-orange text-white hover:bg-csc-amber"
                 >
                   {loading ? "Enviando..." : "Enviar Solicitud"}
                 </Button>

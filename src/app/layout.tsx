@@ -1,16 +1,11 @@
 import type { Metadata } from "next";
-import { Montserrat, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import localFont from "next/font/local";
 import { Navbar } from "@/components/navbar";
 import "./globals.css";
 
-const montserrat = Montserrat({
+const inter = Inter({
   variable: "--font-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
   subsets: ["latin"],
 });
 
@@ -31,9 +26,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="es" className="dark scroll-smooth">
       <body
-        className={`${montserrat.variable} ${geistMono.variable} ${ethnocentric.variable} antialiased`}
+        className={`${inter.variable} ${ethnocentric.variable} antialiased`}
       >
         <Navbar />
         {children}
