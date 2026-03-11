@@ -1,12 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { randomBytes } from "crypto";
 import { sendApprovalEmail } from "@/lib/email";
-
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 export async function PATCH(
   req: NextRequest,
@@ -26,7 +21,7 @@ export async function PATCH(
   }
 
   // Get member data first
-  const { data: member, error: fetchError } = await supabaseAdmin
+  const { data: member, error: fetchError } = await getSupabaseAdmin()
     .from("members")
     .select("*")
     .eq("id", id)
@@ -38,7 +33,7 @@ export async function PATCH(
 
   if (action === "approve") {
     // Generate member number: CSC-XXXX
-    const { count } = await supabaseAdmin
+    const { count } = await getSupabaseAdmin()
       .from("members")
       .select("*", { count: "exact", head: true })
       .eq("status", "approved");
@@ -46,7 +41,7 @@ export async function PATCH(
     const memberNumber = `CSC-${String((count || 0) + 1).padStart(4, "0")}`;
     const credentialToken = randomBytes(32).toString("hex");
 
-    const { error: updateError } = await supabaseAdmin
+    const { error: updateError } = await getSupabaseAdmin()
       .from("members")
       .update({ status: "approved", member_number: memberNumber, credential_token: credentialToken })
       .eq("id", id);
@@ -66,7 +61,7 @@ export async function PATCH(
   }
 
   // Reject
-  const { error: updateError } = await supabaseAdmin
+  const { error: updateError } = await getSupabaseAdmin()
     .from("members")
     .update({ status: "rejected" })
     .eq("id", id);

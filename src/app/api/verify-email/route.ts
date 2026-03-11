@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { sendAdminNotification } from "@/lib/email";
-
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 export async function GET(req: NextRequest) {
   const token = req.nextUrl.searchParams.get("token");
@@ -15,7 +10,7 @@ export async function GET(req: NextRequest) {
   }
 
   // Find member with this verification token
-  const { data: member, error: fetchError } = await supabaseAdmin
+  const { data: member, error: fetchError } = await getSupabaseAdmin()
     .from("members")
     .select("*")
     .eq("verification_token", token)
@@ -27,7 +22,7 @@ export async function GET(req: NextRequest) {
   }
 
   // Update status to pending (verified, awaiting admin approval)
-  const { error: updateError } = await supabaseAdmin
+  const { error: updateError } = await getSupabaseAdmin()
     .from("members")
     .update({ status: "pending", verification_token: null })
     .eq("id", member.id);

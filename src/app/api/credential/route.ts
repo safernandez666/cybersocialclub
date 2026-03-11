@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import QRCode from "qrcode";
-
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://cybersocialclub.com.ar";
 
@@ -17,7 +12,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Token requerido" }, { status: 400 });
   }
 
-  const { data: member, error } = await supabaseAdmin
+  const { data: member, error } = await getSupabaseAdmin()
     .from("members")
     .select("member_number, full_name, company, job_title, role_type, status, created_at")
     .eq("credential_token", token)
