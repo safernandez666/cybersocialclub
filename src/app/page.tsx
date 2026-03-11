@@ -212,10 +212,94 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ---- BOARD ---- */}
+      <section id="board" className="px-4 py-32 sm:px-8">
+        <div className="mx-auto max-w-5xl">
+          <SectionLabel number="02" text="Junta Directiva" />
+
+          <Reveal>
+            <h2 className="mb-16 max-w-2xl text-3xl font-light leading-snug tracking-tight text-white sm:text-4xl">
+              Conocé a los <span className="italic text-csc-orange">líderes</span> que impulsan nuestra comunidad
+            </h2>
+          </Reveal>
+
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              {
+                name: "Santiago Fernández",
+                position: "CISO — Klar",
+                linkedin: "https://www.linkedin.com/in/safernandez666/",
+                initials: "SF",
+              },
+              {
+                name: "Rodi Contino",
+                position: "Founder — ArquiaIT",
+                linkedin: "https://www.linkedin.com/in/rodicontino/",
+                initials: "RC",
+              },
+              {
+                name: "Claudio Lombardo",
+                position: "CISO — Telefónica",
+                linkedin: "https://www.linkedin.com/in/claudio-lombardo-9b831010/",
+                initials: "CL",
+              },
+              {
+                name: "Roberto Rubiano",
+                position: "CISO — Iuogi",
+                linkedin: "https://www.linkedin.com/in/robertorubiano/",
+                initials: "RR",
+              },
+              {
+                name: "Sebastián López Galanes",
+                position: "CISO — Tecpetrol",
+                linkedin: "https://www.linkedin.com/in/slopezgalanes/",
+                initials: "SL",
+              },
+              {
+                name: "Pablo López Gutiérrez",
+                position: "CISO — Santander",
+                linkedin: "https://www.linkedin.com/in/pablolopezgutierrez/",
+                initials: "PL",
+              },
+              {
+                name: "Gabriel Carrera",
+                position: "CISO — OSDE",
+                linkedin: "https://www.linkedin.com/in/gabrielcarrera/",
+                initials: "GC",
+              },
+            ].map((member, i) => (
+              <Reveal key={member.name} delay={i * 0.1}>
+                <div className="group rounded-2xl border border-white/[0.06] bg-[#141211] p-6 transition-all hover:border-csc-orange/30">
+                  <div className="mb-4 flex items-center gap-4">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-csc-orange to-csc-amber font-mono text-lg font-semibold text-white">
+                      {member.initials}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="truncate font-medium text-white">{member.name}</h3>
+                      <p className="truncate font-mono text-xs text-white/40">{member.position}</p>
+                    </div>
+                  </div>
+                  <a
+                    href={member.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 font-mono text-xs text-white/30 transition-colors hover:text-csc-orange"
+                  >
+                    <Linkedin className="h-4 w-4" />
+                    LinkedIn
+                    <ArrowUpRight className="h-3 w-3" />
+                  </a>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ---- BENEFICIOS ---- */}
       <section id="beneficios" className="px-4 py-32 sm:px-8">
         <div className="mx-auto max-w-5xl">
-          <SectionLabel number="02" text="Beneficios" />
+          <SectionLabel number="03" text="Beneficios" />
 
           <Reveal>
             <h2 className="mb-20 max-w-2xl text-3xl font-light leading-snug tracking-tight text-white sm:text-4xl">

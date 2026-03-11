@@ -72,8 +72,8 @@ export default function AdminPage() {
     try {
       const res = await fetch(`/api/members/${memberId}/approve`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action, adminKey }),
+        headers: { "Content-Type": "application/json", "x-admin-key": adminKey },
+        body: JSON.stringify({ action }),
       });
       if (res.ok) {
         // Remove from list

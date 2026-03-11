@@ -217,9 +217,10 @@ export default function RegisterPage() {
           <Image
             src="/logos/logo-light.png"
             alt="CSC"
-            width={140}
-            height={40}
-            className="h-8 w-auto"
+            width={700}
+            height={200}
+            className="h-32 w-auto sm:h-40 lg:h-44"
+            priority
           />
         </div>
 

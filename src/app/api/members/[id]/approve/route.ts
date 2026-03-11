@@ -9,9 +9,10 @@ export async function PATCH(
 ) {
   const { id } = await params;
   const body = await req.json();
-  const { action, adminKey } = body;
+  const { action } = body;
 
-  // Auth check
+  // Auth check — prefer header, fall back to body for backward compatibility
+  const adminKey = req.headers.get("x-admin-key") || body.adminKey;
   if (adminKey !== process.env.ADMIN_SECRET_KEY) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
@@ -41,9 +42,18 @@ export async function PATCH(
     const memberNumber = `CSC-${String((count || 0) + 1).padStart(4, "0")}`;
     const credentialToken = randomBytes(32).toString("hex");
 
+    // Token expires in 90 days
+    // NOTE: Requires `credential_token_expires_at` column (timestamptz) in Supabase `members` table
+    const expiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString();
+
     const { error: updateError } = await getSupabaseAdmin()
       .from("members")
-      .update({ status: "approved", member_number: memberNumber, credential_token: credentialToken })
+      .update({
+        status: "approved",
+        member_number: memberNumber,
+        credential_token: credentialToken,
+        credential_token_expires_at: expiresAt,
+      })
       .eq("id", id);
 
     if (updateError) {

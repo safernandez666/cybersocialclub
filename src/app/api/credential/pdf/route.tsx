@@ -123,13 +123,21 @@ export async function GET(req: NextRequest) {
 
   const { data: member, error } = await getSupabaseAdmin()
     .from("members")
-    .select("member_number, full_name, company, job_title, role_type, status, created_at")
+    .select("member_number, full_name, company, job_title, role_type, status, created_at, credential_token_expires_at")
     .eq("credential_token", token)
     .eq("status", "approved")
     .single();
 
   if (error || !member) {
     return NextResponse.json({ error: "Credencial no encontrada" }, { status: 404 });
+  }
+
+  // Check token expiration
+  if (member.credential_token_expires_at && new Date(member.credential_token_expires_at) < new Date()) {
+    return NextResponse.json(
+      { error: "Credential link expired. Contact admin." },
+      { status: 410 }
+    );
   }
 
   const verifyUrl = `${getAppUrl()}/api/verify?member=${member.member_number}`;

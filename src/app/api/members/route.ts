@@ -12,6 +12,24 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Nombre y email son obligatorios" }, { status: 400 });
   }
 
+  // Input length validation
+  const lengthLimits: { field: string; value: string | undefined; max: number }[] = [
+    { field: "full_name", value: full_name, max: 100 },
+    { field: "email", value: email, max: 255 },
+    { field: "phone", value: phone, max: 50 },
+    { field: "company", value: company, max: 100 },
+    { field: "job_title", value: job_title, max: 100 },
+    { field: "linkedin_url", value: linkedin_url, max: 500 },
+  ];
+  for (const { field, value, max } of lengthLimits) {
+    if (value && value.length > max) {
+      return NextResponse.json(
+        { error: `${field} excede el máximo de ${max} caracteres` },
+        { status: 400 }
+      );
+    }
+  }
+
   // Validate corporate email — block free providers
   const freeProviders = [
     "gmail.com", "hotmail.com", "outlook.com", "yahoo.com", "yahoo.com.ar",
