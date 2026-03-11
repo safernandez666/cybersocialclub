@@ -11,9 +11,8 @@ import {
   QrCode,
   CalendarDays,
   Network,
-  Twitter,
   Linkedin,
-  Github,
+  Instagram,
 } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
@@ -99,13 +98,13 @@ export default function Home() {
           <div className="flex flex-col gap-4 sm:flex-row">
             <Link
               href="/register"
-              className={buttonVariants({ size: "lg", className: "bg-csc-orange px-10 py-6 text-lg font-bold text-white hover:bg-csc-amber shadow-lg shadow-csc-orange/20" })}
+              className={buttonVariants({ size: "lg", className: "font-ethno bg-csc-orange px-10 py-6 text-lg font-bold text-white hover:bg-csc-amber shadow-lg shadow-csc-orange/20" })}
             >
               Únete al Club
             </Link>
             <Link
               href="#members"
-              className={buttonVariants({ variant: "outline", size: "lg", className: "border-csc-orange/30 px-10 py-6 text-lg font-bold text-csc-orange hover:bg-csc-orange/10" })}
+              className={buttonVariants({ variant: "outline", size: "lg", className: "font-ethno border-csc-orange/30 px-10 py-6 text-lg font-bold text-csc-orange hover:bg-csc-orange/10" })}
             >
               Conocé a los Miembros
             </Link>
@@ -206,7 +205,7 @@ export default function Home() {
           </p>
           <Link
             href="/register"
-            className={buttonVariants({ size: "lg", className: "bg-csc-orange px-10 text-base font-semibold text-white hover:bg-csc-amber" })}
+            className={buttonVariants({ size: "lg", className: "font-ethno bg-csc-orange px-10 text-base font-semibold text-white hover:bg-csc-amber" })}
           >
             Registrate Ahora
           </Link>
@@ -223,18 +222,20 @@ export default function Home() {
             height={34}
             className="h-8 w-auto opacity-70"
           />
-          <div className="flex gap-4">
+          <div className="flex items-center gap-6">
             {[
-              { icon: Twitter, href: "#", name: "twitter" },
-              { icon: Linkedin, href: "#", name: "linkedin" },
-              { icon: Github, href: "#", name: "github" },
+              { icon: Linkedin, href: "https://www.linkedin.com/company/cyber-social-club-ar/", name: "LinkedIn" },
+              { icon: Instagram, href: "https://www.instagram.com/cybersocialclub/", name: "Instagram" },
             ].map(({ icon: Icon, href, name }) => (
               <a
                 key={name}
                 href={href}
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-csc-orange/10 text-[#A68B6B] transition-colors hover:border-csc-orange/40 hover:text-csc-orange"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 rounded-full border border-csc-orange/10 px-4 py-2 text-[#A68B6B] transition-colors hover:border-csc-orange/40 hover:text-csc-orange"
               >
                 <Icon className="h-4 w-4" />
+                <span className="text-xs font-medium">{name}</span>
               </a>
             ))}
           </div>

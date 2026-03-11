@@ -13,10 +13,10 @@ import {
 } from "@/components/ui/sheet";
 
 const navLinks = [
-  { href: "/", label: "Home" },
-  { href: "#members", label: "Members" },
-  { href: "#events", label: "Events" },
-  { href: "#about", label: "About" },
+  { href: "/", label: "Inicio" },
+  { href: "#members", label: "Miembros" },
+  { href: "#events", label: "Eventos" },
+  { href: "#about", label: "Nosotros" },
 ];
 
 export function Navbar() {
@@ -42,16 +42,16 @@ export function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm font-medium text-[#F5E6D3]/70 transition-colors hover:text-csc-orange"
+              className="font-ethno text-sm font-medium text-[#F5E6D3]/70 transition-colors hover:text-csc-orange"
             >
               {link.label}
             </Link>
           ))}
           <Link
             href="/register"
-            className={buttonVariants({ className: "bg-csc-orange text-white hover:bg-csc-amber" })}
+            className={buttonVariants({ className: "font-ethno bg-csc-orange text-white hover:bg-csc-amber" })}
           >
-            Join
+            Únete
           </Link>
         </nav>
 
@@ -63,14 +63,14 @@ export function Navbar() {
             <Menu className="h-5 w-5" />
           </SheetTrigger>
           <SheetContent side="right" className="border-csc-orange/10 bg-[#1A0F08]">
-            <SheetTitle className="text-[#F5E6D3]">Navigation</SheetTitle>
+            <SheetTitle className="font-ethno text-[#F5E6D3]">Menú</SheetTitle>
             <nav className="mt-8 flex flex-col gap-6">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className="text-lg font-medium text-[#F5E6D3]/70 transition-colors hover:text-csc-orange"
+                  className="font-ethno text-lg font-medium text-[#F5E6D3]/70 transition-colors hover:text-csc-orange"
                 >
                   {link.label}
                 </Link>
@@ -78,9 +78,9 @@ export function Navbar() {
               <Link
                 href="/register"
                 onClick={() => setOpen(false)}
-                className={buttonVariants({ className: "mt-4 bg-csc-orange text-white hover:bg-csc-amber" })}
+                className={buttonVariants({ className: "font-ethno mt-4 bg-csc-orange text-white hover:bg-csc-amber" })}
               >
-                Join the Club
+                Únete al Club
               </Link>
             </nav>
           </SheetContent>
