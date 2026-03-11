@@ -46,9 +46,9 @@ const initialForm: FormData = {
 };
 
 const steps = [
-  { label: "Personal Info", icon: User },
-  { label: "Professional Info", icon: Briefcase },
-  { label: "Review & Submit", icon: ClipboardCheck },
+  { label: "Datos Personales", icon: User },
+  { label: "Info Profesional", icon: Briefcase },
+  { label: "Revisar y Enviar", icon: ClipboardCheck },
 ];
 
 const roleOptions = ["CISO", "Manager", "Analyst", "Partner", "Sponsor"];
@@ -101,6 +101,8 @@ export default function RegisterPage() {
   const [form, setForm] = useState<FormData>(initialForm);
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState("");
 
   const set = (field: keyof FormData, value: string | boolean) =>
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -109,18 +111,18 @@ export default function RegisterPage() {
   function validateStep(s: number): boolean {
     const errs: typeof errors = {};
     if (s === 0) {
-      if (!form.fullName.trim()) errs.fullName = "Name is required";
-      if (!form.email.trim()) errs.email = "Email is required";
+      if (!form.fullName.trim()) errs.fullName = "El nombre es obligatorio";
+      if (!form.email.trim()) errs.email = "El email es obligatorio";
       else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
-        errs.email = "Invalid email";
+        errs.email = "Email inválido";
     }
     if (s === 1) {
-      if (!form.company.trim()) errs.company = "Company is required";
-      if (!form.jobTitle.trim()) errs.jobTitle = "Job title is required";
-      if (!form.roleType) errs.roleType = "Select a role";
+      if (!form.company.trim()) errs.company = "La empresa es obligatoria";
+      if (!form.jobTitle.trim()) errs.jobTitle = "El cargo es obligatorio";
+      if (!form.roleType) errs.roleType = "Seleccioná un rol";
     }
     if (s === 2) {
-      if (!form.acceptTerms) errs.acceptTerms = "You must accept the terms";
+      if (!form.acceptTerms) errs.acceptTerms = "Debés aceptar los términos";
     }
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -132,10 +134,36 @@ export default function RegisterPage() {
   function prev() {
     setStep((s) => Math.max(s - 1, 0));
   }
-  function submit() {
+  async function submit() {
     if (!validateStep(2)) return;
-    // TODO: send to Supabase
-    setSubmitted(true);
+    setLoading(true);
+    setApiError("");
+    try {
+      const res = await fetch("/api/members", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          full_name: form.fullName,
+          email: form.email,
+          phone: form.phone,
+          company: form.company,
+          job_title: form.jobTitle,
+          role_type: form.roleType,
+          linkedin_url: form.linkedIn,
+          years_experience: form.yearsExp,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setApiError(data.error || "Error al registrar");
+        return;
+      }
+      setSubmitted(true);
+    } catch {
+      setApiError("Error de conexión. Intentá de nuevo.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   /* Slide transition variants */
@@ -156,21 +184,21 @@ export default function RegisterPage() {
           <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-csc-orange/10">
             <CheckCircle className="h-10 w-10 text-csc-orange" />
           </div>
-          <h1 className="mb-3 text-3xl font-bold text-[#F5E6D3]">
-            Welcome to the Club!
+          <h1 className="font-ethno mb-3 text-3xl font-bold text-[#F5E6D3]">
+            Bienvenido al Club!
           </h1>
           <p className="mb-2 text-[#A68B6B]">
-            Your membership is being reviewed.
+            Tu membresía está siendo revisada.
           </p>
           <p className="mb-8 text-sm text-[#A68B6B]/70">
-            We&apos;ll send a confirmation to <strong className="text-csc-amber">{form.email}</strong> once
-            approved.
+            Te enviaremos una confirmación a <strong className="text-csc-amber">{form.email}</strong> cuando
+            sea aprobada.
           </p>
           <Link
             href="/"
-            className={buttonVariants({ className: "bg-csc-orange text-white hover:bg-csc-amber" })}
+            className={buttonVariants({ className: "font-ethno bg-csc-orange text-white hover:bg-csc-amber" })}
           >
-            Back to Home
+            Volver al Inicio
           </Link>
         </motion.div>
       </div>
@@ -207,16 +235,16 @@ export default function RegisterPage() {
                   transition={{ duration: 0.3 }}
                   className="space-y-5"
                 >
-                  <h2 className="text-xl font-semibold text-[#F5E6D3]">
-                    Personal Information
+                  <h2 className="font-ethno text-xl font-semibold text-[#F5E6D3]">
+                    Datos Personales
                   </h2>
                   <div className="space-y-1.5">
                     <Label htmlFor="fullName">
-                      Full Name <span className="text-csc-wine">*</span>
+                      Nombre Completo <span className="text-csc-wine">*</span>
                     </Label>
                     <Input
                       id="fullName"
-                      placeholder="John Doe"
+                      placeholder="Juan Pérez"
                       value={form.fullName}
                       onChange={(e) => set("fullName", e.target.value)}
                       className="border-csc-orange/20 bg-[#1A0F08] text-[#F5E6D3] placeholder:text-[#A68B6B]/40"
@@ -242,11 +270,11 @@ export default function RegisterPage() {
                     )}
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="phone">Phone (optional)</Label>
+                    <Label htmlFor="phone">Teléfono (opcional)</Label>
                     <Input
                       id="phone"
                       type="tel"
-                      placeholder="+1 555 123 4567"
+                      placeholder="+54 11 1234 5678"
                       value={form.phone}
                       onChange={(e) => set("phone", e.target.value)}
                       className="border-csc-orange/20 bg-[#1A0F08] text-[#F5E6D3] placeholder:text-[#A68B6B]/40"
@@ -266,12 +294,12 @@ export default function RegisterPage() {
                   transition={{ duration: 0.3 }}
                   className="space-y-5"
                 >
-                  <h2 className="text-xl font-semibold text-[#F5E6D3]">
-                    Professional Information
+                  <h2 className="font-ethno text-xl font-semibold text-[#F5E6D3]">
+                    Información Profesional
                   </h2>
                   <div className="space-y-1.5">
                     <Label htmlFor="company">
-                      Company <span className="text-csc-wine">*</span>
+                      Empresa <span className="text-csc-wine">*</span>
                     </Label>
                     <Input
                       id="company"
@@ -286,7 +314,7 @@ export default function RegisterPage() {
                   </div>
                   <div className="space-y-1.5">
                     <Label htmlFor="jobTitle">
-                      Job Title <span className="text-csc-wine">*</span>
+                      Cargo <span className="text-csc-wine">*</span>
                     </Label>
                     <Input
                       id="jobTitle"
@@ -301,14 +329,14 @@ export default function RegisterPage() {
                   </div>
                   <div className="space-y-1.5">
                     <Label>
-                      Role Type <span className="text-csc-wine">*</span>
+                      Tipo de Rol <span className="text-csc-wine">*</span>
                     </Label>
                     <Select
                       value={form.roleType}
                       onValueChange={(v) => set("roleType", v ?? "")}
                     >
                       <SelectTrigger className="border-csc-orange/20 bg-[#1A0F08] text-[#F5E6D3]">
-                        <SelectValue placeholder="Select role" />
+                        <SelectValue placeholder="Seleccioná un rol" />
                       </SelectTrigger>
                       <SelectContent className="border-csc-orange/20 bg-[#241609]">
                         {roleOptions.map((r) => (
@@ -333,18 +361,18 @@ export default function RegisterPage() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label>Years of Experience</Label>
+                    <Label>Años de Experiencia</Label>
                     <Select
                       value={form.yearsExp}
                       onValueChange={(v) => set("yearsExp", v ?? "")}
                     >
                       <SelectTrigger className="border-csc-orange/20 bg-[#1A0F08] text-[#F5E6D3]">
-                        <SelectValue placeholder="Select range" />
+                        <SelectValue placeholder="Seleccioná un rango" />
                       </SelectTrigger>
                       <SelectContent className="border-csc-orange/20 bg-[#241609]">
                         {experienceOptions.map((o) => (
                           <SelectItem key={o} value={o}>
-                            {o} years
+                            {o} años
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -364,20 +392,20 @@ export default function RegisterPage() {
                   transition={{ duration: 0.3 }}
                   className="space-y-5"
                 >
-                  <h2 className="text-xl font-semibold text-[#F5E6D3]">
-                    Review Your Information
+                  <h2 className="font-ethno text-xl font-semibold text-[#F5E6D3]">
+                    Revisá tu Información
                   </h2>
 
                   <div className="space-y-3 rounded-lg border border-csc-orange/10 bg-[#1A0F08] p-4 text-sm">
                     {[
-                      ["Name", form.fullName],
+                      ["Nombre", form.fullName],
                       ["Email", form.email],
-                      ["Phone", form.phone || "N/A"],
-                      ["Company", form.company],
-                      ["Job Title", form.jobTitle],
-                      ["Role", form.roleType],
+                      ["Teléfono", form.phone || "N/A"],
+                      ["Empresa", form.company],
+                      ["Cargo", form.jobTitle],
+                      ["Rol", form.roleType],
                       ["LinkedIn", form.linkedIn || "N/A"],
-                      ["Experience", form.yearsExp ? `${form.yearsExp} years` : "N/A"],
+                      ["Experiencia", form.yearsExp ? `${form.yearsExp} años` : "N/A"],
                     ].map(([label, value]) => (
                       <div key={label} className="flex justify-between">
                         <span className="text-[#A68B6B]">{label}</span>
@@ -395,13 +423,13 @@ export default function RegisterPage() {
                       className="mt-1 h-4 w-4 rounded accent-[#E87B1E]"
                     />
                     <label htmlFor="terms" className="text-sm text-[#A68B6B]">
-                      I agree to the{" "}
+                      Acepto los{" "}
                       <span className="text-csc-orange underline cursor-pointer">
-                        Terms of Service
+                        Términos de Servicio
                       </span>{" "}
-                      and{" "}
+                      y la{" "}
                       <span className="text-csc-orange underline cursor-pointer">
-                        Privacy Policy
+                        Política de Privacidad
                       </span>
                     </label>
                   </div>
@@ -412,16 +440,21 @@ export default function RegisterPage() {
               )}
             </AnimatePresence>
 
+            {apiError && (
+              <p className="mt-4 text-sm text-csc-wine">{apiError}</p>
+            )}
+
             {/* Navigation buttons */}
             <div className="mt-8 flex justify-between">
               {step > 0 ? (
                 <Button
                   variant="ghost"
                   onClick={prev}
+                  disabled={loading}
                   className="text-[#A68B6B] hover:text-[#F5E6D3]"
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back
+                  Atrás
                 </Button>
               ) : (
                 <div />
@@ -430,17 +463,18 @@ export default function RegisterPage() {
               {step < 2 ? (
                 <Button
                   onClick={next}
-                  className="bg-csc-orange text-white hover:bg-csc-amber"
+                  className="font-ethno bg-csc-orange text-white hover:bg-csc-amber"
                 >
-                  Next
+                  Siguiente
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               ) : (
                 <Button
                   onClick={submit}
-                  className="bg-csc-orange text-white hover:bg-csc-amber"
+                  disabled={loading}
+                  className="font-ethno bg-csc-orange text-white hover:bg-csc-amber"
                 >
-                  Submit Application
+                  {loading ? "Enviando..." : "Enviar Solicitud"}
                 </Button>
               )}
             </div>
