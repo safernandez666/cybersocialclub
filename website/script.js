@@ -1,0 +1,152 @@
+/**
+ * Cyber Social Club — Landing Page Scripts
+ */
+
+(function() {
+  'use strict';
+
+  // ==========================================================================
+  // Navbar scroll effect
+  // ==========================================================================
+  const navbar = document.getElementById('navbar');
+  
+  function handleNavbarScroll() {
+    if (window.scrollY > 50) {
+      navbar.classList.add('scrolled');
+    } else {
+      navbar.classList.remove('scrolled');
+    }
+  }
+
+  window.addEventListener('scroll', handleNavbarScroll, { passive: true });
+  handleNavbarScroll(); // Check on load
+
+  // ==========================================================================
+  // Mobile menu toggle
+  // ==========================================================================
+  const navbarToggle = document.getElementById('navbarToggle');
+  const navbarMobile = document.getElementById('navbarMobile');
+
+  if (navbarToggle && navbarMobile) {
+    navbarToggle.addEventListener('click', function() {
+      this.classList.toggle('active');
+      navbarMobile.classList.toggle('active');
+      
+      // Prevent body scroll when menu is open
+      document.body.style.overflow = navbarMobile.classList.contains('active') ? 'hidden' : '';
+    });
+
+    // Close menu when clicking a link
+    navbarMobile.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', function() {
+        navbarToggle.classList.remove('active');
+        navbarMobile.classList.remove('active');
+        document.body.style.overflow = '';
+      });
+    });
+  }
+
+  // ==========================================================================
+  // Scroll reveal animations
+  // ==========================================================================
+  const revealElements = document.querySelectorAll('.reveal');
+
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const delay = entry.target.dataset.delay || 0;
+        setTimeout(() => {
+          entry.target.classList.add('revealed');
+        }, parseInt(delay));
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, {
+    threshold: 0.1,
+    rootMargin: '-80px 0px'
+  });
+
+  revealElements.forEach(el => revealObserver.observe(el));
+
+  // ==========================================================================
+  // Animated counters
+  // ==========================================================================
+  const counters = document.querySelectorAll('.counter');
+
+  const counterObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const counter = entry.target;
+        const target = parseInt(counter.dataset.target);
+        const duration = 2000; // 2 seconds
+        const step = Math.ceil(target / (duration / 16)); // 60fps
+        let current = 0;
+
+        const timer = setInterval(() => {
+          current += step;
+          if (current >= target) {
+            counter.textContent = target;
+            clearInterval(timer);
+          } else {
+            counter.textContent = current;
+          }
+        }, 16);
+
+        counterObserver.unobserve(counter);
+      }
+    });
+  }, {
+    threshold: 0.5
+  });
+
+  counters.forEach(counter => counterObserver.observe(counter));
+
+  // ==========================================================================
+  // Smooth scroll for anchor links
+  // ==========================================================================
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      const targetId = this.getAttribute('href');
+      if (targetId === '#') return;
+      
+      const targetElement = document.querySelector(targetId);
+      if (targetElement) {
+        e.preventDefault();
+        const navbarHeight = navbar.offsetHeight;
+        const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
+        
+        window.scrollTo({
+          top: targetPosition,
+          behavior: 'smooth'
+        });
+      }
+    });
+  });
+
+  // ==========================================================================
+  // Hero parallax effect (subtle)
+  // ==========================================================================
+  const heroGlow = document.querySelector('.hero-glow');
+  
+  if (heroGlow && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    let ticking = false;
+    
+    window.addEventListener('scroll', function() {
+      if (!ticking) {
+        window.requestAnimationFrame(function() {
+          const scrollY = window.scrollY;
+          const heroHeight = document.querySelector('.hero').offsetHeight;
+          const progress = Math.min(scrollY / heroHeight, 1);
+          
+          // Move glow up and fade out on scroll
+          heroGlow.style.transform = `translate(-50%, calc(-50% - ${progress * 100}px))`;
+          heroGlow.style.opacity = 1 - progress;
+          
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }, { passive: true });
+  }
+
+})();
