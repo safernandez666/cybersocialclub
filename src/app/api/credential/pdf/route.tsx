@@ -16,98 +16,129 @@ const styles = StyleSheet.create({
     margin: 40,
     backgroundColor: "#141211",
     borderRadius: 16,
-    padding: 32,
-    border: "1px solid rgba(255,255,255,0.06)",
+    border: "1px solid rgba(255,255,255,0.05)",
   },
+  // Header
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 24,
     borderBottom: "1px solid rgba(255,255,255,0.05)",
-    paddingBottom: 16,
+    paddingHorizontal: 24,
+    paddingVertical: 20,
   },
   clubName: {
-    fontSize: 18,
+    fontSize: 10,
     color: "#E87B1E",
     fontWeight: "bold",
-    letterSpacing: 2,
+    letterSpacing: 3,
   },
   clubSub: {
-    fontSize: 8,
-    color: "rgba(255,255,255,0.3)",
+    fontSize: 6,
+    color: "rgba(255,255,255,0.2)",
     marginTop: 2,
-    letterSpacing: 3,
+    letterSpacing: 4,
   },
   memberLabel: {
-    fontSize: 8,
-    color: "rgba(255,255,255,0.3)",
+    fontSize: 6,
+    color: "rgba(255,255,255,0.2)",
+    textTransform: "uppercase",
+    letterSpacing: 3,
+    textAlign: "right",
+  },
+  memberNumber: {
+    fontSize: 22,
+    color: "#E87B1E",
+    fontWeight: "bold",
+    marginTop: 2,
+  },
+  // Body
+  body: {
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+  },
+  fullNameLabel: {
+    fontSize: 6,
+    color: "rgba(255,255,255,0.2)",
     textTransform: "uppercase",
     letterSpacing: 3,
   },
-  memberNumber: {
-    fontSize: 28,
-    color: "#E87B1E",
-    fontWeight: "bold",
+  fullName: {
+    fontSize: 16,
+    color: "#FFFFFF",
     marginTop: 4,
+    marginBottom: 20,
   },
-  body: {
+  fieldsRow: {
     flexDirection: "row",
-    gap: 24,
+    gap: 16,
+    flexWrap: "wrap",
   },
-  info: {
-    flex: 1,
+  fieldBox: {
+    width: "48%",
+    marginBottom: 12,
   },
   fieldLabel: {
-    fontSize: 7,
-    color: "rgba(255,255,255,0.25)",
+    fontSize: 6,
+    color: "rgba(255,255,255,0.2)",
     textTransform: "uppercase",
     letterSpacing: 2,
-    marginBottom: 2,
-    marginTop: 12,
+    marginBottom: 3,
   },
   fieldValue: {
-    fontSize: 13,
-    color: "#FFFFFF",
+    fontSize: 10,
+    color: "rgba(255,255,255,0.6)",
   },
-  qrContainer: {
-    width: 120,
+  fieldValueHighlight: {
+    fontSize: 10,
+    color: "rgba(232,123,30,0.7)",
+  },
+  // QR Section
+  qrSection: {
     alignItems: "center",
-    justifyContent: "center",
+    borderTop: "1px solid rgba(255,255,255,0.05)",
+    paddingVertical: 24,
+  },
+  qrBox: {
+    backgroundColor: "#0A0A0A",
+    borderRadius: 12,
+    padding: 12,
   },
   qrImage: {
-    width: 110,
-    height: 110,
-    borderRadius: 8,
+    width: 100,
+    height: 100,
   },
   qrLabel: {
     fontSize: 6,
-    color: "rgba(255,255,255,0.2)",
+    color: "rgba(255,255,255,0.15)",
     textAlign: "center",
-    marginTop: 6,
-    letterSpacing: 1,
+    marginTop: 8,
+    letterSpacing: 3,
+    textTransform: "uppercase",
   },
+  // Footer
   footer: {
-    marginTop: 24,
-    borderTop: "1px solid rgba(255,255,255,0.05)",
-    paddingTop: 12,
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
+    borderTop: "1px solid rgba(255,255,255,0.05)",
+    paddingHorizontal: 24,
+    paddingVertical: 10,
   },
   footerText: {
-    fontSize: 7,
+    fontSize: 6,
     color: "rgba(255,255,255,0.15)",
     letterSpacing: 1,
   },
   statusBadge: {
-    backgroundColor: "rgba(232,123,30,0.1)",
+    backgroundColor: "rgba(74,222,128,0.1)",
     borderRadius: 50,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
   },
   statusText: {
-    fontSize: 8,
-    color: "#E87B1E",
+    fontSize: 7,
+    color: "#4ade80",
     fontWeight: "bold",
     letterSpacing: 2,
   },
@@ -149,7 +180,6 @@ export async function GET(req: NextRequest) {
       color: { dark: "#E87B1E", light: "#141211" },
     });
   } catch {
-    // Fallback: generate SVG and convert to data URL
     const svgString = await QRCode.toString(verifyUrl, {
       type: "svg",
       width: 300,
@@ -166,58 +196,66 @@ export async function GET(req: NextRequest) {
 
   const CredentialPDF = () => (
     <Document>
-      <Page size="A5" orientation="landscape" style={styles.page}>
+      <Page size="A5" orientation="portrait" style={styles.page}>
         <View style={styles.card}>
+          {/* Header — matches online: club name left, member number right */}
           <View style={styles.header}>
             <View>
               <Text style={styles.clubName}>CYBER SOCIAL CLUB</Text>
               <Text style={styles.clubSub}>WHERE CYBER MINDS CONNECT</Text>
             </View>
             <View style={{ alignItems: "flex-end" }}>
-              <Text style={styles.memberLabel}>MIEMBRO</Text>
+              <Text style={styles.memberLabel}>Miembro</Text>
               <Text style={styles.memberNumber}>{member.member_number}</Text>
             </View>
           </View>
 
+          {/* Body — matches online: full name then 2-col grid */}
           <View style={styles.body}>
-            <View style={styles.info}>
-              <Text style={styles.fieldLabel}>NOMBRE COMPLETO</Text>
-              <Text style={styles.fieldValue}>{member.full_name}</Text>
+            <Text style={styles.fullNameLabel}>Nombre completo</Text>
+            <Text style={styles.fullName}>{member.full_name}</Text>
 
+            <View style={styles.fieldsRow}>
               {member.company && (
-                <>
-                  <Text style={styles.fieldLabel}>EMPRESA</Text>
+                <View style={styles.fieldBox}>
+                  <Text style={styles.fieldLabel}>Empresa</Text>
                   <Text style={styles.fieldValue}>{member.company}</Text>
-                </>
+                </View>
               )}
 
               {member.job_title && (
-                <>
-                  <Text style={styles.fieldLabel}>CARGO</Text>
+                <View style={styles.fieldBox}>
+                  <Text style={styles.fieldLabel}>Cargo</Text>
                   <Text style={styles.fieldValue}>{member.job_title}</Text>
-                </>
+                </View>
               )}
 
               {member.role_type && (
-                <>
-                  <Text style={styles.fieldLabel}>ROL</Text>
-                  <Text style={styles.fieldValue}>{member.role_type}</Text>
-                </>
+                <View style={styles.fieldBox}>
+                  <Text style={styles.fieldLabel}>Rol</Text>
+                  <Text style={styles.fieldValueHighlight}>{member.role_type}</Text>
+                </View>
               )}
 
-              <Text style={styles.fieldLabel}>MIEMBRO DESDE</Text>
-              <Text style={styles.fieldValue}>{memberSince}</Text>
-            </View>
-
-            <View style={styles.qrContainer}>
-              <Image src={qrDataUrl} style={styles.qrImage} />
-              <Text style={styles.qrLabel}>ESCANEAR PARA VERIFICAR</Text>
+              <View style={styles.fieldBox}>
+                <Text style={styles.fieldLabel}>Miembro desde</Text>
+                <Text style={styles.fieldValue}>{memberSince}</Text>
+              </View>
             </View>
           </View>
 
+          {/* QR — matches online: centered below info */}
+          <View style={styles.qrSection}>
+            <View style={styles.qrBox}>
+              <Image src={qrDataUrl} style={styles.qrImage} />
+            </View>
+            <Text style={styles.qrLabel}>Escaneá para verificar</Text>
+          </View>
+
+          {/* Footer — matches online: copyright + Activo badge */}
           <View style={styles.footer}>
             <Text style={styles.footerText}>
-              © {new Date().getFullYear()} CYBER SOCIAL CLUB
+              © {new Date().getFullYear()} Cyber Social Club
             </Text>
             <View style={styles.statusBadge}>
               <Text style={styles.statusText}>ACTIVO</Text>
