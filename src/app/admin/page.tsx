@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Check, X, Clock, UserCheck, UserX, Users } from "lucide-react";
+import { ArrowLeft, Check, X, Clock, UserCheck, UserX, Users, Mail } from "lucide-react";
 
 interface Member {
   id: string;
@@ -81,6 +81,26 @@ export default function AdminPage() {
       }
     } catch {
       console.error("Error processing action");
+    } finally {
+      setProcessing(null);
+    }
+  };
+
+  const handleResendCredential = async (memberId: string) => {
+    setProcessing(memberId);
+    try {
+      const res = await fetch(`/api/members/${memberId}/resend-credential`, {
+        method: "POST",
+        headers: { "x-admin-key": adminKey },
+      });
+      if (res.ok) {
+        alert("Credencial reenviada por email");
+      } else {
+        const data = await res.json();
+        alert("Error: " + (data.error || "No se pudo reenviar"));
+      }
+    } catch {
+      alert("Error al reenviar credencial");
     } finally {
       setProcessing(null);
     }
@@ -228,6 +248,19 @@ export default function AdminPage() {
                       )}
                     </div>
                   </div>
+
+                  {filter === "approved" && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleResendCredential(member.id)}
+                        disabled={processing === member.id}
+                        className="flex items-center gap-2 rounded-full bg-csc-orange/10 px-5 py-2 font-mono text-xs uppercase tracking-widest text-csc-orange transition-all hover:bg-csc-orange/20 disabled:opacity-50"
+                      >
+                        <Mail className="h-3.5 w-3.5" />
+                        Reenviar Credencial
+                      </button>
+                    </div>
+                  )}
 
                   {filter === "pending" && (
                     <div className="flex gap-2">
