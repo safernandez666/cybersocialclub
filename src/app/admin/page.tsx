@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Check, X, Clock, UserCheck, UserX, Users, Mail } from "lucide-react";
+import { ArrowLeft, Check, X, Clock, UserCheck, UserX, Users, Mail, MailQuestion } from "lucide-react";
 
 interface Member {
   id: string;
@@ -169,6 +169,7 @@ export default function AdminPage() {
         {/* Filter tabs */}
         <div className="mb-8 flex gap-2">
           {[
+            { key: "pending_verification", label: "Sin Verificar", icon: MailQuestion },
             { key: "pending", label: "Pendientes", icon: Clock },
             { key: "approved", label: "Aprobados", icon: UserCheck },
             { key: "rejected", label: "Rechazados", icon: UserX },
@@ -248,6 +249,28 @@ export default function AdminPage() {
                       )}
                     </div>
                   </div>
+
+                  {filter === "pending_verification" && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={async () => {
+                          setProcessing(member.id);
+                          try {
+                            await fetch(`/api/admin/members/${member.id}`, {
+                              method: "DELETE",
+                              headers: { "x-admin-key": adminKey },
+                            });
+                            setMembers((prev) => prev.filter((m) => m.id !== member.id));
+                          } catch { /* ignore */ } finally { setProcessing(null); }
+                        }}
+                        disabled={processing === member.id}
+                        className="flex items-center gap-2 rounded-full bg-red-500/10 px-5 py-2 font-mono text-xs uppercase tracking-widest text-red-400 transition-all hover:bg-red-500/20 disabled:opacity-50"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                        Eliminar
+                      </button>
+                    </div>
+                  )}
 
                   {filter === "approved" && (
                     <div className="flex gap-2">
