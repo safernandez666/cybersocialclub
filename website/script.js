@@ -149,4 +149,57 @@
     }, { passive: true });
   }
 
+  // ==========================================================================
+  // Photo Carousel
+  // ==========================================================================
+  const track = document.querySelector('.carousel-track');
+  const images = document.querySelectorAll('.carousel-img');
+  const prevBtn = document.querySelector('.carousel-prev');
+  const nextBtn = document.querySelector('.carousel-next');
+  const dotsContainer = document.querySelector('.carousel-dots');
+
+  if (track && images.length > 0) {
+    let current = 0;
+    const total = images.length;
+
+    // Create dots
+    for (let i = 0; i < total; i++) {
+      const dot = document.createElement('button');
+      dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+      dot.setAttribute('aria-label', 'Go to photo ' + (i + 1));
+      dot.addEventListener('click', function() { goTo(i); });
+      dotsContainer.appendChild(dot);
+    }
+
+    function goTo(index) {
+      current = index;
+      if (current < 0) current = total - 1;
+      if (current >= total) current = 0;
+      track.style.transform = 'translateX(-' + (current * 100) + '%)';
+      document.querySelectorAll('.carousel-dot').forEach(function(d, i) {
+        d.classList.toggle('active', i === current);
+      });
+    }
+
+    prevBtn.addEventListener('click', function() { goTo(current - 1); });
+    nextBtn.addEventListener('click', function() { goTo(current + 1); });
+
+    // Auto-advance every 4 seconds
+    let autoplay = setInterval(function() { goTo(current + 1); }, 4000);
+
+    // Pause on hover
+    track.parentElement.addEventListener('mouseenter', function() { clearInterval(autoplay); });
+    track.parentElement.addEventListener('mouseleave', function() {
+      autoplay = setInterval(function() { goTo(current + 1); }, 4000);
+    });
+
+    // Swipe support
+    let touchStartX = 0;
+    track.addEventListener('touchstart', function(e) { touchStartX = e.touches[0].clientX; }, { passive: true });
+    track.addEventListener('touchend', function(e) {
+      var diff = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 50) { goTo(current + (diff > 0 ? 1 : -1)); }
+    }, { passive: true });
+  }
+
 })();
