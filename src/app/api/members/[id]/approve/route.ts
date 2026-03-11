@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { randomBytes } from "crypto";
 import { sendApprovalEmail } from "@/lib/email";
 
 const supabaseAdmin = createClient(
@@ -43,10 +44,11 @@ export async function PATCH(
       .eq("status", "approved");
 
     const memberNumber = `CSC-${String((count || 0) + 1).padStart(4, "0")}`;
+    const credentialToken = randomBytes(32).toString("hex");
 
     const { error: updateError } = await supabaseAdmin
       .from("members")
-      .update({ status: "approved", member_number: memberNumber })
+      .update({ status: "approved", member_number: memberNumber, credential_token: credentialToken })
       .eq("id", id);
 
     if (updateError) {
@@ -55,7 +57,7 @@ export async function PATCH(
 
     // Send approval email
     try {
-      await sendApprovalEmail(member.email, member.full_name, memberNumber);
+      await sendApprovalEmail(member.email, member.full_name, memberNumber, credentialToken);
     } catch (emailError) {
       console.error("Failed to send approval email:", emailError);
     }

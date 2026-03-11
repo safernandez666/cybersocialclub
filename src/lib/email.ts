@@ -105,8 +105,10 @@ export async function sendAdminNotification(member: {
   });
 }
 
-export async function sendApprovalEmail(to: string, fullName: string, memberNumber: string) {
+export async function sendApprovalEmail(to: string, fullName: string, memberNumber: string, credentialToken: string) {
   const firstName = fullName.split(" ")[0];
+  const credentialUrl = `${APP_URL}/credential?token=${credentialToken}`;
+  const pdfUrl = `${APP_URL}/api/credential/pdf?token=${credentialToken}`;
 
   await transporter.sendMail({
     from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
@@ -135,13 +137,17 @@ export async function sendApprovalEmail(to: string, fullName: string, memberNumb
         <p style="color:#E87B1E;font-size:32px;font-weight:700;margin:0;font-family:monospace;">${memberNumber}</p>
       </div>
       <p style="color:rgba(255,255,255,0.5);font-size:14px;line-height:1.6;margin:0 0 24px;">
-        Podés ver tu credencial digital y código QR verificable en el siguiente link:
+        Tu credencial digital con código QR verificable está lista. Podés verla online o descargar el PDF:
       </p>
-      <div style="text-align:center;margin-bottom:24px;">
-        <a href="${APP_URL}/member/${memberNumber}" style="display:inline-block;background-color:#E87B1E;color:#FFFFFF;text-decoration:none;padding:12px 32px;border-radius:50px;font-size:14px;font-weight:600;">Ver Mi Credencial</a>
+      <div style="text-align:center;margin-bottom:16px;">
+        <a href="${credentialUrl}" style="display:inline-block;background-color:#E87B1E;color:#FFFFFF;text-decoration:none;padding:12px 32px;border-radius:50px;font-size:14px;font-weight:600;">Ver Mi Credencial</a>
       </div>
-      <p style="color:rgba(255,255,255,0.3);font-size:13px;margin:0;">
-        ¡Bienvenido a la comunidad!
+      <div style="text-align:center;margin-bottom:24px;">
+        <a href="${pdfUrl}" style="display:inline-block;color:#E87B1E;text-decoration:none;font-size:13px;font-weight:500;">Descargar PDF →</a>
+      </div>
+      <p style="color:rgba(255,255,255,0.3);font-size:12px;margin:0;line-height:1.6;">
+        Este link es personal e intransferible. No lo compartas con nadie.
+        <br>¡Bienvenido a la comunidad!
       </p>
     </div>
     <div style="text-align:center;margin-top:32px;">
