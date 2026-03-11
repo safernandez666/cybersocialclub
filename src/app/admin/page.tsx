@@ -98,7 +98,7 @@ export default function AdminPage() {
 
   if (!authenticated) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A] px-4">
+      <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A] px-4 pt-16">
         <form onSubmit={handleLogin} className="w-full max-w-sm">
           <h1 className="mb-2 font-mono text-xl text-white">Panel de Administración</h1>
           <p className="mb-8 font-mono text-xs text-white/30">Ingresá la clave de admin para continuar</p>
@@ -131,7 +131,7 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] px-4 py-8 sm:px-8">
+    <div className="min-h-screen bg-[#0A0A0A] px-4 pt-24 pb-8 sm:px-8">
       <div className="mx-auto max-w-5xl">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
