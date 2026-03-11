@@ -214,8 +214,9 @@ export async function GET(req: NextRequest) {
   );
 
   const buffer = await renderToBuffer(<CredentialPDF />);
+  const uint8 = new Uint8Array(buffer);
 
-  return new NextResponse(buffer, {
+  return new NextResponse(uint8, {
     headers: {
       "Content-Type": "application/pdf",
       "Content-Disposition": `inline; filename="CSC-Credential-${member.member_number}.pdf"`,
