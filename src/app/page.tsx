@@ -91,29 +91,23 @@ export default function Home() {
           <Image
             src="/logos/logo-light.png"
             alt="Cyber Social Club"
-            width={280}
-            height={80}
-            className="mb-8 h-auto w-56 sm:w-72"
+            width={400}
+            height={168}
+            className="mb-12 h-auto w-72 sm:w-96 lg:w-[440px]"
             priority
           />
-          <h1 className="mb-4 text-4xl font-extrabold tracking-tight text-[#F5E6D3] sm:text-6xl lg:text-7xl">
-            Cyber Social Club
-          </h1>
-          <p className="mb-8 max-w-md text-lg text-csc-amber/80 sm:text-xl">
-            Where Cyber Minds Connect
-          </p>
           <div className="flex flex-col gap-4 sm:flex-row">
             <Link
               href="/register"
-              className={buttonVariants({ size: "lg", className: "bg-csc-orange px-8 text-base font-semibold text-white hover:bg-csc-amber" })}
+              className={buttonVariants({ size: "lg", className: "bg-csc-orange px-10 py-6 text-lg font-bold text-white hover:bg-csc-amber shadow-lg shadow-csc-orange/20" })}
             >
-              Join the Club
+              Únete al Club
             </Link>
             <Link
               href="#members"
-              className={buttonVariants({ variant: "outline", size: "lg", className: "border-csc-orange/30 text-csc-orange hover:bg-csc-orange/10" })}
+              className={buttonVariants({ variant: "outline", size: "lg", className: "border-csc-orange/30 px-10 py-6 text-lg font-bold text-csc-orange hover:bg-csc-orange/10" })}
             >
-              View Members
+              Conocé a los Miembros
             </Link>
           </div>
         </FadeIn>
@@ -134,9 +128,9 @@ export default function Home() {
       <section className="relative border-y border-csc-orange/10 bg-[#241609]/60 py-16">
         <div className="mx-auto grid max-w-5xl grid-cols-2 gap-8 px-4 sm:grid-cols-4">
           {[
-            { value: 500, suffix: "+", label: "Members" },
-            { value: 50, suffix: "+", label: "Events" },
-            { value: 20, suffix: "+", label: "Countries" },
+            { value: 500, suffix: "+", label: "Miembros" },
+            { value: 50, suffix: "+", label: "Eventos" },
+            { value: 20, suffix: "+", label: "Países" },
             { value: 100, suffix: "%", label: "Cyber" },
           ].map((stat, i) => (
             <FadeIn key={stat.label} delay={i * 0.1} className="text-center">
@@ -154,10 +148,10 @@ export default function Home() {
         <div className="mx-auto max-w-6xl">
           <FadeIn className="mb-16 text-center">
             <h2 className="text-3xl font-bold text-[#F5E6D3] sm:text-4xl">
-              What You Get
+              Qué Obtenés
             </h2>
             <p className="mt-3 text-[#A68B6B]">
-              Exclusive perks for every member
+              Beneficios exclusivos para cada miembro
             </p>
           </FadeIn>
 
@@ -165,18 +159,18 @@ export default function Home() {
             {[
               {
                 icon: QrCode,
-                title: "Digital Membership",
-                desc: "A unique QR-verified credential you can show at any event. Always in your pocket, always verifiable.",
+                title: "Credencial Digital",
+                desc: "Una credencial única con QR verificable que podés mostrar en cualquier evento. Siempre en tu bolsillo.",
               },
               {
                 icon: CalendarDays,
-                title: "Exclusive Events",
-                desc: "Access to private meetups, workshops, and networking sessions with top cybersecurity professionals.",
+                title: "Eventos Exclusivos",
+                desc: "Acceso a meetups privados, workshops y sesiones de networking con los mejores profesionales de ciberseguridad.",
               },
               {
                 icon: Network,
-                title: "Global Network",
-                desc: "Browse the member directory, connect with CISOs, analysts, and partners from around the world.",
+                title: "Red Global",
+                desc: "Explorá el directorio de miembros, conectá con CISOs, analistas y partners de todo el mundo.",
               },
             ].map((feature, i) => (
               <FadeIn key={feature.title} delay={i * 0.15}>
@@ -205,17 +199,16 @@ export default function Home() {
         <FadeIn className="relative z-10 mx-auto max-w-2xl text-center">
           <Shield className="mx-auto mb-6 h-12 w-12 text-csc-orange" />
           <h2 className="mb-4 text-3xl font-bold text-[#F5E6D3] sm:text-4xl">
-            Ready to Connect?
+            ¿Listo para Conectar?
           </h2>
           <p className="mb-8 text-[#A68B6B]">
-            Join the fastest-growing cybersecurity community. Your membership
-            awaits.
+            Sumate a la comunidad de ciberseguridad que más crece. Tu membresía te espera.
           </p>
           <Link
             href="/register"
             className={buttonVariants({ size: "lg", className: "bg-csc-orange px-10 text-base font-semibold text-white hover:bg-csc-amber" })}
           >
-            Register Now
+            Registrate Ahora
           </Link>
         </FadeIn>
       </section>
