@@ -46,6 +46,21 @@ export async function POST(req: NextRequest) {
 
   const verificationToken = randomBytes(32).toString("hex");
 
+  // Check if email already exists with a non-active status
+  const { data: existing } = await supabase
+    .from("members")
+    .select("id, status")
+    .eq("email", email)
+    .single();
+
+  if (existing) {
+    if (existing.status === "approved") {
+      return NextResponse.json({ error: "Este email ya está registrado y aprobado" }, { status: 409 });
+    }
+    // Delete old record (pending_verification, pending, rejected) so they can re-register
+    await supabase.from("members").delete().eq("id", existing.id);
+  }
+
   const { error } = await supabase
     .from("members")
     .insert({
