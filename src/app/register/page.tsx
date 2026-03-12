@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import Script from "next/script";
+import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CheckCircle, ArrowLeft, ArrowRight } from "lucide-react";
+
+const HCaptcha = dynamic(() => import("@hcaptcha/react-hcaptcha"), { ssr: false });
 
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
@@ -98,34 +100,10 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState("");
   const [captchaToken, setCaptchaToken] = useState("");
-  const captchaRef = useRef<HTMLDivElement>(null);
-  const captchaWidgetId = useRef<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const captchaRef = useRef<any>(null);
 
   const siteKey = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || "";
-
-  const renderCaptcha = useCallback(() => {
-    if (
-      !siteKey ||
-      !captchaRef.current ||
-      captchaWidgetId.current !== null ||
-      typeof window === "undefined"
-    )
-      return;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const hcaptcha = (window as any).hcaptcha;
-    if (!hcaptcha) return;
-    captchaWidgetId.current = hcaptcha.render(captchaRef.current, {
-      sitekey: siteKey,
-      theme: "dark",
-      callback: (token: string) => setCaptchaToken(token),
-      "expired-callback": () => setCaptchaToken(""),
-      "error-callback": () => setCaptchaToken(""),
-    });
-  }, [siteKey]);
-
-  useEffect(() => {
-    if (step === 2) renderCaptcha();
-  }, [step, renderCaptcha]);
 
   const set = (field: keyof FormData, value: string | boolean) =>
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -244,13 +222,7 @@ export default function RegisterPage() {
   /* ---- Form ---- */
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A] px-4 py-24">
-      {siteKey && (
-        <Script
-          src="https://js.hcaptcha.com/1/api.js?render=explicit"
-          strategy="lazyOnload"
-          onLoad={renderCaptcha}
-        />
-      )}
+      {/* hCaptcha loads automatically via @hcaptcha/react-hcaptcha */}
       <div className="w-full max-w-xl">
         <div className="mb-10 flex justify-center">
           <Image
@@ -502,7 +474,14 @@ export default function RegisterPage() {
 
                 {siteKey && (
                   <div className="flex justify-center pt-2">
-                    <div ref={captchaRef} />
+                    <HCaptcha
+                      ref={captchaRef}
+                      sitekey={siteKey}
+                      theme="dark"
+                      onVerify={(token: string) => setCaptchaToken(token)}
+                      onExpire={() => setCaptchaToken("")}
+                      onError={() => setCaptchaToken("")}
+                    />
                   </div>
                 )}
               </motion.div>
