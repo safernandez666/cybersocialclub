@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import dynamic from "next/dynamic";
+import Script from "next/script";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,8 +16,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CheckCircle, ArrowLeft, ArrowRight } from "lucide-react";
-
-const HCaptcha = dynamic(() => import("@hcaptcha/react-hcaptcha"), { ssr: false });
 
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
@@ -99,8 +97,6 @@ export default function RegisterPage() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState("");
-  const [captchaToken, setCaptchaToken] = useState("");
-
   const siteKey = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || "";
 
   const set = (field: keyof FormData, value: string | boolean) =>
@@ -127,7 +123,6 @@ export default function RegisterPage() {
     }
     if (s === 2) {
       if (!form.acceptTerms) errs.acceptTerms = "Debés aceptar los términos";
-      if (siteKey && !captchaToken) errs.acceptTerms = errs.acceptTerms || "Completá la verificación de seguridad";
     }
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -143,6 +138,10 @@ export default function RegisterPage() {
     if (!validateStep(2)) return;
     setLoading(true);
     setApiError("");
+
+    // Read hCaptcha token from DOM (standard widget creates a hidden textarea)
+    const hcaptchaResponse = (document.querySelector('[name="h-captcha-response"]') as HTMLTextAreaElement)?.value || "";
+
     try {
       const res = await fetch("/api/members", {
         method: "POST",
@@ -156,7 +155,7 @@ export default function RegisterPage() {
           role_type: form.roleType,
           linkedin_url: form.linkedIn,
           years_experience: form.yearsExp,
-          captcha_token: captchaToken || undefined,
+          captcha_token: hcaptchaResponse || undefined,
         }),
       });
       const data = await res.json();
@@ -220,7 +219,9 @@ export default function RegisterPage() {
   /* ---- Form ---- */
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A] px-4 py-24">
-      {/* hCaptcha loads automatically via @hcaptcha/react-hcaptcha */}
+      {siteKey && (
+        <Script src="https://js.hcaptcha.com/1/api.js" strategy="lazyOnload" />
+      )}
       <div className="w-full max-w-xl">
         <div className="mb-10 flex justify-center">
           <Image
@@ -472,13 +473,7 @@ export default function RegisterPage() {
 
                 {siteKey && (
                   <div className="flex justify-center pt-2">
-                    <HCaptcha
-                      sitekey={siteKey}
-                      theme="dark"
-                      onVerify={(token: string) => setCaptchaToken(token)}
-                      onExpire={() => setCaptchaToken("")}
-                      onError={() => setCaptchaToken("")}
-                    />
+                    <div className="h-captcha" data-sitekey={siteKey} data-theme="dark" />
                   </div>
                 )}
               </motion.div>
