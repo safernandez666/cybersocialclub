@@ -61,9 +61,12 @@ export async function PATCH(
 
     // Send approval email
     try {
+      console.log("Sending approval email to:", member.email, "member:", memberNumber);
       await sendApprovalEmail(member.email, member.full_name, memberNumber, credentialToken);
+      console.log("Approval email sent successfully to:", member.email);
     } catch (emailError) {
-      console.error("Failed to send approval email:", emailError);
+      console.error("Failed to send approval email:", emailError instanceof Error ? emailError.message : emailError);
+      console.error("Full error:", JSON.stringify(emailError, Object.getOwnPropertyNames(emailError as object)));
     }
 
     return NextResponse.json({ success: true, member_number: memberNumber });
