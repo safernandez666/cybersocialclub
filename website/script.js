@@ -161,6 +161,7 @@
   if (track && images.length > 0) {
     let current = 0;
     const total = images.length;
+    var autoplay = null;
 
     function goTo(index) {
       current = index;
@@ -170,17 +171,33 @@
       if (counterCurrent) counterCurrent.textContent = current + 1;
     }
 
+    function startAutoplay() {
+      if (autoplay) clearInterval(autoplay);
+      autoplay = setInterval(function() { goTo(current + 1); }, 4000);
+    }
+
+    function stopAutoplay() {
+      if (autoplay) { clearInterval(autoplay); autoplay = null; }
+    }
+
     prevBtn.addEventListener('click', function() { goTo(current - 1); });
     nextBtn.addEventListener('click', function() { goTo(current + 1); });
 
-    // Auto-advance every 4 seconds
-    let autoplay = setInterval(function() { goTo(current + 1); }, 4000);
+    // Start autoplay only when carousel becomes visible
+    var carouselContainer = track.parentElement;
+    var carouselObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          startAutoplay();
+          carouselObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    carouselObserver.observe(carouselContainer);
 
     // Pause on hover
-    track.parentElement.addEventListener('mouseenter', function() { clearInterval(autoplay); });
-    track.parentElement.addEventListener('mouseleave', function() {
-      autoplay = setInterval(function() { goTo(current + 1); }, 4000);
-    });
+    carouselContainer.addEventListener('mouseenter', function() { stopAutoplay(); });
+    carouselContainer.addEventListener('mouseleave', function() { startAutoplay(); });
 
     // Swipe support
     let touchStartX = 0;
