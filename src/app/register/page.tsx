@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import Script from "next/script";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -96,6 +97,36 @@ export default function RegisterPage() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState("");
+  const [captchaToken, setCaptchaToken] = useState("");
+  const captchaRef = useRef<HTMLDivElement>(null);
+  const captchaWidgetId = useRef<string | null>(null);
+
+  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "";
+
+  const renderCaptcha = useCallback(() => {
+    if (
+      !siteKey ||
+      !captchaRef.current ||
+      captchaWidgetId.current !== null ||
+      typeof window === "undefined" ||
+      !(window as Record<string, unknown>).turnstile
+    )
+      return;
+    const turnstile = (window as Record<string, unknown>).turnstile as {
+      render: (el: HTMLElement, opts: Record<string, unknown>) => string;
+    };
+    captchaWidgetId.current = turnstile.render(captchaRef.current, {
+      sitekey: siteKey,
+      theme: "dark",
+      callback: (token: string) => setCaptchaToken(token),
+      "expired-callback": () => setCaptchaToken(""),
+      "error-callback": () => setCaptchaToken(""),
+    });
+  }, [siteKey]);
+
+  useEffect(() => {
+    if (step === 2) renderCaptcha();
+  }, [step, renderCaptcha]);
 
   const set = (field: keyof FormData, value: string | boolean) =>
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -121,6 +152,7 @@ export default function RegisterPage() {
     }
     if (s === 2) {
       if (!form.acceptTerms) errs.acceptTerms = "Debés aceptar los términos";
+      if (siteKey && !captchaToken) errs.acceptTerms = errs.acceptTerms || "Completá la verificación de seguridad";
     }
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -149,6 +181,7 @@ export default function RegisterPage() {
           role_type: form.roleType,
           linkedin_url: form.linkedIn,
           years_experience: form.yearsExp,
+          captcha_token: captchaToken || undefined,
         }),
       });
       const data = await res.json();
@@ -212,6 +245,13 @@ export default function RegisterPage() {
   /* ---- Form ---- */
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A] px-4 py-24">
+      {siteKey && (
+        <Script
+          src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+          strategy="lazyOnload"
+          onLoad={renderCaptcha}
+        />
+      )}
       <div className="w-full max-w-xl">
         <div className="mb-10 flex justify-center">
           <Image
@@ -459,6 +499,12 @@ export default function RegisterPage() {
                 </div>
                 {errors.acceptTerms && (
                   <p className="font-mono text-xs text-csc-wine">{errors.acceptTerms}</p>
+                )}
+
+                {siteKey && (
+                  <div className="flex justify-center pt-2">
+                    <div ref={captchaRef} />
+                  </div>
                 )}
               </motion.div>
             )}

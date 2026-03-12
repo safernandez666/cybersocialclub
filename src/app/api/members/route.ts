@@ -6,10 +6,27 @@ import { sendVerificationEmail } from "@/lib/email";
 export async function POST(req: NextRequest) {
   const body = await req.json();
 
-  const { full_name, email, phone, company, job_title, role_type, linkedin_url, years_experience } = body;
+  const { full_name, email, phone, company, job_title, role_type, linkedin_url, years_experience, captcha_token } = body;
 
   if (!full_name || !email) {
     return NextResponse.json({ error: "Nombre y email son obligatorios" }, { status: 400 });
+  }
+
+  // Verify Turnstile captcha if configured
+  const turnstileSecret = process.env.TURNSTILE_SECRET_KEY;
+  if (turnstileSecret) {
+    if (!captcha_token) {
+      return NextResponse.json({ error: "Verificación de seguridad requerida" }, { status: 400 });
+    }
+    const verifyRes = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ secret: turnstileSecret, response: captcha_token }),
+    });
+    const verifyData = await verifyRes.json();
+    if (!verifyData.success) {
+      return NextResponse.json({ error: "Verificación de seguridad fallida. Intentá de nuevo." }, { status: 400 });
+    }
   }
 
   // Input length validation
