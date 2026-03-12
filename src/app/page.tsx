@@ -192,9 +192,9 @@ export default function Home() {
               </p>
               <div className="mt-10 grid grid-cols-2 gap-8">
                 {[
-                  { value: 500, suffix: "+", label: "Miembros activos" },
-                  { value: 20, suffix: "+", label: "Países" },
-                  { value: 50, suffix: "+", label: "Eventos realizados" },
+                  { value: 900, suffix: "+", label: "Seguidores en Instagram" },
+                  { value: 5, suffix: "+", label: "Eventos realizados" },
+                  { value: 1, suffix: "", label: "Evento Internacional" },
                   { value: 100, suffix: "%", label: "Ciberseguridad" },
                 ].map((stat, i) => (
                   <div key={stat.label}>
