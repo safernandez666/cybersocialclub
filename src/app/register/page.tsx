@@ -101,7 +101,7 @@ export default function RegisterPage() {
   const captchaRef = useRef<HTMLDivElement>(null);
   const captchaWidgetId = useRef<string | null>(null);
 
-  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "";
+  const siteKey = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || "";
 
   const renderCaptcha = useCallback(() => {
     if (
@@ -109,13 +109,13 @@ export default function RegisterPage() {
       !captchaRef.current ||
       captchaWidgetId.current !== null ||
       typeof window === "undefined" ||
-      !(window as Record<string, unknown>).turnstile
+      !(window as Record<string, unknown>).hcaptcha
     )
       return;
-    const turnstile = (window as Record<string, unknown>).turnstile as {
+    const hcaptcha = (window as Record<string, unknown>).hcaptcha as {
       render: (el: HTMLElement, opts: Record<string, unknown>) => string;
     };
-    captchaWidgetId.current = turnstile.render(captchaRef.current, {
+    captchaWidgetId.current = hcaptcha.render(captchaRef.current, {
       sitekey: siteKey,
       theme: "dark",
       callback: (token: string) => setCaptchaToken(token),
@@ -247,7 +247,7 @@ export default function RegisterPage() {
     <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A] px-4 py-24">
       {siteKey && (
         <Script
-          src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+          src="https://js.hcaptcha.com/1/api.js?render=explicit"
           strategy="lazyOnload"
           onLoad={renderCaptcha}
         />

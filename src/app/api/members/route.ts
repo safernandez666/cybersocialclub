@@ -12,16 +12,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Nombre y email son obligatorios" }, { status: 400 });
   }
 
-  // Verify Turnstile captcha if configured
-  const turnstileSecret = process.env.TURNSTILE_SECRET_KEY;
-  if (turnstileSecret) {
+  // Verify hCaptcha if configured
+  const hcaptchaSecret = process.env.HCAPTCHA_SECRET_KEY;
+  if (hcaptchaSecret) {
     if (!captcha_token) {
       return NextResponse.json({ error: "Verificación de seguridad requerida" }, { status: 400 });
     }
-    const verifyRes = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+    const verifyRes = await fetch("https://api.hcaptcha.com/siteverify", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ secret: turnstileSecret, response: captcha_token }),
+      body: new URLSearchParams({ secret: hcaptchaSecret, response: captcha_token }),
     });
     const verifyData = await verifyRes.json();
     if (!verifyData.success) {
