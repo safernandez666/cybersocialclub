@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Check, X, Clock, UserCheck, UserX, Users, Mail, MailQuestion } from "lucide-react";
+import { ArrowLeft, Check, X, Clock, UserCheck, UserX, Users, Mail, MailQuestion, Shield } from "lucide-react";
 
 interface Member {
   id: string;
@@ -22,20 +22,29 @@ export default function AdminPage() {
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(false);
   const [adminKey, setAdminKey] = useState("");
+  const [totpCode, setTotpCode] = useState("");
+  const [needsTOTP, setNeedsTOTP] = useState(false);
+  const [sessionToken, setSessionToken] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
   const [filter, setFilter] = useState<string>("pending");
   const [processing, setProcessing] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchMembers = async (key: string) => {
+  const authHeaders = (): Record<string, string> => {
+    if (sessionToken) return { "x-admin-token": sessionToken };
+    return { "x-admin-key": adminKey };
+  };
+
+  const fetchMembers = async () => {
     setError(null);
     try {
       const res = await fetch(`/api/admin/members?status=${filter}`, {
-        headers: { "x-admin-key": key },
+        headers: authHeaders(),
       });
       if (res.status === 401) {
         setAuthenticated(false);
-        setError("Clave incorrecta");
+        setSessionToken("");
+        setError("Sesión expirada. Ingresá de nuevo.");
         return;
       }
       if (!res.ok) {
@@ -46,25 +55,62 @@ export default function AdminPage() {
       const data = await res.json();
       setMembers(Array.isArray(data) ? data : []);
       setAuthenticated(true);
-    } catch (err) {
+    } catch {
       setError("Error de conexión");
-      console.error("Error fetching members:", err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (authenticated && adminKey) {
+    if (authenticated && sessionToken) {
       setLoading(true);
-      fetchMembers(adminKey);
+      fetchMembers();
     }
   }, [filter, authenticated]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    fetchMembers(adminKey);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/admin/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ adminKey, totpCode: totpCode || undefined }),
+      });
+
+      const data = await res.json();
+
+      if (res.status === 403 && data.error === "totp_required") {
+        setNeedsTOTP(true);
+        setLoading(false);
+        return;
+      }
+
+      if (!res.ok) {
+        setError(data.error || "Error de autenticación");
+        setLoading(false);
+        return;
+      }
+
+      setSessionToken(data.token);
+      setAuthenticated(true);
+
+      // Fetch members with new token
+      const membersRes = await fetch(`/api/admin/members?status=${filter}`, {
+        headers: { "x-admin-token": data.token },
+      });
+      if (membersRes.ok) {
+        const membersData = await membersRes.json();
+        setMembers(Array.isArray(membersData) ? membersData : []);
+      }
+    } catch {
+      setError("Error de conexión");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAction = async (memberId: string, action: "approve" | "reject") => {
@@ -72,11 +118,10 @@ export default function AdminPage() {
     try {
       const res = await fetch(`/api/members/${memberId}/approve`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json", "x-admin-key": adminKey },
+        headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify({ action }),
       });
       if (res.ok) {
-        // Remove from list
         setMembers((prev) => prev.filter((m) => m.id !== memberId));
       }
     } catch {
@@ -91,7 +136,7 @@ export default function AdminPage() {
     try {
       const res = await fetch(`/api/members/${memberId}/resend-credential`, {
         method: "POST",
-        headers: { "x-admin-key": adminKey },
+        headers: authHeaders(),
       });
       if (res.ok) {
         alert("Credencial reenviada por email");
@@ -121,34 +166,62 @@ export default function AdminPage() {
       <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A] px-4 pt-16">
         <form onSubmit={handleLogin} className="w-full max-w-sm">
           <h1 className="mb-2 font-mono text-xl text-white">Panel de Administración</h1>
-          <p className="mb-8 font-mono text-xs text-white/30">Ingresá la clave de admin para continuar</p>
+          <p className="mb-8 font-mono text-xs text-white/30">
+            {needsTOTP ? "Ingresá el código de tu autenticador" : "Ingresá la clave de admin para continuar"}
+          </p>
           {error && (
             <div className="mb-4 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 font-mono text-xs text-red-400">
               {error}
             </div>
           )}
-          <input
-            type="password"
-            value={adminKey}
-            onChange={(e) => setAdminKey(e.target.value)}
-            placeholder="Clave de administrador"
-            className="mb-4 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 font-mono text-sm text-white placeholder:text-white/20 focus:border-csc-orange/50 focus:outline-none"
-          />
+          {!needsTOTP && (
+            <input
+              type="password"
+              value={adminKey}
+              onChange={(e) => setAdminKey(e.target.value)}
+              placeholder="Clave de administrador"
+              className="mb-4 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 font-mono text-sm text-white placeholder:text-white/20 focus:border-csc-orange/50 focus:outline-none"
+            />
+          )}
+          {needsTOTP && (
+            <div className="mb-4">
+              <div className="mb-3 flex items-center gap-2 rounded-xl border border-csc-orange/20 bg-csc-orange/5 px-4 py-3">
+                <Shield className="h-4 w-4 text-csc-orange" />
+                <span className="font-mono text-xs text-csc-orange">Verificación MFA requerida</span>
+              </div>
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={6}
+                value={totpCode}
+                onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ""))}
+                placeholder="Código de 6 dígitos"
+                autoFocus
+                className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-center font-mono text-2xl tracking-[0.5em] text-white placeholder:text-sm placeholder:tracking-normal placeholder:text-white/20 focus:border-csc-orange/50 focus:outline-none"
+              />
+            </div>
+          )}
           <button
             type="submit"
-            disabled={!adminKey || loading}
+            disabled={(!adminKey && !needsTOTP) || (needsTOTP && totpCode.length !== 6) || loading}
             className="w-full rounded-full bg-csc-orange px-6 py-3 font-mono text-xs uppercase tracking-widest text-white transition-all hover:bg-csc-amber disabled:opacity-50"
           >
-            {loading ? "Verificando..." : "Ingresar"}
+            {loading ? "Verificando..." : needsTOTP ? "Verificar" : "Ingresar"}
           </button>
+          {needsTOTP && (
+            <button
+              type="button"
+              onClick={() => { setNeedsTOTP(false); setTotpCode(""); setError(null); }}
+              className="mt-3 w-full font-mono text-xs text-white/30 transition-colors hover:text-white"
+            >
+              Volver
+            </button>
+          )}
         </form>
       </div>
     );
   }
-
-  const counts = {
-    pending: members.length,
-  };
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] px-4 pt-24 pb-8 sm:px-8">
@@ -258,7 +331,7 @@ export default function AdminPage() {
                           try {
                             await fetch(`/api/admin/members/${member.id}`, {
                               method: "DELETE",
-                              headers: { "x-admin-key": adminKey },
+                              headers: authHeaders(),
                             });
                             setMembers((prev) => prev.filter((m) => m.id !== member.id));
                           } catch { /* ignore */ } finally { setProcessing(null); }

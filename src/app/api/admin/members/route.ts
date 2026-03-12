@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { validateAdminAuth } from "@/lib/admin-session";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const status = searchParams.get("status");
 
-  const adminKey = req.headers.get("x-admin-key");
-  if (adminKey !== process.env.ADMIN_SECRET_KEY) {
+  if (!validateAdminAuth(req.headers)) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 

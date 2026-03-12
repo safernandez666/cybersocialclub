@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { randomBytes } from "crypto";
 import { sendApprovalEmail } from "@/lib/email";
+import { validateAdminAuth } from "@/lib/admin-session";
 
 export async function PATCH(
   req: NextRequest,
@@ -11,9 +12,7 @@ export async function PATCH(
   const body = await req.json();
   const { action } = body;
 
-  // Auth check — prefer header, fall back to body for backward compatibility
-  const adminKey = req.headers.get("x-admin-key") || body.adminKey;
-  if (adminKey !== process.env.ADMIN_SECRET_KEY) {
+  if (!validateAdminAuth(req.headers)) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 

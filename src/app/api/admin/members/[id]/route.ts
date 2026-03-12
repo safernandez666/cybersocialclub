@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { validateAdminAuth } from "@/lib/admin-session";
 
 export async function DELETE(
   req: NextRequest,
@@ -7,8 +8,7 @@ export async function DELETE(
 ) {
   const { id } = await params;
 
-  const adminKey = req.headers.get("x-admin-key");
-  if (adminKey !== process.env.ADMIN_SECRET_KEY) {
+  if (!validateAdminAuth(req.headers)) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
