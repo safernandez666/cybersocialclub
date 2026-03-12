@@ -18,12 +18,17 @@ export async function POST(req: NextRequest) {
     if (!captcha_token) {
       return NextResponse.json({ error: "Verificación de seguridad requerida" }, { status: 400 });
     }
+    const verifyParams: Record<string, string> = { secret: hcaptchaSecret, response: captcha_token };
+    const hcaptchaSiteKey = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY;
+    if (hcaptchaSiteKey) verifyParams.sitekey = hcaptchaSiteKey;
+
     const verifyRes = await fetch("https://api.hcaptcha.com/siteverify", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ secret: hcaptchaSecret, response: captcha_token }),
+      body: new URLSearchParams(verifyParams),
     });
     const verifyData = await verifyRes.json();
+    console.log("hCaptcha verify response:", JSON.stringify(verifyData));
     if (!verifyData.success) {
       return NextResponse.json({ error: "Verificación de seguridad fallida. Intentá de nuevo." }, { status: 400 });
     }
