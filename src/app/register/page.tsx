@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Script from "next/script";
@@ -98,6 +98,25 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState("");
   const siteKey = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || "";
+  const captchaRendered = useRef(false);
+
+  // Explicitly render hCaptcha when step 2 is shown (div must be in DOM)
+  useEffect(() => {
+    if (step === 2 && siteKey && !captchaRendered.current) {
+      const tryRender = () => {
+        const hcaptcha = (window as any).hcaptcha;
+        const container = document.querySelector(".h-captcha");
+        if (hcaptcha && container) {
+          hcaptcha.render(container, { sitekey: siteKey, theme: "dark" });
+          captchaRendered.current = true;
+        } else {
+          setTimeout(tryRender, 500);
+        }
+      };
+      // Small delay to let AnimatePresence mount the div
+      setTimeout(tryRender, 300);
+    }
+  }, [step, siteKey]);
 
   const set = (field: keyof FormData, value: string | boolean) =>
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -220,7 +239,7 @@ export default function RegisterPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A] px-4 py-24">
       {siteKey && (
-        <Script src="https://js.hcaptcha.com/1/api.js" strategy="lazyOnload" />
+        <Script src="https://js.hcaptcha.com/1/api.js?render=explicit&onload=onHcaptchaLoad" strategy="afterInteractive" />
       )}
       <div className="w-full max-w-xl">
         <div className="mb-10 flex justify-center">
@@ -473,7 +492,7 @@ export default function RegisterPage() {
 
                 {siteKey && (
                   <div className="flex justify-center pt-2">
-                    <div className="h-captcha" data-sitekey={siteKey} data-theme="dark" />
+                    <div className="h-captcha" />
                   </div>
                 )}
               </motion.div>
