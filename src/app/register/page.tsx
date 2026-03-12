@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import dynamic from "next/dynamic";
@@ -100,8 +100,6 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState("");
   const [captchaToken, setCaptchaToken] = useState("");
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const captchaRef = useRef<any>(null);
 
   const siteKey = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || "";
 
@@ -475,7 +473,6 @@ export default function RegisterPage() {
                 {siteKey && (
                   <div className="flex justify-center pt-2">
                     <HCaptcha
-                      ref={captchaRef}
                       sitekey={siteKey}
                       theme="dark"
                       onVerify={(token: string) => setCaptchaToken(token)}
