@@ -193,14 +193,15 @@ function CredentialContent() {
           </div>
         </div>
 
-        {/* Download PDF Button */}
+        {/* Download Image Button */}
         <div className="mt-6 text-center">
           <a
-            href={`/api/credential/pdf?token=${token}`}
+            href={`/api/credential/image?token=${token}`}
+            download={`CSC-Credencial-${data.member_number}.png`}
             className="group inline-flex items-center gap-2 rounded-full bg-csc-orange px-8 py-3 font-mono text-xs uppercase tracking-widest text-white transition-all hover:bg-csc-amber hover:shadow-xl hover:shadow-csc-orange/20"
           >
             <Download className="h-4 w-4" />
-            Descargar Credencial PDF
+            Descargar Credencial
           </a>
         </div>
         <div className="mt-4 text-center">

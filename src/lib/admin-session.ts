@@ -1,6 +1,6 @@
 import { createHmac, randomBytes } from "crypto";
 
-const SESSION_DURATION_MS = 2 * 60 * 60 * 1000; // 2 hours
+const SESSION_DURATION_MS = 1 * 60 * 60 * 1000; // 1 hour
 
 function getSigningKey(): string {
   return process.env.ADMIN_SECRET_KEY || "fallback-key";
