@@ -108,13 +108,12 @@ export default function RegisterPage() {
       !siteKey ||
       !captchaRef.current ||
       captchaWidgetId.current !== null ||
-      typeof window === "undefined" ||
-      !(window as Record<string, unknown>).hcaptcha
+      typeof window === "undefined"
     )
       return;
-    const hcaptcha = (window as Record<string, unknown>).hcaptcha as {
-      render: (el: HTMLElement, opts: Record<string, unknown>) => string;
-    };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const hcaptcha = (window as any).hcaptcha;
+    if (!hcaptcha) return;
     captchaWidgetId.current = hcaptcha.render(captchaRef.current, {
       sitekey: siteKey,
       theme: "dark",
