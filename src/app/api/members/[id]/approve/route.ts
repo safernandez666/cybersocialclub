@@ -59,11 +59,18 @@ export async function PATCH(
       return NextResponse.json({ error: updateError.message }, { status: 500 });
     }
 
-    // Send approval email
+    // Send approval email and track delivery
+    // NOTE: Requires `credential_email_sent_at` column (timestamptz) in Supabase `members` table
+    // Migration: ALTER TABLE members ADD COLUMN credential_email_sent_at timestamptz;
     try {
       console.log("Sending approval email to:", member.email, "member:", memberNumber);
       await sendApprovalEmail(member.email, member.full_name, memberNumber, credentialToken);
       console.log("Approval email sent successfully to:", member.email);
+
+      await getSupabaseAdmin()
+        .from("members")
+        .update({ credential_email_sent_at: new Date().toISOString() })
+        .eq("id", id);
     } catch (emailError) {
       console.error("Failed to send approval email:", emailError instanceof Error ? emailError.message : emailError);
       console.error("Full error:", JSON.stringify(emailError, Object.getOwnPropertyNames(emailError as object)));

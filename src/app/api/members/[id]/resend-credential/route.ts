@@ -33,6 +33,12 @@ export async function POST(
 
   try {
     await sendApprovalEmail(member.email, member.full_name, member.member_number, member.credential_token);
+
+    // Track email delivery timestamp
+    await getSupabaseAdmin()
+      .from("members")
+      .update({ credential_email_sent_at: new Date().toISOString() })
+      .eq("id", id);
   } catch (emailError) {
     console.error("Failed to resend credential email:", emailError);
     return NextResponse.json({ error: "Error al enviar el email" }, { status: 500 });

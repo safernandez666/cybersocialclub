@@ -86,10 +86,10 @@ function CredentialContent() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-[#0A0A0A] px-4 pt-20 pb-12">
       {/* Credential Card */}
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-md mx-auto">
         <div className="overflow-hidden rounded-3xl border border-white/5 bg-[#141211]">
           {/* Card Header */}
-          <div className="flex items-center justify-between border-b border-white/5 px-6 py-5">
+          <div className="flex items-center justify-between border-b border-white/5 px-4 sm:px-6 py-5">
             <div>
               <h1 className="font-mono text-sm font-bold tracking-widest text-csc-orange">
                 CYBER SOCIAL CLUB
@@ -109,7 +109,7 @@ function CredentialContent() {
           </div>
 
           {/* Card Body */}
-          <div className="px-6 py-6">
+          <div className="px-4 sm:px-6 py-6">
             <div className="mb-6">
               <p className="font-mono text-[10px] uppercase tracking-widest text-white/20">
                 Nombre completo
@@ -117,7 +117,7 @@ function CredentialContent() {
               <p className="mt-1 text-lg font-medium text-white">{data.full_name}</p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {data.company && (
                 <div>
                   <div className="flex items-center gap-1.5">
@@ -167,7 +167,7 @@ function CredentialContent() {
           </div>
 
           {/* QR Section */}
-          <div className="flex flex-col items-center border-t border-white/5 px-6 py-6">
+          <div className="flex flex-col items-center border-t border-white/5 px-4 sm:px-6 py-6">
             {data.qr ? (
               <>
                 <div className="rounded-2xl bg-[#0A0A0A] p-4">
@@ -183,7 +183,7 @@ function CredentialContent() {
           </div>
 
           {/* Status Bar */}
-          <div className="flex items-center justify-between border-t border-white/5 px-6 py-3">
+          <div className="flex flex-col sm:flex-row items-center justify-between border-t border-white/5 px-4 sm:px-6 py-3 gap-2">
             <span className="font-mono text-[10px] text-white/15">
               © {new Date().getFullYear()} Cyber Social Club
             </span>

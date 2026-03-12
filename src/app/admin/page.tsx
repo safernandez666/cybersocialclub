@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Check, X, Clock, UserCheck, UserX, Users, Mail, MailQuestion, Shield } from "lucide-react";
+import { ArrowLeft, Check, X, Clock, UserCheck, UserX, Users, Mail, MailQuestion, Shield, CheckCircle2 } from "lucide-react";
 
 interface Member {
   id: string;
@@ -16,6 +16,7 @@ interface Member {
   status: string;
   member_number: string | null;
   created_at: string;
+  credential_email_sent_at?: string | null;
 }
 
 export default function AdminPage() {
@@ -161,6 +162,21 @@ export default function AdminPage() {
     });
   };
 
+  const formatRelativeTime = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return "ahora";
+    if (diffMins < 60) return `hace ${diffMins}m`;
+    if (diffHours < 24) return `hace ${diffHours}h`;
+    if (diffDays < 30) return `hace ${diffDays}d`;
+    return formatDate(dateStr);
+  };
+
   if (!authenticated) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A] px-4 pt-16">
@@ -240,7 +256,7 @@ export default function AdminPage() {
         </div>
 
         {/* Filter tabs */}
-        <div className="mb-8 flex gap-2">
+        <div className="mb-8 flex flex-wrap gap-2">
           {[
             { key: "pending_verification", label: "Sin Verificar", icon: MailQuestion },
             { key: "pending", label: "Pendientes", icon: Clock },
@@ -279,14 +295,33 @@ export default function AdminPage() {
                 key={member.id}
                 className="group rounded-2xl border border-white/5 bg-[#141211] p-5 transition-all hover:border-white/10"
               >
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                   <div className="flex-1">
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                       <h3 className="text-base font-medium text-white">{member.full_name}</h3>
                       {member.member_number && (
                         <span className="rounded-full bg-csc-orange/10 px-3 py-0.5 font-mono text-xs text-csc-orange">
                           {member.member_number}
                         </span>
+                      )}
+                      {/* Email Status Badge - only for approved members */}
+                      {member.status === "approved" && (
+                        <>
+                          {member.credential_email_sent_at ? (
+                            <span 
+                              className="inline-flex items-center gap-1 rounded-full bg-green-500/10 px-2 py-0.5 font-mono text-[10px] text-green-400"
+                              title={`Enviado: ${formatDate(member.credential_email_sent_at)}`}
+                            >
+                              <CheckCircle2 className="h-3 w-3" />
+                              {formatRelativeTime(member.credential_email_sent_at)}
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-red-500/10 px-2 py-0.5 font-mono text-[10px] text-red-400">
+                              <Mail className="h-3 w-3" />
+                              No enviado
+                            </span>
+                          )}
+                        </>
                       )}
                     </div>
                     <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1">
@@ -324,7 +359,7 @@ export default function AdminPage() {
                   </div>
 
                   {filter === "pending_verification" && (
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <button
                         onClick={async () => {
                           setProcessing(member.id);
@@ -346,7 +381,7 @@ export default function AdminPage() {
                   )}
 
                   {filter === "approved" && (
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <button
                         onClick={() => handleResendCredential(member.id)}
                         disabled={processing === member.id}
@@ -359,7 +394,7 @@ export default function AdminPage() {
                   )}
 
                   {filter === "pending" && (
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <button
                         onClick={() => handleAction(member.id, "approve")}
                         disabled={processing === member.id}
