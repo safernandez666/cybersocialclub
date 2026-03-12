@@ -155,7 +155,10 @@ export async function sendApprovalEmail(to: string, fullName: string, memberNumb
   const credentialUrl = `${getAppUrl()}/credential?token=${credentialToken}`;
   const imageUrl = `${getAppUrl()}/api/credential/image?token=${credentialToken}`;
 
-  await transporter.sendMail({
+  console.log("[sendApprovalEmail] Starting — to:", to, "member:", memberNumber);
+  console.log("[sendApprovalEmail] SMTP config — host:", process.env.SMTP_HOST, "port:", process.env.SMTP_PORT, "user:", process.env.SMTP_USER, "from:", process.env.SMTP_FROM);
+
+  const info = await transporter.sendMail({
     from: `"${FROM_NAME}" <${getFromEmail()}>`,
     to,
     subject: `¡Membresía aprobada! Tu credencial ${memberNumber} está lista`,
@@ -204,4 +207,6 @@ export async function sendApprovalEmail(to: string, fullName: string, memberNumb
 </body>
 </html>`,
   });
+
+  console.log("[sendApprovalEmail] SMTP response:", JSON.stringify(info));
 }

@@ -32,7 +32,9 @@ export async function POST(
   }
 
   try {
+    console.log("[resend-credential] Sending to:", member.email, "member:", member.member_number);
     await sendApprovalEmail(member.email, member.full_name, member.member_number, member.credential_token);
+    console.log("[resend-credential] Email sent successfully");
 
     // Track email delivery timestamp
     await getSupabaseAdmin()
