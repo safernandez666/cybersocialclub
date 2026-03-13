@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { after } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { randomBytes } from "crypto";
 import { sendApprovalEmail } from "@/lib/email";
@@ -59,22 +60,21 @@ export async function PATCH(
       return NextResponse.json({ error: updateError.message }, { status: 500 });
     }
 
-    // Send approval email and track delivery
-    // NOTE: Requires `credential_email_sent_at` column (timestamptz) in Supabase `members` table
-    // Migration: ALTER TABLE members ADD COLUMN credential_email_sent_at timestamptz;
-    try {
-      console.log("Sending approval email to:", member.email, "member:", memberNumber);
-      await sendApprovalEmail(member.email, member.full_name, memberNumber, credentialToken);
-      console.log("Approval email sent successfully to:", member.email);
+    // Send approval email in background (after response) to avoid Vercel function timeout
+    after(async () => {
+      try {
+        console.log("[after] Sending approval email to:", member.email, "member:", memberNumber);
+        await sendApprovalEmail(member.email, member.full_name, memberNumber, credentialToken);
+        console.log("[after] Approval email sent successfully to:", member.email);
 
-      await getSupabaseAdmin()
-        .from("members")
-        .update({ credential_email_sent_at: new Date().toISOString() })
-        .eq("id", id);
-    } catch (emailError) {
-      console.error("Failed to send approval email:", emailError instanceof Error ? emailError.message : emailError);
-      console.error("Full error:", JSON.stringify(emailError, Object.getOwnPropertyNames(emailError as object)));
-    }
+        await getSupabaseAdmin()
+          .from("members")
+          .update({ credential_email_sent_at: new Date().toISOString() })
+          .eq("id", id);
+      } catch (emailError) {
+        console.error("[after] Failed to send approval email:", emailError instanceof Error ? emailError.message : emailError);
+      }
+    });
 
     return NextResponse.json({ success: true, member_number: memberNumber });
   }
