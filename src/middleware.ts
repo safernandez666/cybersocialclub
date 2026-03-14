@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
 
 const RATE_LIMITS: { pattern: RegExp; maxRequests: number; windowMs: number }[] = [
-  { pattern: /^\/api\/admin\//, maxRequests: 10, windowMs: 15 * 60 * 1000 },
+  { pattern: /^\/api\/admin\//, maxRequests: 100, windowMs: 15 * 60 * 1000 },
   { pattern: /^\/api\/credential\//, maxRequests: 10, windowMs: 15 * 60 * 1000 },
   { pattern: /^\/api\/verify-email/, maxRequests: 10, windowMs: 15 * 60 * 1000 },
 ];
