@@ -94,12 +94,12 @@ function CredentialContent() {
               <h1 className="font-mono text-sm font-bold tracking-widest text-csc-orange">
                 CYBER SOCIAL CLUB
               </h1>
-              <p className="font-mono text-[10px] tracking-[0.3em] text-white/20">
+              <p className="font-mono text-[10px] tracking-[0.3em] text-white/40">
                 WHERE CYBER MINDS CONNECT
               </p>
             </div>
             <div className="text-right">
-              <p className="font-mono text-[10px] uppercase tracking-widest text-white/20">
+              <p className="font-mono text-[10px] uppercase tracking-widest text-white/40">
                 Miembro
               </p>
               <p className="font-mono text-2xl font-bold text-csc-orange">
@@ -111,7 +111,7 @@ function CredentialContent() {
           {/* Card Body */}
           <div className="px-4 sm:px-6 py-6">
             <div className="mb-6">
-              <p className="font-mono text-[10px] uppercase tracking-widest text-white/20">
+              <p className="font-mono text-[10px] uppercase tracking-widest text-white/40">
                 Nombre completo
               </p>
               <p className="mt-1 text-lg font-medium text-white">{data.full_name}</p>
@@ -121,32 +121,32 @@ function CredentialContent() {
               {data.company && (
                 <div>
                   <div className="flex items-center gap-1.5">
-                    <Building2 className="h-3 w-3 text-white/15" />
-                    <p className="font-mono text-[10px] uppercase tracking-widest text-white/20">
+                    <Building2 className="h-3 w-3 text-white/30" />
+                    <p className="font-mono text-[10px] uppercase tracking-widest text-white/40">
                       Empresa
                     </p>
                   </div>
-                  <p className="mt-1 font-mono text-sm text-white/60">{data.company}</p>
+                  <p className="mt-1 font-mono text-sm text-white/80">{data.company}</p>
                 </div>
               )}
 
               {data.job_title && (
                 <div>
                   <div className="flex items-center gap-1.5">
-                    <Briefcase className="h-3 w-3 text-white/15" />
-                    <p className="font-mono text-[10px] uppercase tracking-widest text-white/20">
+                    <Briefcase className="h-3 w-3 text-white/30" />
+                    <p className="font-mono text-[10px] uppercase tracking-widest text-white/40">
                       Cargo
                     </p>
                   </div>
-                  <p className="mt-1 font-mono text-sm text-white/60">{data.job_title}</p>
+                  <p className="mt-1 font-mono text-sm text-white/80">{data.job_title}</p>
                 </div>
               )}
 
               {data.role_type && (
                 <div>
                   <div className="flex items-center gap-1.5">
-                    <UserCircle className="h-3 w-3 text-white/15" />
-                    <p className="font-mono text-[10px] uppercase tracking-widest text-white/20">
+                    <UserCircle className="h-3 w-3 text-white/30" />
+                    <p className="font-mono text-[10px] uppercase tracking-widest text-white/40">
                       Rol
                     </p>
                   </div>
@@ -156,12 +156,12 @@ function CredentialContent() {
 
               <div>
                 <div className="flex items-center gap-1.5">
-                  <Calendar className="h-3 w-3 text-white/15" />
-                  <p className="font-mono text-[10px] uppercase tracking-widest text-white/20">
+                  <Calendar className="h-3 w-3 text-white/30" />
+                  <p className="font-mono text-[10px] uppercase tracking-widest text-white/40">
                     Miembro desde
                   </p>
                 </div>
-                <p className="mt-1 font-mono text-sm text-white/60">{memberSince}</p>
+                <p className="mt-1 font-mono text-sm text-white/80">{memberSince}</p>
               </div>
             </div>
           </div>
@@ -173,7 +173,7 @@ function CredentialContent() {
                 <div className="rounded-2xl bg-[#0A0A0A] p-4">
                   <img src={data.qr} alt="QR de verificación" className="h-32 w-32" />
                 </div>
-                <p className="mt-3 font-mono text-[10px] uppercase tracking-widest text-white/15">
+                <p className="mt-3 font-mono text-[10px] uppercase tracking-widest text-white/30">
                   Escaneá para verificar
                 </p>
               </>
@@ -184,7 +184,7 @@ function CredentialContent() {
 
           {/* Status Bar */}
           <div className="flex flex-col sm:flex-row items-center justify-between border-t border-white/5 px-4 sm:px-6 py-3 gap-2">
-            <span className="font-mono text-[10px] text-white/15">
+            <span className="font-mono text-[10px] text-white/30">
               © {new Date().getFullYear()} Cyber Social Club
             </span>
             <span className="rounded-full bg-green-500/10 px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-widest text-green-400">

@@ -72,12 +72,12 @@ export async function GET(req: NextRequest) {
                 <span style={{ fontSize: 18, color: "#E87B1E", fontWeight: 700, letterSpacing: 4 }}>
                   CYBER SOCIAL CLUB
                 </span>
-                <span style={{ fontSize: 10, color: "rgba(255,255,255,0.2)", letterSpacing: 5, marginTop: 2 }}>
+                <span style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", letterSpacing: 5, marginTop: 2 }}>
                   WHERE CYBER MINDS CONNECT
                 </span>
               </div>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
-                <span style={{ fontSize: 10, color: "rgba(255,255,255,0.2)", letterSpacing: 3 }}>
+                <span style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", letterSpacing: 3 }}>
                   MIEMBRO
                 </span>
                 <span style={{ fontSize: 36, color: "#E87B1E", fontWeight: 700, marginTop: 2 }}>
@@ -97,7 +97,7 @@ export async function GET(req: NextRequest) {
             >
               {/* Info */}
               <div style={{ display: "flex", flexDirection: "column", flex: 1, justifyContent: "center" }}>
-                <span style={{ fontSize: 10, color: "rgba(255,255,255,0.2)", letterSpacing: 3 }}>
+                <span style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", letterSpacing: 3 }}>
                   NOMBRE COMPLETO
                 </span>
                 <span style={{ fontSize: 28, color: "#FFFFFF", marginTop: 6, marginBottom: 28 }}>
@@ -107,27 +107,27 @@ export async function GET(req: NextRequest) {
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 24 }}>
                   {member.company && (
                     <div style={{ display: "flex", flexDirection: "column", minWidth: 140 }}>
-                      <span style={{ fontSize: 9, color: "rgba(255,255,255,0.2)", letterSpacing: 2 }}>
+                      <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)", letterSpacing: 2 }}>
                         EMPRESA
                       </span>
-                      <span style={{ fontSize: 16, color: "rgba(255,255,255,0.6)", marginTop: 4 }}>
+                      <span style={{ fontSize: 16, color: "rgba(255,255,255,0.85)", marginTop: 4 }}>
                         {member.company}
                       </span>
                     </div>
                   )}
                   {member.job_title && (
                     <div style={{ display: "flex", flexDirection: "column", minWidth: 140 }}>
-                      <span style={{ fontSize: 9, color: "rgba(255,255,255,0.2)", letterSpacing: 2 }}>
+                      <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)", letterSpacing: 2 }}>
                         CARGO
                       </span>
-                      <span style={{ fontSize: 16, color: "rgba(255,255,255,0.6)", marginTop: 4 }}>
+                      <span style={{ fontSize: 16, color: "rgba(255,255,255,0.85)", marginTop: 4 }}>
                         {member.job_title}
                       </span>
                     </div>
                   )}
                   {member.role_type && (
                     <div style={{ display: "flex", flexDirection: "column", minWidth: 100 }}>
-                      <span style={{ fontSize: 9, color: "rgba(255,255,255,0.2)", letterSpacing: 2 }}>
+                      <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)", letterSpacing: 2 }}>
                         ROL
                       </span>
                       <span style={{ fontSize: 16, color: "#E87B1E", marginTop: 4 }}>
@@ -136,10 +136,10 @@ export async function GET(req: NextRequest) {
                     </div>
                   )}
                   <div style={{ display: "flex", flexDirection: "column", minWidth: 120 }}>
-                    <span style={{ fontSize: 9, color: "rgba(255,255,255,0.2)", letterSpacing: 2 }}>
+                    <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)", letterSpacing: 2 }}>
                       MIEMBRO DESDE
                     </span>
-                    <span style={{ fontSize: 16, color: "rgba(255,255,255,0.6)", marginTop: 4 }}>
+                    <span style={{ fontSize: 16, color: "rgba(255,255,255,0.85)", marginTop: 4 }}>
                       {memberSince}
                     </span>
                   </div>
@@ -167,7 +167,7 @@ export async function GET(req: NextRequest) {
                     padding: "20px 24px",
                   }}
                 >
-                  <span style={{ fontSize: 9, color: "rgba(255,255,255,0.3)", letterSpacing: 3 }}>
+                  <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)", letterSpacing: 3 }}>
                     CREDENCIAL
                   </span>
                   <span style={{ fontSize: 40, color: "#E87B1E", fontWeight: 700, marginTop: 4 }}>
@@ -187,7 +187,7 @@ export async function GET(req: NextRequest) {
                 borderTop: "1px solid rgba(255,255,255,0.05)",
               }}
             >
-              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.15)" }}>
+              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.35)" }}>
                 © {new Date().getFullYear()} Cyber Social Club
               </span>
               <div
