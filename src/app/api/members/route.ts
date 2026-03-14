@@ -51,18 +51,10 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Validate corporate email — block free providers
-  const freeProviders = [
-    "gmail.com", "hotmail.com", "outlook.com", "yahoo.com", "yahoo.com.ar",
-    "live.com", "aol.com", "icloud.com", "mail.com", "protonmail.com",
-    "proton.me", "zoho.com", "yandex.com", "gmx.com", "tutanota.com",
-  ];
+  // Basic email validation
   const emailDomain = email.split("@")[1]?.toLowerCase();
-  if (!emailDomain || freeProviders.includes(emailDomain)) {
-    return NextResponse.json(
-      { error: "Se requiere un email corporativo. No se aceptan emails personales (Gmail, Hotmail, etc.)" },
-      { status: 400 }
-    );
+  if (!emailDomain) {
+    return NextResponse.json({ error: "Email inválido" }, { status: 400 });
   }
 
   const verificationToken = randomBytes(32).toString("hex");
