@@ -3,6 +3,8 @@ import { ImageResponse } from "@vercel/og";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import QRCode from "qrcode";
 
+export const runtime = "nodejs";
+
 function getAppUrl() {
   return process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || "https://socios.cybersocialclub.com.ar";
 }
@@ -13,6 +15,7 @@ const WIDTH = 1012;
 const HEIGHT = 638;
 
 export async function GET(req: NextRequest) {
+  try {
   const token = req.nextUrl.searchParams.get("token");
 
   if (!token) {
@@ -228,4 +231,8 @@ export async function GET(req: NextRequest) {
       height: HEIGHT,
     }
   );
+  } catch (err) {
+    console.error("[credential/image] Error:", err instanceof Error ? err.message : err);
+    return new Response("Error generando credencial", { status: 500 });
+  }
 }
