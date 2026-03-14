@@ -1,16 +1,11 @@
 import { NextRequest } from "next/server";
 import { ImageResponse } from "next/og";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
-import QRCode from "qrcode";
 
 // Credit-card proportions: 85.6mm × 53.98mm ≈ 1.586 ratio
 // Using 1012 × 638 px (2x for retina)
 const WIDTH = 1012;
 const HEIGHT = 638;
-
-function getAppUrl() {
-  return process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || "https://socios.cybersocialclub.com.ar";
-}
 
 export async function GET(req: NextRequest) {
   try {
@@ -33,19 +28,6 @@ export async function GET(req: NextRequest) {
 
     if (member.credential_token_expires_at && new Date(member.credential_token_expires_at) < new Date()) {
       return new Response("Link expirado", { status: 410 });
-    }
-
-    // Generate QR as PNG data URL (more compatible with Satori than SVG)
-    const verifyUrl = `${getAppUrl()}/api/verify?member=${member.member_number}`;
-    let qrDataUrl = "";
-    try {
-      qrDataUrl = await QRCode.toDataURL(verifyUrl, {
-        width: 200,
-        margin: 1,
-        color: { dark: "#E87B1E", light: "#0A0A0A" },
-      });
-    } catch (e) {
-      console.error("[credential/image] QR generation failed:", e);
     }
 
     const memberSince = new Date(member.created_at).toLocaleDateString("es-AR", {
@@ -109,26 +91,26 @@ export async function GET(req: NextRequest) {
               style={{
                 display: "flex",
                 flex: 1,
-                padding: "24px 32px",
+                padding: "32px 32px",
                 gap: 24,
               }}
             >
-              {/* Left: Info */}
+              {/* Info */}
               <div style={{ display: "flex", flexDirection: "column", flex: 1, justifyContent: "center" }}>
                 <span style={{ fontSize: 10, color: "rgba(255,255,255,0.2)", letterSpacing: 3 }}>
                   NOMBRE COMPLETO
                 </span>
-                <span style={{ fontSize: 24, color: "#FFFFFF", marginTop: 6, marginBottom: 24 }}>
+                <span style={{ fontSize: 28, color: "#FFFFFF", marginTop: 6, marginBottom: 28 }}>
                   {member.full_name}
                 </span>
 
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 20 }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 24 }}>
                   {member.company && (
                     <div style={{ display: "flex", flexDirection: "column", minWidth: 140 }}>
                       <span style={{ fontSize: 9, color: "rgba(255,255,255,0.2)", letterSpacing: 2 }}>
                         EMPRESA
                       </span>
-                      <span style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", marginTop: 4 }}>
+                      <span style={{ fontSize: 16, color: "rgba(255,255,255,0.6)", marginTop: 4 }}>
                         {member.company}
                       </span>
                     </div>
@@ -138,7 +120,7 @@ export async function GET(req: NextRequest) {
                       <span style={{ fontSize: 9, color: "rgba(255,255,255,0.2)", letterSpacing: 2 }}>
                         CARGO
                       </span>
-                      <span style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", marginTop: 4 }}>
+                      <span style={{ fontSize: 16, color: "rgba(255,255,255,0.6)", marginTop: 4 }}>
                         {member.job_title}
                       </span>
                     </div>
@@ -148,7 +130,7 @@ export async function GET(req: NextRequest) {
                       <span style={{ fontSize: 9, color: "rgba(255,255,255,0.2)", letterSpacing: 2 }}>
                         ROL
                       </span>
-                      <span style={{ fontSize: 14, color: "rgba(232,123,30,0.7)", marginTop: 4 }}>
+                      <span style={{ fontSize: 16, color: "#E87B1E", marginTop: 4 }}>
                         {member.role_type}
                       </span>
                     </div>
@@ -157,39 +139,42 @@ export async function GET(req: NextRequest) {
                     <span style={{ fontSize: 9, color: "rgba(255,255,255,0.2)", letterSpacing: 2 }}>
                       MIEMBRO DESDE
                     </span>
-                    <span style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", marginTop: 4 }}>
+                    <span style={{ fontSize: 16, color: "rgba(255,255,255,0.6)", marginTop: 4 }}>
                       {memberSince}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Right: QR */}
-              {qrDataUrl && (
+              {/* Right: Member number large */}
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "0 16px",
+                }}
+              >
                 <div
                   style={{
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    justifyContent: "center",
+                    backgroundColor: "rgba(232,123,30,0.08)",
+                    border: "1px solid rgba(232,123,30,0.15)",
+                    borderRadius: 16,
+                    padding: "20px 24px",
                   }}
                 >
-                  <div
-                    style={{
-                      display: "flex",
-                      backgroundColor: "#0A0A0A",
-                      borderRadius: 16,
-                      padding: 12,
-                    }}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={qrDataUrl} width={130} height={130} />
-                  </div>
-                  <span style={{ fontSize: 8, color: "rgba(255,255,255,0.15)", letterSpacing: 3, marginTop: 8 }}>
-                    ESCANEÁ PARA VERIFICAR
+                  <span style={{ fontSize: 9, color: "rgba(255,255,255,0.3)", letterSpacing: 3 }}>
+                    CREDENCIAL
+                  </span>
+                  <span style={{ fontSize: 40, color: "#E87B1E", fontWeight: 700, marginTop: 4 }}>
+                    {member.member_number}
                   </span>
                 </div>
-              )}
+              </div>
             </div>
 
             {/* Footer */}
