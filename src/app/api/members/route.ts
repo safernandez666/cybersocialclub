@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
+
+const supabase = getSupabaseAdmin();
 import { randomBytes } from "crypto";
 import { sendVerificationEmail } from "@/lib/email";
 
