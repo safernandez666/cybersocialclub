@@ -384,10 +384,24 @@ export default function SurveyPage() {
     setSubmitError(null);
 
     try {
+      const payload = {
+        q1: data.vision || null,
+        q2: data.eventTypes.length > 0 ? data.eventTypes : null,
+        q3: data.socialActivities || null,
+        q4: data.benefits || null,
+        q5: data.contentInterest.length > 0 ? data.contentInterest : null,
+        q6: data.participation.length > 0 ? data.participation : null,
+        q7: data.professionalType || null,
+        q8: data.idealClub || null,
+        q9: data.crazyIdeas || null,
+        q10: data.notWant || null,
+        q11: data.email || null,
+      };
+
       const res = await fetch("/api/survey", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
