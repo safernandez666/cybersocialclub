@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import nodemailer from "nodemailer";
 
 // ── Rate limiting (3 submits per IP per 15 min) ──
 const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
@@ -116,6 +117,59 @@ export async function POST(req: NextRequest) {
       { error: "Error al guardar respuesta" },
       { status: 500 }
     );
+  }
+
+  // Send notification email to admin
+  try {
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT || "587"),
+      secure: false,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    });
+
+    const adminEmail = process.env.ADMIN_EMAIL || "info@cybersocialclub.com.ar";
+    const fromEmail = process.env.SMTP_FROM || "info@cybersocialclub.com.ar";
+
+    const answeredCount = [q1, q2, q3, q4, q5, q6, q7, q8, q9, q10].filter(Boolean).length;
+
+    await transporter.sendMail({
+      from: `"Cyber Social Club" <${fromEmail}>`,
+      to: adminEmail,
+      subject: `📋 Nueva respuesta de encuesta CSC${q11 ? ` — ${q11}` : ""}`,
+      html: `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="margin:0;padding:0;background-color:#0A0A0A;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <div style="max-width:560px;margin:0 auto;padding:48px 24px;">
+    <div style="text-align:center;margin-bottom:40px;">
+      <h1 style="color:#E87B1E;font-size:24px;margin:0;">Cyber Social Club</h1>
+      <p style="color:rgba(255,255,255,0.3);font-size:13px;margin:4px 0 0;">Survey — Nueva respuesta</p>
+    </div>
+    <div style="background-color:#141211;border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:32px;">
+      <h2 style="color:#FFFFFF;font-size:20px;margin:0 0 16px;">Nueva Encuesta Recibida</h2>
+      <table style="width:100%;border-collapse:collapse;">
+        ${q7 ? `<tr><td style="color:rgba(255,255,255,0.3);font-size:13px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">Perfil</td><td style="color:#E87B1E;font-size:14px;font-weight:600;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);text-align:right;">${q7}</td></tr>` : ""}
+        ${q11 ? `<tr><td style="color:rgba(255,255,255,0.3);font-size:13px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">Email</td><td style="color:#FFFFFF;font-size:14px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);text-align:right;">${q11}</td></tr>` : ""}
+        <tr><td style="color:rgba(255,255,255,0.3);font-size:13px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">Preguntas respondidas</td><td style="color:#FFFFFF;font-size:14px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);text-align:right;">${answeredCount} / 10</td></tr>
+        ${q1 ? `<tr><td colspan="2" style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><p style="color:rgba(255,255,255,0.3);font-size:11px;margin:0 0 4px;">Visión para la comunidad</p><p style="color:rgba(255,255,255,0.7);font-size:13px;margin:0;line-height:1.5;">${q1.slice(0, 300)}${q1.length > 300 ? "…" : ""}</p></td></tr>` : ""}
+        ${q8 ? `<tr><td colspan="2" style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><p style="color:rgba(255,255,255,0.3);font-size:11px;margin:0 0 4px;">Club ideal</p><p style="color:rgba(255,255,255,0.7);font-size:13px;margin:0;line-height:1.5;">${q8.slice(0, 300)}${q8.length > 300 ? "…" : ""}</p></td></tr>` : ""}
+      </table>
+      <div style="margin-top:24px;text-align:center;">
+        <p style="color:rgba(255,255,255,0.3);font-size:12px;margin:0;">Revisá todas las respuestas en el Supabase Dashboard</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>`,
+    });
+  } catch (emailErr) {
+    // Don't fail the survey submission if email fails
+    console.error("[survey] Email notification error:", emailErr);
   }
 
   return NextResponse.json(
