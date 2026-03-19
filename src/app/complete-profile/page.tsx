@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle } from "lucide-react";
 
@@ -15,7 +15,17 @@ interface ProfileForm {
 }
 
 export default function CompleteProfilePage() {
-  const router = useRouter();
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-[#0A0A0A]"><span className="font-mono text-xs text-white/30">Cargando...</span></div>}>
+      <CompleteProfileContent />
+    </Suspense>
+  );
+}
+
+function CompleteProfileContent() {
+  const searchParams = useSearchParams();
+  const memberId = searchParams.get("id");
+
   const [form, setForm] = useState<ProfileForm>({
     company: "",
     job_title: "",
@@ -28,41 +38,23 @@ export default function CompleteProfilePage() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Pre-fill data from /api/me
-  useEffect(() => {
-    fetch("/api/me")
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data) {
-          setForm((prev) => ({
-            ...prev,
-            company: data.company || "",
-            job_title: data.job_title || "",
-            role_type: data.role_type || "",
-            linkedin_url: data.linkedin_url || "",
-            years_experience: data.years_experience?.toString() || "",
-            phone: data.phone || "",
-          }));
-        }
-      })
-      .catch(() => {});
-  }, []);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!memberId) return;
     setLoading(true);
     setError(null);
 
     try {
-      const res = await fetch("/api/me", {
+      const res = await fetch("/api/members/complete-profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          id: memberId,
           company: form.company || null,
           job_title: form.job_title || null,
           role_type: form.role_type || null,
           linkedin_url: form.linkedin_url || null,
-          years_experience: form.years_experience ? parseInt(form.years_experience) : null,
+          years_experience: form.years_experience || null,
           phone: form.phone || null,
         }),
       });
@@ -81,18 +73,34 @@ export default function CompleteProfilePage() {
     }
   };
 
+  if (!memberId) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A] px-4 pt-16">
+        <div className="w-full max-w-sm text-center">
+          <h1 className="mb-2 font-mono text-xl text-white">Link inválido</h1>
+          <p className="mb-6 font-mono text-xs text-white/30">
+            Este link no es válido. Registrate desde el formulario.
+          </p>
+          <Link href="/register" className="inline-flex items-center gap-2 rounded-full bg-csc-orange px-6 py-3 font-mono text-xs uppercase tracking-widest text-white transition-all hover:bg-csc-amber">
+            Ir a Registro
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   if (submitted) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A] px-4 pt-16">
         <div className="w-full max-w-sm text-center">
           <CheckCircle className="mx-auto mb-4 h-12 w-12 text-green-400" />
-          <h1 className="mb-2 font-mono text-xl text-white">Perfil completado</h1>
+          <h1 className="mb-2 font-mono text-xl text-white">Registro completo</h1>
           <p className="mb-6 font-mono text-xs text-white/30">
             Tu solicitud está pendiente de aprobación por un administrador.
-            Te notificaremos cuando sea revisada.
+            Te notificaremos por email cuando sea revisada.
           </p>
           <Link
-            href="/"
+            href="https://cybersocialclub.com.ar"
             className="inline-flex items-center gap-2 rounded-full bg-csc-orange px-6 py-3 font-mono text-xs uppercase tracking-widest text-white transition-all hover:bg-csc-amber"
           >
             Volver al inicio
@@ -105,14 +113,14 @@ export default function CompleteProfilePage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A] px-4 py-16">
       <form onSubmit={handleSubmit} className="w-full max-w-md">
-        <Link href="/" className="mb-6 inline-flex items-center gap-2 text-white/30 transition-colors hover:text-white">
+        <Link href="/register" className="mb-6 inline-flex items-center gap-2 text-white/30 transition-colors hover:text-white">
           <ArrowLeft className="h-4 w-4" />
           <span className="font-mono text-xs">Volver</span>
         </Link>
 
         <h1 className="mb-2 font-mono text-xl text-white">Completá tu perfil</h1>
         <p className="mb-8 font-mono text-xs text-white/30">
-          Estos datos nos ayudan a conocerte mejor como socio.
+          Ya registramos tu nombre y email con Google. Completá estos datos para que podamos conocerte mejor.
         </p>
 
         {error && (
@@ -206,8 +214,12 @@ export default function CompleteProfilePage() {
           disabled={loading}
           className="mt-8 w-full rounded-full bg-csc-orange px-6 py-3 font-mono text-xs uppercase tracking-widest text-white transition-all hover:bg-csc-amber disabled:opacity-50"
         >
-          {loading ? "Guardando..." : "Completar perfil"}
+          {loading ? "Guardando..." : "Completar registro"}
         </button>
+
+        <p className="mt-4 text-center font-mono text-[10px] text-white/20">
+          Estos campos son opcionales pero nos ayudan a conocerte mejor.
+        </p>
       </form>
     </div>
   );

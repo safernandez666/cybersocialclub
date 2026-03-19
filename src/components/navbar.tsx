@@ -3,16 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { Menu, X, User, LogOut, ChevronDown } from "lucide-react";
-import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
-import { motion, AnimatePresence } from "framer-motion";
-
-interface UserData {
-  full_name: string;
-  photo_url: string | null;
-  status: string;
-}
+import { Menu, X } from "lucide-react";
 
 const navLinks = [
   { href: "https://cybersocialclub.com.ar", label: "Inicio", external: true },
@@ -21,58 +12,14 @@ const navLinks = [
 ];
 
 export function Navbar() {
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [user, setUser] = useState<UserData | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  // Check auth status on mount
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
-    try {
-      // Try to fetch member data - if 401, user is not logged in
-      const res = await fetch("/api/me");
-      if (res.ok) {
-        const data = await res.json();
-        setUser(data);
-      } else {
-        setUser(null);
-      }
-    } catch {
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleLogout = async () => {
-    const supabase = createSupabaseBrowserClient();
-    await supabase.auth.signOut();
-    setUser(null);
-    setUserMenuOpen(false);
-    router.push("/");
-    router.refresh();
-  };
-
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  };
 
   return (
     <header
@@ -118,75 +65,6 @@ export function Navbar() {
             )
           )}
 
-          {/* Auth Button / User Menu */}
-          {!loading && (
-            <>
-              {user ? (
-                <div className="relative">
-                  <button
-                    onClick={() => setUserMenuOpen(!userMenuOpen)}
-                    className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 transition-all hover:border-white/20 hover:bg-white/10"
-                  >
-                    {user.photo_url ? (
-                      <Image
-                        src={user.photo_url}
-                        alt={user.full_name}
-                        width={28}
-                        height={28}
-                        className="rounded-full object-cover h-7 w-7"
-                      />
-                    ) : (
-                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-csc-orange/30 to-csc-orange/10 border border-csc-orange/20">
-                        <span className="text-[10px] font-bold text-csc-orange">
-                          {getInitials(user.full_name)}
-                        </span>
-                      </div>
-                    )}
-                    <span className="font-mono text-xs text-white/70 max-w-[100px] truncate">
-                      {user.full_name.split(" ")[0]}
-                    </span>
-                    <ChevronDown className={`h-3 w-3 text-white/40 transition-transform ${userMenuOpen ? "rotate-180" : ""}`} />
-                  </button>
-
-                  {/* Dropdown Menu */}
-                  <AnimatePresence>
-                    {userMenuOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        transition={{ duration: 0.15 }}
-                        className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-white/10 bg-[#141211] p-1 shadow-2xl"
-                      >
-                        <Link
-                          href="/my-profile"
-                          onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center gap-2 rounded-lg px-3 py-2 font-mono text-xs text-white/70 transition-colors hover:bg-white/5 hover:text-white"
-                        >
-                          <User className="h-4 w-4" />
-                          Mi Perfil
-                        </Link>
-                        <button
-                          onClick={handleLogout}
-                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 font-mono text-xs text-red-400/70 transition-colors hover:bg-red-500/10 hover:text-red-400"
-                        >
-                          <LogOut className="h-4 w-4" />
-                          Cerrar Sesión
-                        </button>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              ) : (
-                <Link
-                  href="/login"
-                  className="rounded-full bg-white/5 px-5 py-2 font-mono text-xs uppercase tracking-widest text-white/60 transition-all hover:bg-csc-orange hover:text-white"
-                >
-                  Iniciar Sesión
-                </Link>
-              )}
-            </>
-          )}
         </nav>
 
         {/* Mobile toggle */}

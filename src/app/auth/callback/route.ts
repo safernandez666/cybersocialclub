@@ -131,8 +131,16 @@ export async function GET(req: NextRequest) {
     }
 
     await logAuthEvent("new_registration", null, provider, req);
-    // Redirect to verify-email success page (registration complete)
-    redirectPath = "/verify-email?status=success";
+
+    // Get the new member id for the complete-profile form
+    const { data: newMemberForRedirect } = await supabaseAdmin
+      .from("members")
+      .select("id")
+      .eq("email", email)
+      .single();
+
+    // Redirect to complete profile with member id
+    redirectPath = `/complete-profile?id=${newMemberForRedirect?.id || ""}`;
   } else if (member.status === "approved") {
     // Already approved — redirect to their public profile
     await logAuthEvent("login_existing_approved", member.id, provider, req);
