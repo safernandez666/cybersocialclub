@@ -3,7 +3,11 @@
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle } from "lucide-react";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft, ArrowRight, CheckCircle } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface ProfileForm {
   company: string;
@@ -13,6 +17,9 @@ interface ProfileForm {
   years_experience: string;
   phone: string;
 }
+
+const roleOptions = ["CISO", "Security Engineer", "Pentester", "SOC Analyst", "Security Architect", "GRC", "DevSecOps", "Researcher", "Student", "Other"];
+const experienceOptions = ["0-2", "3-5", "6-10", "10+"];
 
 export default function CompleteProfilePage() {
   return (
@@ -34,15 +41,28 @@ function CompleteProfileContent() {
     years_experience: "",
     phone: "",
   });
+  const [errors, setErrors] = useState<Partial<Record<keyof ProfileForm, string>>>({});
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!memberId) return;
+  const set = (key: keyof ProfileForm, value: string) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+    if (errors[key]) setErrors((prev) => ({ ...prev, [key]: undefined }));
+  };
+
+  const validate = (): boolean => {
+    const newErrors: Partial<Record<keyof ProfileForm, string>> = {};
+    if (!form.linkedin_url.trim()) newErrors.linkedin_url = "LinkedIn es obligatorio";
+    else if (!form.linkedin_url.includes("linkedin.com")) newErrors.linkedin_url = "Ingresá una URL de LinkedIn válida";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async () => {
+    if (!memberId || !validate()) return;
     setLoading(true);
-    setError(null);
+    setApiError(null);
 
     try {
       const res = await fetch("/api/members/complete-profile", {
@@ -61,17 +81,20 @@ function CompleteProfileContent() {
 
       if (!res.ok) {
         const data = await res.json();
-        setError(data.error || "Error al actualizar perfil");
+        setApiError(data.error || "Error al actualizar perfil");
         return;
       }
 
       setSubmitted(true);
     } catch {
-      setError("Error de conexión");
+      setApiError("Error de conexión");
     } finally {
       setLoading(false);
     }
   };
+
+  const inputClass = "border-white/5 bg-[#0A0A0A] text-white font-mono text-sm placeholder:text-white/20";
+  const labelClass = "font-mono text-xs uppercase tracking-widest text-white/40";
 
   if (!memberId) {
     return (
@@ -92,135 +115,178 @@ function CompleteProfileContent() {
   if (submitted) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A] px-4 pt-16">
-        <div className="w-full max-w-sm text-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="w-full max-w-sm text-center"
+        >
           <CheckCircle className="mx-auto mb-4 h-12 w-12 text-green-400" />
           <h1 className="mb-2 font-mono text-xl text-white">Registro completo</h1>
-          <p className="mb-6 font-mono text-xs text-white/30">
-            Tu solicitud está pendiente de aprobación por un administrador.
+          <p className="mb-6 font-mono text-xs text-white/30 leading-relaxed">
+            Tu solicitud está pendiente de aprobación.<br />
             Te notificaremos por email cuando sea revisada.
           </p>
-          <Link
+          <a
             href="https://cybersocialclub.com.ar"
             className="inline-flex items-center gap-2 rounded-full bg-csc-orange px-6 py-3 font-mono text-xs uppercase tracking-widest text-white transition-all hover:bg-csc-amber"
           >
             Volver al inicio
-          </Link>
-        </div>
+          </a>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A] px-4 py-16">
-      <form onSubmit={handleSubmit} className="w-full max-w-md">
-        <Link href="/register" className="mb-6 inline-flex items-center gap-2 text-white/30 transition-colors hover:text-white">
-          <ArrowLeft className="h-4 w-4" />
-          <span className="font-mono text-xs">Volver</span>
-        </Link>
-
-        <h1 className="mb-2 font-mono text-xl text-white">Completá tu perfil</h1>
-        <p className="mb-8 font-mono text-xs text-white/30">
-          Ya registramos tu nombre y email con Google. Completá estos datos para que podamos conocerte mejor.
-        </p>
-
-        {error && (
-          <div className="mb-4 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 font-mono text-xs text-red-400">
-            {error}
-          </div>
-        )}
-
-        <div className="space-y-4">
-          <div>
-            <label className="mb-1 block font-mono text-xs text-white/40">Empresa</label>
-            <input
-              type="text"
-              value={form.company}
-              onChange={(e) => setForm({ ...form, company: e.target.value })}
-              className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 font-mono text-sm text-white placeholder:text-white/20 focus:border-csc-orange/50 focus:outline-none"
-              placeholder="Tu empresa"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block font-mono text-xs text-white/40">Cargo</label>
-            <input
-              type="text"
-              value={form.job_title}
-              onChange={(e) => setForm({ ...form, job_title: e.target.value })}
-              className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 font-mono text-sm text-white placeholder:text-white/20 focus:border-csc-orange/50 focus:outline-none"
-              placeholder="Tu cargo"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block font-mono text-xs text-white/40">Tipo de rol</label>
-            <select
-              value={form.role_type}
-              onChange={(e) => setForm({ ...form, role_type: e.target.value })}
-              className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 font-mono text-sm text-white focus:border-csc-orange/50 focus:outline-none"
-            >
-              <option value="" className="bg-[#0A0A0A]">Seleccionar...</option>
-              <option value="CISO" className="bg-[#0A0A0A]">CISO</option>
-              <option value="Security Engineer" className="bg-[#0A0A0A]">Security Engineer</option>
-              <option value="Pentester" className="bg-[#0A0A0A]">Pentester</option>
-              <option value="SOC Analyst" className="bg-[#0A0A0A]">SOC Analyst</option>
-              <option value="Security Architect" className="bg-[#0A0A0A]">Security Architect</option>
-              <option value="GRC" className="bg-[#0A0A0A]">GRC</option>
-              <option value="DevSecOps" className="bg-[#0A0A0A]">DevSecOps</option>
-              <option value="Researcher" className="bg-[#0A0A0A]">Researcher</option>
-              <option value="Student" className="bg-[#0A0A0A]">Student</option>
-              <option value="Other" className="bg-[#0A0A0A]">Otro</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="mb-1 block font-mono text-xs text-white/40">LinkedIn</label>
-            <input
-              type="url"
-              value={form.linkedin_url}
-              onChange={(e) => setForm({ ...form, linkedin_url: e.target.value })}
-              className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 font-mono text-sm text-white placeholder:text-white/20 focus:border-csc-orange/50 focus:outline-none"
-              placeholder="https://linkedin.com/in/..."
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block font-mono text-xs text-white/40">Años de experiencia</label>
-            <input
-              type="number"
-              min="0"
-              max="50"
-              value={form.years_experience}
-              onChange={(e) => setForm({ ...form, years_experience: e.target.value })}
-              className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 font-mono text-sm text-white placeholder:text-white/20 focus:border-csc-orange/50 focus:outline-none"
-              placeholder="0"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block font-mono text-xs text-white/40">Teléfono (opcional)</label>
-            <input
-              type="tel"
-              value={form.phone}
-              onChange={(e) => setForm({ ...form, phone: e.target.value })}
-              className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 font-mono text-sm text-white placeholder:text-white/20 focus:border-csc-orange/50 focus:outline-none"
-              placeholder="+54 11 ..."
-            />
-          </div>
+    <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A] px-4 py-24">
+      <div className="w-full max-w-xl">
+        <div className="mb-10 flex justify-center">
+          <Image
+            src="/logos/logo-light.png"
+            alt="CSC"
+            width={700}
+            height={200}
+            className="h-24 w-auto sm:h-28 lg:h-32"
+            priority
+          />
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="mt-8 w-full rounded-full bg-csc-orange px-6 py-3 font-mono text-xs uppercase tracking-widest text-white transition-all hover:bg-csc-amber disabled:opacity-50"
-        >
-          {loading ? "Guardando..." : "Completar registro"}
-        </button>
+        <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 sm:p-8">
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3 }}
+            className="space-y-6"
+          >
+            <div className="mb-8 flex items-center gap-3">
+              <span className="font-mono text-xs text-csc-orange/70">02</span>
+              <div className="h-px flex-1 bg-white/5" />
+              <span className="font-mono text-xs uppercase tracking-widest text-white/30">
+                Completá tu perfil
+              </span>
+            </div>
 
-        <p className="mt-4 text-center font-mono text-[10px] text-white/20">
-          Estos campos son opcionales pero nos ayudan a conocerte mejor.
-        </p>
-      </form>
+            <p className="font-mono text-xs text-white/40 leading-relaxed">
+              Ya registramos tu nombre y email con Google. Completá estos datos para que podamos conocerte mejor.
+            </p>
+
+            {apiError && (
+              <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 font-mono text-xs text-red-400">
+                {apiError}
+              </div>
+            )}
+
+            <div className="space-y-1.5">
+              <Label htmlFor="linkedin" className={labelClass}>
+                LinkedIn <span className="text-csc-wine">*</span>
+              </Label>
+              <Input
+                id="linkedin"
+                type="url"
+                placeholder="https://linkedin.com/in/tu-perfil"
+                value={form.linkedin_url}
+                onChange={(e) => set("linkedin_url", e.target.value)}
+                className={inputClass}
+              />
+              {errors.linkedin_url && (
+                <p className="font-mono text-xs text-csc-wine">{errors.linkedin_url}</p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="company" className={labelClass}>
+                Empresa
+              </Label>
+              <Input
+                id="company"
+                placeholder="Tu empresa"
+                value={form.company}
+                onChange={(e) => set("company", e.target.value)}
+                className={inputClass}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="jobTitle" className={labelClass}>
+                Cargo
+              </Label>
+              <Input
+                id="jobTitle"
+                placeholder="Tu cargo actual"
+                value={form.job_title}
+                onChange={(e) => set("job_title", e.target.value)}
+                className={inputClass}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className={labelClass}>Tipo de Rol</Label>
+              <div className="flex flex-wrap gap-2">
+                {roleOptions.map((role) => (
+                  <button
+                    key={role}
+                    type="button"
+                    onClick={() => set("role_type", form.role_type === role ? "" : role)}
+                    className={`rounded-full border px-3 py-1.5 font-mono text-xs transition-all ${
+                      form.role_type === role
+                        ? "border-csc-orange bg-csc-orange/10 text-csc-orange"
+                        : "border-white/10 text-white/40 hover:border-white/20 hover:text-white/60"
+                    }`}
+                  >
+                    {role}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className={labelClass}>Años de experiencia</Label>
+              <div className="flex gap-2">
+                {experienceOptions.map((exp) => (
+                  <button
+                    key={exp}
+                    type="button"
+                    onClick={() => set("years_experience", form.years_experience === exp ? "" : exp)}
+                    className={`flex-1 rounded-full border py-2 font-mono text-xs transition-all ${
+                      form.years_experience === exp
+                        ? "border-csc-orange bg-csc-orange/10 text-csc-orange"
+                        : "border-white/10 text-white/40 hover:border-white/20 hover:text-white/60"
+                    }`}
+                  >
+                    {exp}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="phone" className={labelClass}>
+                Teléfono (opcional)
+              </Label>
+              <Input
+                id="phone"
+                type="tel"
+                placeholder="+54 11 ..."
+                value={form.phone}
+                onChange={(e) => set("phone", e.target.value)}
+                className={inputClass}
+              />
+            </div>
+          </motion.div>
+
+          {/* Submit */}
+          <div className="mt-8 flex justify-end">
+            <button
+              onClick={handleSubmit}
+              disabled={loading}
+              className="group inline-flex items-center gap-2 rounded-full bg-csc-orange px-6 py-3 font-mono text-xs uppercase tracking-widest text-white transition-all hover:bg-csc-amber hover:shadow-lg hover:shadow-csc-orange/20 disabled:opacity-50"
+            >
+              {loading ? "Enviando..." : "Completar registro"}
+              {!loading && <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

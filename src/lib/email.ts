@@ -120,6 +120,7 @@ export async function sendAdminNotification(member: {
   company: string;
   job_title: string;
   role_type: string;
+  linkedin_url?: string;
 }) {
   const approveToken = generateApproveToken(member.id);
   const approveUrl = `${getAppUrl()}/api/admin/quick-approve?id=${member.id}&token=${approveToken}`;
@@ -148,7 +149,8 @@ export async function sendAdminNotification(member: {
         <tr><td style="color:rgba(255,255,255,0.3);font-size:13px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">Email</td><td style="color:#FFFFFF;font-size:14px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);text-align:right;">${member.email}</td></tr>
         <tr><td style="color:rgba(255,255,255,0.3);font-size:13px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">Empresa</td><td style="color:#FFFFFF;font-size:14px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);text-align:right;">${member.company}</td></tr>
         <tr><td style="color:rgba(255,255,255,0.3);font-size:13px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">Cargo</td><td style="color:#FFFFFF;font-size:14px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);text-align:right;">${member.job_title}</td></tr>
-        <tr><td style="color:rgba(255,255,255,0.3);font-size:13px;padding:8px 0;">Rol</td><td style="color:#E87B1E;font-size:14px;font-weight:600;padding:8px 0;text-align:right;">${member.role_type}</td></tr>
+        <tr><td style="color:rgba(255,255,255,0.3);font-size:13px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">Rol</td><td style="color:#E87B1E;font-size:14px;font-weight:600;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);text-align:right;">${member.role_type}</td></tr>
+        ${member.linkedin_url ? `<tr><td style="color:rgba(255,255,255,0.3);font-size:13px;padding:8px 0;">LinkedIn</td><td style="font-size:14px;padding:8px 0;text-align:right;"><a href="${member.linkedin_url}" style="color:#0A66C2;text-decoration:none;">Ver perfil →</a></td></tr>` : ""}
       </table>
       <div style="margin-top:24px;text-align:center;">
         <a href="${approveUrl}" style="display:inline-block;background-color:#22c55e;color:#FFFFFF;text-decoration:none;padding:14px 40px;border-radius:50px;font-size:14px;font-weight:600;margin-bottom:12px;">✓ Aprobar Socio</a>

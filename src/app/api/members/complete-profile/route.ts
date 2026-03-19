@@ -59,7 +59,7 @@ export async function PATCH(req: NextRequest) {
   try {
     const { data: updatedMember } = await supabase
       .from("members")
-      .select("id, full_name, email, company, job_title, role_type")
+      .select("id, full_name, email, company, job_title, role_type, linkedin_url")
       .eq("id", id)
       .single();
 
@@ -71,6 +71,7 @@ export async function PATCH(req: NextRequest) {
         company: updatedMember.company || "N/A",
         job_title: updatedMember.job_title || "N/A",
         role_type: updatedMember.role_type || "N/A",
+        linkedin_url: updatedMember.linkedin_url || undefined,
       });
     }
   } catch (emailErr) {
