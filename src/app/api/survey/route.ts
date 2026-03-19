@@ -65,6 +65,32 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "JSON inválido" }, { status: 400 });
   }
 
+  // Verify hCaptcha if configured
+  const hcaptchaSecret = process.env.HCAPTCHA_SECRET_KEY;
+  if (hcaptchaSecret) {
+    const captchaToken = typeof body.captcha_token === "string" ? body.captcha_token : "";
+    if (!captchaToken) {
+      return NextResponse.json({ error: "Completá el captcha" }, { status: 400 });
+    }
+    try {
+      const verifyParams: Record<string, string> = { secret: hcaptchaSecret, response: captchaToken };
+      const hcaptchaSiteKey = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY;
+      if (hcaptchaSiteKey) verifyParams.sitekey = hcaptchaSiteKey;
+
+      const verifyRes = await fetch("https://api.hcaptcha.com/siteverify", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams(verifyParams),
+      });
+      const verifyData = await verifyRes.json();
+      if (!verifyData.success) {
+        return NextResponse.json({ error: "Captcha inválido. Intentá de nuevo." }, { status: 400 });
+      }
+    } catch {
+      console.error("[survey] hCaptcha verification failed");
+    }
+  }
+
   // Sanitize and validate
   const q1 = trimText(body.q1, TEXT_MAX);
   const q2 = validateJsonArray(body.q2);

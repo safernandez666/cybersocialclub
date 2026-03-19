@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Shield, Check, Loader2, AlertCircle } from "lucide-react";
+import Script from "next/script";
 
 // Types
 interface SurveyData {
@@ -360,6 +361,30 @@ export default function SurveyPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const captchaRendered = useRef(false);
+  const siteKey = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || "";
+
+  // Render hCaptcha widget
+  useEffect(() => {
+    if (!siteKey || captchaRendered.current) return;
+    const tryRender = () => {
+      const hcaptcha = (window as any).hcaptcha;
+      const container = document.getElementById("hcaptcha-survey");
+      if (hcaptcha && container) {
+        hcaptcha.render(container, {
+          sitekey: siteKey,
+          theme: "dark",
+          callback: (token: string) => setCaptchaToken(token),
+          "expired-callback": () => setCaptchaToken(null),
+        });
+        captchaRendered.current = true;
+      } else {
+        setTimeout(tryRender, 500);
+      }
+    };
+    tryRender();
+  }, [siteKey]);
 
   // Calculate progress
   const progress = useMemo(() => {
@@ -396,6 +421,7 @@ export default function SurveyPage() {
         q9: data.crazyIdeas || null,
         q10: data.notWant || null,
         q11: data.email || null,
+        captcha_token: captchaToken || undefined,
       };
 
       const res = await fetch("/api/survey", {
@@ -436,6 +462,9 @@ export default function SurveyPage() {
 
   return (
     <div className="relative min-h-screen">
+      {siteKey && (
+        <Script src="https://js.hcaptcha.com/1/api.js?render=explicit" strategy="afterInteractive" />
+      )}
       <GridBackground />
       <ScanLine />
 
@@ -598,11 +627,18 @@ export default function SurveyPage() {
                 )}
               </AnimatePresence>
 
+              {/* hCaptcha */}
+              {siteKey && (
+                <motion.div variants={cardVariants} className="flex justify-center">
+                  <div id="hcaptcha-survey" />
+                </motion.div>
+              )}
+
               {/* Submit Button */}
               <motion.div variants={cardVariants} className="pt-4">
                 <button
                   type="submit"
-                  disabled={submitting || progress < 3}
+                  disabled={submitting || progress < 3 || (!!siteKey && !captchaToken)}
                   className="group relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-[#00ffb4] to-[#00d4aa] py-4 font-mono text-sm font-medium uppercase tracking-widest text-black transition-all hover:shadow-lg hover:shadow-[#00ffb4]/20 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="relative z-10 flex items-center justify-center gap-2">
