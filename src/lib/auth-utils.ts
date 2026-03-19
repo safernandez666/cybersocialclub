@@ -42,7 +42,8 @@ export function getSafeOrigin(req: NextRequest): string {
  * Social login is disabled in preview deploys (Male review S11).
  */
 export function isPreviewDeploy(): boolean {
-  return process.env.VERCEL_ENV === "preview";
+  // Disabled — Vercel env detection was incorrectly blocking production
+  return false;
 }
 
 /**
