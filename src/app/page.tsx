@@ -192,6 +192,7 @@ export default function Home() {
               </p>
               <div className="mt-10 grid grid-cols-2 gap-8">
                 {[
+                  { value: 900, suffix: "+", label: "Seguidores en LinkedIn" },
                   { value: 900, suffix: "+", label: "Seguidores en Instagram" },
                   { value: 5, suffix: "+", label: "Eventos realizados" },
                   { value: 1, suffix: "", label: "Evento Internacional" },

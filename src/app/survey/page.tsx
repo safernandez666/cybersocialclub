@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Shield, Check, Loader2, AlertCircle } from "lucide-react";
+import Image from "next/image";
 import Script from "next/script";
 
 // Types
@@ -110,16 +111,16 @@ function ProgressBar({ current, total }: { current: number; total: number }) {
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between mb-2">
-        <span className="font-mono text-xs text-[#00ffb4]/60 tracking-wider">
+        <span className="font-mono text-xs text-[#E87B1E]/60 tracking-wider">
           PROGRESS
         </span>
-        <span className="font-mono text-xs text-[#00ffb4]">
+        <span className="font-mono text-xs text-[#E87B1E]">
           {current} / {total}
         </span>
       </div>
       <div className="h-1 bg-white/5 rounded-full overflow-hidden">
         <motion.div
-          className="h-full bg-gradient-to-r from-[#00ffb4] to-[#7b5cff] rounded-full"
+          className="h-full bg-gradient-to-r from-[#E87B1E] to-[#E87B1E] rounded-full"
           initial={{ width: 0 }}
           animate={{ width: `${percentage}%` }}
           transition={{ duration: 0.5, ease: "easeOut" }}
@@ -141,14 +142,14 @@ function QuestionCard({
   return (
     <motion.div
       variants={cardVariants}
-      className="group relative rounded-2xl border border-white/5 bg-white/[0.02] p-6 backdrop-blur-sm transition-all duration-300 hover:border-[#00ffb4]/20 hover:bg-white/[0.04]"
+      className="group relative rounded-2xl border border-white/5 bg-white/[0.02] p-6 backdrop-blur-sm transition-all duration-300 hover:border-[#E87B1E]/20 hover:bg-white/[0.04]"
     >
       {/* Glow effect on hover */}
-      <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-[#00ffb4]/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-[#E87B1E]/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
       
       <div className="relative">
         <div className="mb-4 flex items-center gap-3">
-          <span className="font-mono text-xs text-[#00ffb4]/60">{number} —</span>
+          <span className="font-mono text-xs text-[#E87B1E]/60">{number} —</span>
           <label className="font-mono text-sm text-white/90">{label}</label>
         </div>
         {children}
@@ -185,14 +186,14 @@ function CheckboxGrid({
             onClick={() => toggleOption(option)}
             className={`flex items-center gap-3 rounded-xl border p-4 text-left transition-all duration-200 ${
               isSelected
-                ? "border-[#00ffb4]/50 bg-[#00ffb4]/10"
+                ? "border-[#E87B1E]/50 bg-[#E87B1E]/10"
                 : "border-white/10 bg-white/[0.02] hover:border-white/20"
             }`}
           >
             <div
               className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-all ${
                 isSelected
-                  ? "border-[#00ffb4] bg-[#00ffb4]"
+                  ? "border-[#E87B1E] bg-[#E87B1E]"
                   : "border-white/20 bg-transparent"
               }`}
             >
@@ -232,19 +233,19 @@ function RadioGrid({
             onClick={() => onChange(option)}
             className={`flex items-center gap-3 rounded-xl border p-4 text-left transition-all duration-200 ${
               isSelected
-                ? "border-[#00ffb4]/50 bg-[#00ffb4]/10"
+                ? "border-[#E87B1E]/50 bg-[#E87B1E]/10"
                 : "border-white/10 bg-white/[0.02] hover:border-white/20"
             }`}
           >
             <div
               className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-all ${
                 isSelected
-                  ? "border-[#00ffb4]"
+                  ? "border-[#E87B1E]"
                   : "border-white/20"
               }`}
             >
               {isSelected && (
-                <div className="h-2.5 w-2.5 rounded-full bg-[#00ffb4]" />
+                <div className="h-2.5 w-2.5 rounded-full bg-[#E87B1E]" />
               )}
             </div>
             <span
@@ -276,7 +277,7 @@ function TextArea({
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       rows={4}
-      className="w-full resize-none rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm text-white placeholder:text-white/20 focus:border-[#00ffb4]/50 focus:outline-none focus:ring-1 focus:ring-[#00ffb4]/20 transition-all"
+      className="w-full resize-none rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm text-white placeholder:text-white/20 focus:border-[#E87B1E]/50 focus:outline-none focus:ring-1 focus:ring-[#E87B1E]/20 transition-all"
     />
   );
 }
@@ -286,7 +287,7 @@ function ScanLine() {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       <motion.div
-        className="h-px w-full bg-gradient-to-r from-transparent via-[#00ffb4]/50 to-transparent"
+        className="h-px w-full bg-gradient-to-r from-transparent via-[#E87B1E]/50 to-transparent"
         animate={{
           y: ["0%", "100%"],
         }}
@@ -312,8 +313,8 @@ function GridBackground() {
         className="absolute inset-0 opacity-[0.03]"
         style={{
           backgroundImage: `
-            linear-gradient(to right, #00ffb4 1px, transparent 1px),
-            linear-gradient(to bottom, #00ffb4 1px, transparent 1px)
+            linear-gradient(to right, #E87B1E 1px, transparent 1px),
+            linear-gradient(to bottom, #E87B1E 1px, transparent 1px)
           `,
           backgroundSize: "60px 60px",
         }}
@@ -337,7 +338,7 @@ function SuccessState({ onReset }: { onReset: () => void }) {
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-        className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[#00ffb4]/10 border border-[#00ffb4]/30"
+        className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[#E87B1E]/10 border border-[#E87B1E]/30"
       >
         <span className="text-4xl">🛡️</span>
       </motion.div>
@@ -347,7 +348,7 @@ function SuccessState({ onReset }: { onReset: () => void }) {
       </p>
       <button
         onClick={onReset}
-        className="rounded-full border border-white/10 bg-white/[0.05] px-6 py-3 font-mono text-xs uppercase tracking-widest text-white/60 transition-all hover:border-[#00ffb4]/30 hover:text-[#00ffb4]"
+        className="rounded-full border border-white/10 bg-white/[0.05] px-6 py-3 font-mono text-xs uppercase tracking-widest text-white/60 transition-all hover:border-[#E87B1E]/30 hover:text-[#E87B1E]"
       >
         Enviar otra respuesta
       </button>
@@ -477,20 +478,27 @@ export default function SurveyPage() {
             className="mb-12 text-center"
           >
             {/* Badge */}
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#00ffb4]/20 bg-[#00ffb4]/5 px-4 py-1.5">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#E87B1E]/20 bg-[#E87B1E]/5 px-4 py-1.5">
               <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#00ffb4] opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-[#00ffb4]" />
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#E87B1E] opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-[#E87B1E]" />
               </span>
-              <span className="font-mono text-xs text-[#00ffb4]/80 tracking-wider">
+              <span className="font-mono text-xs text-[#E87B1E]/80 tracking-wider">
                 SURVEY ABIERTA
               </span>
             </div>
 
-            {/* Title */}
-            <h1 className="mb-3 font-mono text-3xl sm:text-4xl text-white">
-              Cyber Social <span className="text-[#00ffb4]">Club</span>
-            </h1>
+            {/* Logo + Title */}
+            <div className="mb-6 flex justify-center">
+              <Image
+                src="/logos/logo-light.png"
+                alt="CSC"
+                width={700}
+                height={200}
+                className="h-20 w-auto sm:h-24"
+                priority
+              />
+            </div>
             <p className="mx-auto max-w-lg text-sm text-white/50">
               Ayudanos a construir la comunidad de ciberseguridad que queremos.
               Tu opinión importa.
@@ -605,7 +613,7 @@ export default function SurveyPage() {
                   value={data.email}
                   onChange={(e) => setData((d) => ({ ...d, email: e.target.value }))}
                   placeholder="tu@email.com"
-                  className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white placeholder:text-white/20 focus:border-[#00ffb4]/50 focus:outline-none focus:ring-1 focus:ring-[#00ffb4]/20 transition-all"
+                  className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white placeholder:text-white/20 focus:border-[#E87B1E]/50 focus:outline-none focus:ring-1 focus:ring-[#E87B1E]/20 transition-all"
                 />
                 <p className="mt-2 text-xs text-white/30">
                   Opcional. Si querés que te contactemos sobre tus sugerencias.
@@ -639,7 +647,7 @@ export default function SurveyPage() {
                 <button
                   type="submit"
                   disabled={submitting || progress < 3 || (!!siteKey && !captchaToken)}
-                  className="group relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-[#00ffb4] to-[#00d4aa] py-4 font-mono text-sm font-medium uppercase tracking-widest text-black transition-all hover:shadow-lg hover:shadow-[#00ffb4]/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="group relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-[#E87B1E] to-[#d4700a] py-4 font-mono text-sm font-medium uppercase tracking-widest text-white transition-all hover:shadow-lg hover:shadow-[#E87B1E]/20 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="relative z-10 flex items-center justify-center gap-2">
                     {submitting ? (
