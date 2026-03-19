@@ -102,68 +102,7 @@ export function Navbar() {
                   {link.label}
                 </Link>
               )
-            )}
-
-            {/* Mobile Auth Section */}
-            {!loading && (
-              <>
-                {user ? (
-                  <>
-                    <div className="my-2 border-t border-white/5" />
-                    <div className="flex items-center gap-3 px-4 py-3">
-                      {user.photo_url ? (
-                        <Image
-                          src={user.photo_url}
-                          alt={user.full_name}
-                          width={36}
-                          height={36}
-                          className="rounded-full object-cover h-9 w-9"
-                        />
-                      ) : (
-                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-csc-orange/30 to-csc-orange/10 border border-csc-orange/20">
-                          <span className="text-xs font-bold text-csc-orange">
-                            {getInitials(user.full_name)}
-                          </span>
-                        </div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <p className="font-mono text-sm text-white truncate">{user.full_name}</p>
-                        <p className="font-mono text-[10px] text-white/40">Socio activo</p>
-                      </div>
-                    </div>
-                    <Link
-                      href="/my-profile"
-                      onClick={() => setOpen(false)}
-                      className="flex items-center gap-3 rounded-xl px-4 py-3 font-mono text-sm text-white/70 transition-colors hover:bg-white/5 hover:text-white"
-                    >
-                      <User className="h-4 w-4" />
-                      Mi Perfil
-                    </Link>
-                    <button
-                      onClick={() => {
-                        handleLogout();
-                        setOpen(false);
-                      }}
-                      className="flex w-full items-center gap-3 rounded-xl px-4 py-3 font-mono text-sm text-red-400/70 transition-colors hover:bg-red-500/10 hover:text-red-400"
-                    >
-                      <LogOut className="h-4 w-4" />
-                      Cerrar Sesión
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <div className="my-2 border-t border-white/5" />
-                    <Link
-                      href="/login"
-                      onClick={() => setOpen(false)}
-                      className="mt-4 rounded-full bg-csc-orange py-3.5 text-center font-mono text-sm uppercase tracking-widest text-white"
-                    >
-                      Iniciar Sesión
-                    </Link>
-                  </>
-                )}
-              </>
-            )}
+            )
           </nav>
         </div>
       )}
