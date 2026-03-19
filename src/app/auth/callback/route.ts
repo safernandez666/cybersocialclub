@@ -85,9 +85,10 @@ export async function GET(req: NextRequest) {
   let redirectPath: string;
 
   if (!member) {
-    // New member — create with pending status
+    // New member — register with Google data, status: pending
+    const fullName = user.user_metadata.full_name || user.user_metadata.name || email;
     const { error: insertError } = await supabaseAdmin.from("members").insert({
-      full_name: user.user_metadata.full_name || user.user_metadata.name || email,
+      full_name: fullName,
       email,
       photo_url: user.user_metadata.avatar_url || user.user_metadata.picture || null,
       auth_provider: provider,
@@ -97,102 +98,52 @@ export async function GET(req: NextRequest) {
 
     if (insertError) {
       console.error("[auth/callback] Insert error:", insertError.message);
-      const res = NextResponse.redirect(`${safeOrigin}/login?error=registration_failed`);
+      const res = NextResponse.redirect(`${safeOrigin}/register?error=registration_failed`);
       Object.entries(securityHeaders).forEach(([k, v]) => res.headers.set(k, v));
       return res;
+    }
+
+    // Send admin notification so they can quick-approve
+    try {
+      const { sendAdminNotification } = await import("@/lib/email");
+      // Get the newly created member to have the id
+      const { data: newMember } = await supabaseAdmin
+        .from("members")
+        .select("id")
+        .eq("email", email)
+        .single();
+
+      if (newMember) {
+        await sendAdminNotification({
+          id: newMember.id,
+          full_name: fullName,
+          email,
+          company: "N/A",
+          job_title: "N/A",
+          role_type: "N/A",
+        });
+      }
+    } catch (emailErr) {
+      console.error("[auth/callback] Admin notification error:", emailErr);
     }
 
     await logAuthEvent("new_registration", null, provider, req);
-    redirectPath = "/complete-profile";
+    // Redirect to verify-email success page (registration complete)
+    redirectPath = "/verify-email?status=success";
   } else if (member.status === "approved") {
-    // S5: Provider conflict detection
-    if (member.auth_provider && member.auth_provider !== provider) {
-      console.warn(
-        "[auth/callback] Provider conflict:",
-        email,
-        "existing:", member.auth_provider,
-        "attempted:", provider
-      );
-      await logAuthEvent("provider_conflict_attempt", member.id, provider, req, {
-        existing_provider: member.auth_provider,
-      });
-      const res = NextResponse.redirect(`${safeOrigin}/login?error=linking_conflict`);
-      Object.entries(securityHeaders).forEach(([k, v]) => res.headers.set(k, v));
-      return res;
-    }
-
-    // Link provider if not yet linked
-    if (!member.auth_provider_id) {
-      await supabaseAdmin
-        .from("members")
-        .update({
-          auth_provider: provider,
-          auth_provider_id: user.id,
-          photo_url: member.photo_url || user.user_metadata.avatar_url || user.user_metadata.picture || null,
-          last_login_at: new Date().toISOString(),
-        })
-        .eq("id", member.id);
-    } else {
-      await supabaseAdmin
-        .from("members")
-        .update({ last_login_at: new Date().toISOString() })
-        .eq("id", member.id);
-    }
-
-    await logAuthEvent("login_success", member.id, provider, req);
+    // Already approved — redirect to their public profile
+    await logAuthEvent("login_existing_approved", member.id, provider, req);
     redirectPath = `/member/${member.id}`;
-  } else if (member.status === "pending_verification") {
-    // Social login already verified email — advance to pending
-    // S5: Provider conflict detection
-    if (member.auth_provider && member.auth_provider !== provider) {
-      await logAuthEvent("provider_conflict_attempt", member.id, provider, req, {
-        existing_provider: member.auth_provider,
-      });
-      const res = NextResponse.redirect(`${safeOrigin}/login?error=linking_conflict`);
-      Object.entries(securityHeaders).forEach(([k, v]) => res.headers.set(k, v));
-      return res;
-    }
-
-    await supabaseAdmin
-      .from("members")
-      .update({
-        status: "pending",
-        auth_provider: provider,
-        auth_provider_id: user.id,
-        verification_token: null,
-        photo_url: member.photo_url || user.user_metadata.avatar_url || user.user_metadata.picture || null,
-      })
-      .eq("id", member.id);
-
-    await logAuthEvent("email_verified_via_social", member.id, provider, req);
-    redirectPath = "/pending-approval";
-  } else if (member.status === "pending") {
-    // Link provider if not yet linked
-    if (!member.auth_provider_id) {
-      // S5: Provider conflict detection
-      if (member.auth_provider && member.auth_provider !== provider) {
-        await logAuthEvent("provider_conflict_attempt", member.id, provider, req, {
-          existing_provider: member.auth_provider,
-        });
-        const res = NextResponse.redirect(`${safeOrigin}/login?error=linking_conflict`);
-        Object.entries(securityHeaders).forEach(([k, v]) => res.headers.set(k, v));
-        return res;
-      }
-
-      await supabaseAdmin
-        .from("members")
-        .update({ auth_provider: provider, auth_provider_id: user.id })
-        .eq("id", member.id);
-    }
-
+  } else if (member.status === "pending" || member.status === "pending_verification") {
+    // Already registered, still pending
     await logAuthEvent("login_pending_member", member.id, provider, req);
-    redirectPath = "/pending-approval";
+    redirectPath = "/verify-email?status=success";
   } else {
-    // rejected or unknown status
+    // rejected
     await logAuthEvent("login_rejected_status", member.id, provider, req, {
       member_status: member.status,
     });
-    redirectPath = "/login?error=rejected";
+    redirectPath = "/register?error=rejected";
   }
 
   const res = NextResponse.redirect(`${safeOrigin}${redirectPath}`);
