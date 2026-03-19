@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { getSafeOrigin, isPreviewDeploy, getSecurityHeaders } from "@/lib/auth-utils";
+import { sendAdminNotification } from "@/lib/email";
 
 /**
  * OAuth callback handler for Google and LinkedIn social login.
@@ -105,15 +106,16 @@ export async function GET(req: NextRequest) {
 
     // Send admin notification so they can quick-approve
     try {
-      const { sendAdminNotification } = await import("@/lib/email");
-      // Get the newly created member to have the id
       const { data: newMember } = await supabaseAdmin
         .from("members")
         .select("id")
         .eq("email", email)
         .single();
 
+      console.log("[auth/callback] New member created:", email, "id:", newMember?.id);
+
       if (newMember) {
+        console.log("[auth/callback] Sending admin notification for:", email);
         await sendAdminNotification({
           id: newMember.id,
           full_name: fullName,
@@ -122,9 +124,10 @@ export async function GET(req: NextRequest) {
           job_title: "N/A",
           role_type: "N/A",
         });
+        console.log("[auth/callback] Admin notification sent successfully");
       }
     } catch (emailErr) {
-      console.error("[auth/callback] Admin notification error:", emailErr);
+      console.error("[auth/callback] Admin notification error:", emailErr instanceof Error ? emailErr.message : emailErr);
     }
 
     await logAuthEvent("new_registration", null, provider, req);
