@@ -111,6 +111,7 @@ function LoginContent() {
               {loading === "google" ? "Redirigiendo..." : "Continuar con Google"}
             </button>
 
+            {/* LinkedIn — deshabilitado hasta configurar provider
             <button
               onClick={() => handleSocialLogin("linkedin_oidc")}
               disabled={loading !== null}
@@ -121,6 +122,7 @@ function LoginContent() {
               </svg>
               {loading === "linkedin_oidc" ? "Redirigiendo..." : "Continuar con LinkedIn"}
             </button>
+            */}
           </div>
         )}
 

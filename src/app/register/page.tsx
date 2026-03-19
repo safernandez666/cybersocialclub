@@ -532,6 +532,16 @@ export default function RegisterPage() {
               </button>
             )}
           </div>
+
+          {/* Link to social login */}
+          <div className="mt-6 border-t border-white/5 pt-6 text-center">
+            <p className="font-mono text-xs text-white/20">
+              ¿Ya tenés cuenta?{" "}
+              <Link href="/login" className="text-csc-orange/60 transition-colors hover:text-csc-orange">
+                Iniciá sesión con Google
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>
