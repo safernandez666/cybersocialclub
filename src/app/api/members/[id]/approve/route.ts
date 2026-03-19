@@ -9,6 +9,7 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  try {
   const { id } = await params;
   const body = await req.json();
   const { action } = body;
@@ -57,7 +58,8 @@ export async function PATCH(
       .eq("id", id);
 
     if (updateError) {
-      return NextResponse.json({ error: updateError.message }, { status: 500 });
+      console.error("[approve] Update error:", JSON.stringify(updateError));
+      return NextResponse.json({ error: updateError.message, details: updateError.code }, { status: 500 });
     }
 
     // Send approval email in background (after response) to avoid Vercel function timeout
@@ -90,4 +92,8 @@ export async function PATCH(
   }
 
   return NextResponse.json({ success: true, status: "rejected" });
+  } catch (err) {
+    console.error("[approve] Unexpected error:", err instanceof Error ? err.message : err);
+    return NextResponse.json({ error: err instanceof Error ? err.message : "Error inesperado" }, { status: 500 });
+  }
 }
