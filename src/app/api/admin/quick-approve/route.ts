@@ -59,13 +59,21 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  // Generate member number
-  const { count } = await supabase
+  // Generate member number (find max existing to avoid duplicates)
+  const { data: lastMember } = await supabase
     .from("members")
-    .select("*", { count: "exact", head: true })
-    .eq("status", "approved");
+    .select("member_number")
+    .not("member_number", "is", null)
+    .order("member_number", { ascending: false })
+    .limit(1)
+    .single();
 
-  const memberNumber = `CSC-${String((count || 0) + 1).padStart(4, "0")}`;
+  let nextNumber = 1;
+  if (lastMember?.member_number) {
+    const match = lastMember.member_number.match(/CSC-(\d+)/);
+    if (match) nextNumber = parseInt(match[1]) + 1;
+  }
+  const memberNumber = `CSC-${String(nextNumber).padStart(4, "0")}`;
   const credentialToken = randomBytes(32).toString("hex");
   const expiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString();
 

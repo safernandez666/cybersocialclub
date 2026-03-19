@@ -34,13 +34,21 @@ export async function PATCH(
   }
 
   if (action === "approve") {
-    // Generate member number: CSC-XXXX
-    const { count } = await getSupabaseAdmin()
+    // Generate member number: CSC-XXXX (find max existing number to avoid duplicates)
+    const { data: lastMember } = await getSupabaseAdmin()
       .from("members")
-      .select("*", { count: "exact", head: true })
-      .eq("status", "approved");
+      .select("member_number")
+      .not("member_number", "is", null)
+      .order("member_number", { ascending: false })
+      .limit(1)
+      .single();
 
-    const memberNumber = `CSC-${String((count || 0) + 1).padStart(4, "0")}`;
+    let nextNumber = 1;
+    if (lastMember?.member_number) {
+      const match = lastMember.member_number.match(/CSC-(\d+)/);
+      if (match) nextNumber = parseInt(match[1]) + 1;
+    }
+    const memberNumber = `CSC-${String(nextNumber).padStart(4, "0")}`;
     const credentialToken = randomBytes(32).toString("hex");
 
     // Token expires in 90 days
