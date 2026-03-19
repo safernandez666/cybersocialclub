@@ -146,7 +146,7 @@ function CompleteProfileContent() {
             alt="CSC"
             width={700}
             height={200}
-            className="h-24 w-auto sm:h-28 lg:h-32"
+            className="h-12 w-auto sm:h-14 lg:h-16"
             priority
           />
         </div>
@@ -166,9 +166,14 @@ function CompleteProfileContent() {
               </span>
             </div>
 
-            <p className="font-mono text-xs text-white/40 leading-relaxed">
-              Ya registramos tu nombre y email con Google. Completá estos datos para que podamos conocerte mejor.
-            </p>
+            <div className="rounded-xl border border-csc-orange/20 bg-csc-orange/5 px-4 py-3">
+              <p className="font-mono text-xs text-csc-orange font-medium">
+                Faltan datos para completar tu membresía
+              </p>
+              <p className="mt-1 font-mono text-[10px] text-white/40 leading-relaxed">
+                Ya registramos tu nombre y email. Completá estos datos para que podamos revisar tu solicitud.
+              </p>
+            </div>
 
             {apiError && (
               <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 font-mono text-xs text-red-400">

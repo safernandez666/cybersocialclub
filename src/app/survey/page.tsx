@@ -495,7 +495,7 @@ export default function SurveyPage() {
                 alt="CSC"
                 width={700}
                 height={200}
-                className="h-20 w-auto sm:h-24"
+                className="h-12 w-auto sm:h-14"
                 priority
               />
             </div>

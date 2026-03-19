@@ -245,7 +245,7 @@ export default function RegisterPage() {
             alt="CSC"
             width={700}
             height={200}
-            className="h-24 w-auto sm:h-28 lg:h-32"
+            className="h-12 w-auto sm:h-14 lg:h-16"
             priority
           />
         </div>
