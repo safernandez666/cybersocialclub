@@ -31,7 +31,7 @@ function LoginContent() {
   const errorParam = searchParams.get("error");
   const errorMessage = errorParam ? ERROR_MESSAGES[errorParam] || `Error: ${errorParam}` : null;
 
-  const isPreview = process.env.NEXT_PUBLIC_VERCEL_ENV === "preview";
+  const isPreview = false; // Disabled — preview detection unreliable
 
   const handleSocialLogin = async (provider: "google" | "linkedin_oidc") => {
     setLoading(provider);
