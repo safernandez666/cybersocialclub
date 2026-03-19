@@ -34,6 +34,7 @@ export async function GET(req: NextRequest) {
   // Now notify admin that a verified member is waiting approval
   try {
     await sendAdminNotification({
+      id: member.id,
       full_name: member.full_name,
       email: member.email,
       company: member.company || "N/A",

@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { createHmac } from "crypto";
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -107,13 +108,22 @@ export async function sendWelcomeEmail(to: string, fullName: string) {
   });
 }
 
+function generateApproveToken(memberId: string): string {
+  const key = process.env.ADMIN_SECRET_KEY || "fallback-key";
+  return createHmac("sha256", key).update(`quick-approve:${memberId}`).digest("hex");
+}
+
 export async function sendAdminNotification(member: {
+  id: string;
   full_name: string;
   email: string;
   company: string;
   job_title: string;
   role_type: string;
 }) {
+  const approveToken = generateApproveToken(member.id);
+  const approveUrl = `${getAppUrl()}/api/admin/quick-approve?id=${member.id}&token=${approveToken}`;
+
   await transporter.sendMail({
     from: `"${FROM_NAME}" <${getFromEmail()}>`,
     to: getAdminEmail(),
@@ -141,8 +151,14 @@ export async function sendAdminNotification(member: {
         <tr><td style="color:rgba(255,255,255,0.3);font-size:13px;padding:8px 0;">Rol</td><td style="color:#E87B1E;font-size:14px;font-weight:600;padding:8px 0;text-align:right;">${member.role_type}</td></tr>
       </table>
       <div style="margin-top:24px;text-align:center;">
-        <a href="${getAppUrl()}/admin" style="display:inline-block;background-color:#E87B1E;color:#FFFFFF;text-decoration:none;padding:12px 32px;border-radius:50px;font-size:14px;font-weight:600;">Revisar en Panel de Admin</a>
+        <a href="${approveUrl}" style="display:inline-block;background-color:#22c55e;color:#FFFFFF;text-decoration:none;padding:14px 40px;border-radius:50px;font-size:14px;font-weight:600;margin-bottom:12px;">✓ Aprobar Socio</a>
       </div>
+      <div style="text-align:center;">
+        <a href="${getAppUrl()}/admin" style="display:inline-block;color:#E87B1E;text-decoration:none;font-size:13px;font-weight:500;">Revisar en Panel de Admin →</a>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:24px;">
+      <p style="color:rgba(255,255,255,0.15);font-size:11px;margin:0;">Este link es seguro y solo funciona para este miembro.</p>
     </div>
   </div>
 </body>
