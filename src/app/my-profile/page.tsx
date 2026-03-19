@@ -55,7 +55,7 @@ export default function MyProfilePage() {
       const res = await fetch("/api/me");
       if (!res.ok) {
         if (res.status === 401) {
-          router.push("/login");
+          router.push("/register");
           return;
         }
         throw new Error("Error al cargar datos");

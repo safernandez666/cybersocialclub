@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
 
   // S11: Disable social login on Vercel preview deploys
   if (isPreviewDeploy()) {
-    const res = NextResponse.redirect(`${safeOrigin}/login?error=preview_disabled`);
+    const res = NextResponse.redirect(`${safeOrigin}/register?error=preview_disabled`);
     Object.entries(securityHeaders).forEach(([k, v]) => res.headers.set(k, v));
     return res;
   }
@@ -33,14 +33,14 @@ export async function GET(req: NextRequest) {
   if (error) {
     console.error("[auth/callback] OAuth error:", error, errorDescription);
     const res = NextResponse.redirect(
-      `${safeOrigin}/login?error=${encodeURIComponent(error)}`
+      `${safeOrigin}/register?error=${encodeURIComponent(error)}`
     );
     Object.entries(securityHeaders).forEach(([k, v]) => res.headers.set(k, v));
     return res;
   }
 
   if (!code) {
-    const res = NextResponse.redirect(`${safeOrigin}/login?error=no_code`);
+    const res = NextResponse.redirect(`${safeOrigin}/register?error=no_code`);
     Object.entries(securityHeaders).forEach(([k, v]) => res.headers.set(k, v));
     return res;
   }
@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
 
   if (exchangeError || !data.user) {
     console.error("[auth/callback] Exchange error:", exchangeError?.message);
-    const res = NextResponse.redirect(`${safeOrigin}/login?error=exchange_failed`);
+    const res = NextResponse.redirect(`${safeOrigin}/register?error=exchange_failed`);
     Object.entries(securityHeaders).forEach(([k, v]) => res.headers.set(k, v));
     return res;
   }
@@ -64,13 +64,13 @@ export async function GET(req: NextRequest) {
   if (!user.user_metadata.email_verified) {
     console.warn("[auth/callback] Unverified email rejected:", email, provider);
     await logAuthEvent("login_rejected_unverified", null, provider, req);
-    const res = NextResponse.redirect(`${safeOrigin}/login?error=unverified_email`);
+    const res = NextResponse.redirect(`${safeOrigin}/register?error=unverified_email`);
     Object.entries(securityHeaders).forEach(([k, v]) => res.headers.set(k, v));
     return res;
   }
 
   if (!email) {
-    const res = NextResponse.redirect(`${safeOrigin}/login?error=no_email`);
+    const res = NextResponse.redirect(`${safeOrigin}/register?error=no_email`);
     Object.entries(securityHeaders).forEach(([k, v]) => res.headers.set(k, v));
     return res;
   }
