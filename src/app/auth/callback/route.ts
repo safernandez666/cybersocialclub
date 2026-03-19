@@ -114,7 +114,7 @@ export async function GET(req: NextRequest) {
       .single();
 
     // Admin notification will be sent AFTER user completes the profile form
-    redirectPath = `/complete-profile?id=${newMember?.id || ""}`;
+    redirectPath = `/complete-profile?id=${newMember?.id || ""}&provider=${provider}`;
   } else if (member.status === "approved") {
     // Already approved — redirect to their public profile
     await logAuthEvent("login_existing_approved", member.id, provider, req);
@@ -122,7 +122,7 @@ export async function GET(req: NextRequest) {
   } else if (member.status === "pending" || member.status === "pending_verification") {
     // Already registered, still pending — let them complete profile if needed
     await logAuthEvent("login_pending_member", member.id, provider, req);
-    redirectPath = `/complete-profile?id=${member.id}`;
+    redirectPath = `/complete-profile?id=${member.id}&provider=${provider}`;
   } else {
     // rejected
     await logAuthEvent("login_rejected_status", member.id, provider, req, {

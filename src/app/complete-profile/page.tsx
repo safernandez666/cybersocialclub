@@ -32,12 +32,14 @@ export default function CompleteProfilePage() {
 function CompleteProfileContent() {
   const searchParams = useSearchParams();
   const memberId = searchParams.get("id");
+  const provider = searchParams.get("provider");
+  const isLinkedIn = provider === "linkedin_oidc";
 
   const [form, setForm] = useState<ProfileForm>({
     company: "",
     job_title: "",
     role_type: "",
-    linkedin_url: "",
+    linkedin_url: isLinkedIn ? "https://linkedin.com/in/" : "",
     years_experience: "",
     phone: "",
   });
@@ -171,7 +173,7 @@ function CompleteProfileContent() {
                 Faltan datos para completar tu membresía
               </p>
               <p className="mt-1 font-mono text-[10px] text-white/40 leading-relaxed">
-                Ya registramos tu nombre y email. Completá estos datos para que podamos revisar tu solicitud.
+                Ya registramos tu nombre y email con {isLinkedIn ? "LinkedIn" : "Google"}. Completá estos datos para que podamos revisar tu solicitud.
               </p>
             </div>
 
