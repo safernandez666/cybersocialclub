@@ -102,7 +102,7 @@ export function Navbar() {
                   {link.label}
                 </Link>
               )
-            )
+            )}
           </nav>
         </div>
       )}
