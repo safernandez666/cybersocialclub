@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { sendAdminNotification } from "@/lib/email";
 
 /**
  * PATCH /api/members/complete-profile
@@ -52,6 +53,28 @@ export async function PATCH(req: NextRequest) {
 
   if (updateError) {
     return NextResponse.json({ error: updateError.message }, { status: 500 });
+  }
+
+  // Send admin notification with full data
+  try {
+    const { data: updatedMember } = await supabase
+      .from("members")
+      .select("id, full_name, email, company, job_title, role_type")
+      .eq("id", id)
+      .single();
+
+    if (updatedMember) {
+      await sendAdminNotification({
+        id: updatedMember.id,
+        full_name: updatedMember.full_name,
+        email: updatedMember.email,
+        company: updatedMember.company || "N/A",
+        job_title: updatedMember.job_title || "N/A",
+        role_type: updatedMember.role_type || "N/A",
+      });
+    }
+  } catch (emailErr) {
+    console.error("[complete-profile] Admin notification error:", emailErr);
   }
 
   return NextResponse.json({ success: true });

@@ -104,51 +104,25 @@ export async function GET(req: NextRequest) {
       return res;
     }
 
-    // Send admin notification so they can quick-approve
-    try {
-      const { data: newMember } = await supabaseAdmin
-        .from("members")
-        .select("id")
-        .eq("email", email)
-        .single();
-
-      console.log("[auth/callback] New member created:", email, "id:", newMember?.id);
-
-      if (newMember) {
-        console.log("[auth/callback] Sending admin notification for:", email);
-        await sendAdminNotification({
-          id: newMember.id,
-          full_name: fullName,
-          email,
-          company: "N/A",
-          job_title: "N/A",
-          role_type: "N/A",
-        });
-        console.log("[auth/callback] Admin notification sent successfully");
-      }
-    } catch (emailErr) {
-      console.error("[auth/callback] Admin notification error:", emailErr instanceof Error ? emailErr.message : emailErr);
-    }
-
     await logAuthEvent("new_registration", null, provider, req);
 
     // Get the new member id for the complete-profile form
-    const { data: newMemberForRedirect } = await supabaseAdmin
+    const { data: newMember } = await supabaseAdmin
       .from("members")
       .select("id")
       .eq("email", email)
       .single();
 
-    // Redirect to complete profile with member id
-    redirectPath = `/complete-profile?id=${newMemberForRedirect?.id || ""}`;
+    // Admin notification will be sent AFTER user completes the profile form
+    redirectPath = `/complete-profile?id=${newMember?.id || ""}`;
   } else if (member.status === "approved") {
     // Already approved — redirect to their public profile
     await logAuthEvent("login_existing_approved", member.id, provider, req);
     redirectPath = `/member/${member.id}`;
   } else if (member.status === "pending" || member.status === "pending_verification") {
-    // Already registered, still pending
+    // Already registered, still pending — let them complete profile if needed
     await logAuthEvent("login_pending_member", member.id, provider, req);
-    redirectPath = "/verify-email?status=success";
+    redirectPath = `/complete-profile?id=${member.id}`;
   } else {
     // rejected
     await logAuthEvent("login_rejected_status", member.id, provider, req, {
