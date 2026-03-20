@@ -198,23 +198,24 @@ export default function Home() {
                 Con eventos exclusivos, una credencial digital verificable y una red de
                 contactos que se expande cada día.
               </p>
-              <div className="mt-10 grid grid-cols-2 gap-8">
+              <div className="mt-10 grid grid-cols-2 gap-6 sm:gap-8">
                 {[
                   { value: memberCount, suffix: "+", label: "Miembros registrados" },
-                  { value: 900, suffix: "+", label: "Seguidores en LinkedIn" },
-                  { value: 900, suffix: "+", label: "Seguidores en Instagram" },
-                  { value: 5, suffix: "+", label: "Eventos realizados" },
-                  { value: 1, suffix: "", label: "Evento Internacional" },
-                  { value: 100, suffix: "%", label: "Ciberseguridad" },
+                  { value: 950, suffix: "+", label: "Seguidores en Instagram" },
+                  { value: 800, suffix: "+", label: "en LinkedIn" },
+                  { value: 40, suffix: "+", label: "Eventos generados" },
+                  { value: 300, suffix: "+", label: "Personas de asistencia" },
                 ].map((stat, i) => (
-                  <div key={stat.label}>
-                    <div className="text-2xl font-semibold tracking-tight text-white">
-                      <Counter target={stat.value} suffix={stat.suffix} />
+                  <Reveal key={stat.label} delay={0.1 * i}>
+                    <div className="rounded-2xl border border-white/[0.06] bg-[#141211] p-6 transition-all duration-300 hover:border-csc-orange/30">
+                      <div className="text-[1.75rem] sm:text-[2rem] font-semibold tracking-tight text-white">
+                        <Counter target={stat.value} suffix={stat.suffix} />
+                      </div>
+                      <div className="mt-1 font-mono text-xs text-white/25">
+                        {stat.label}
+                      </div>
                     </div>
-                    <div className="mt-1 font-mono text-xs text-white/25">
-                      {stat.label}
-                    </div>
-                  </div>
+                  </Reveal>
                 ))}
               </div>
             </Reveal>
