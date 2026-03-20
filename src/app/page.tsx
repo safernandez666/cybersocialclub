@@ -107,9 +107,9 @@ export default function Home() {
   });
 
   useEffect(() => {
-    fetch("/api/members")
-      .then((res) => res.ok ? res.json() : [])
-      .then((data) => { if (Array.isArray(data)) setMemberCount(data.length); })
+    fetch("/api/members/count")
+      .then((res) => res.ok ? res.json() : { count: 0 })
+      .then((data) => { if (data.count) setMemberCount(data.count); })
       .catch(() => {});
   }, []);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);

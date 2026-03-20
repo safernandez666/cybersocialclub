@@ -8,13 +8,13 @@
   // ==========================================================================
   // Fetch live member count from socios API
   // ==========================================================================
-  fetch('https://socios.cybersocialclub.com.ar/api/members')
-    .then(function(res) { return res.ok ? res.json() : []; })
+  fetch('https://socios.cybersocialclub.com.ar/api/members/count')
+    .then(function(res) { return res.ok ? res.json() : { count: 0 }; })
     .then(function(data) {
-      if (Array.isArray(data) && data.length > 0) {
+      if (data.count > 0) {
         var el = document.getElementById('member-count');
         if (el) {
-          var target = data.length;
+          var target = data.count;
           el.dataset.target = target;
           // Animate the counter
           var duration = 2000;
