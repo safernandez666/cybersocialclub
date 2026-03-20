@@ -1,6 +1,16 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: corsHeaders });
+}
+
 export async function GET() {
   const { count, error } = await getSupabaseAdmin()
     .from("members")
@@ -8,7 +18,7 @@ export async function GET() {
     .eq("status", "approved");
 
   if (error) {
-    return NextResponse.json({ count: 0 }, { status: 200 });
+    return NextResponse.json({ count: 0 }, { status: 200, headers: corsHeaders });
   }
 
   return NextResponse.json(
@@ -16,7 +26,7 @@ export async function GET() {
     {
       status: 200,
       headers: {
-        "Access-Control-Allow-Origin": "*",
+        ...corsHeaders,
         "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
       },
     }
