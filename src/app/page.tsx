@@ -100,10 +100,18 @@ function SectionLabel({ text, number }: { text: string; number: string }) {
 /* ------------------------------------------------------------------ */
 export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
+  const [memberCount, setMemberCount] = useState(0);
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"],
   });
+
+  useEffect(() => {
+    fetch("/api/members")
+      .then((res) => res.ok ? res.json() : [])
+      .then((data) => { if (Array.isArray(data)) setMemberCount(data.length); })
+      .catch(() => {});
+  }, []);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
   const heroScale = useTransform(scrollYProgress, [0, 0.8], [1, 0.95]);
 
@@ -192,6 +200,7 @@ export default function Home() {
               </p>
               <div className="mt-10 grid grid-cols-2 gap-8">
                 {[
+                  { value: memberCount, suffix: "+", label: "Miembros registrados" },
                   { value: 900, suffix: "+", label: "Seguidores en LinkedIn" },
                   { value: 900, suffix: "+", label: "Seguidores en Instagram" },
                   { value: 5, suffix: "+", label: "Eventos realizados" },
