@@ -6,6 +6,35 @@
   'use strict';
 
   // ==========================================================================
+  // Fetch live member count from socios API
+  // ==========================================================================
+  fetch('https://socios.cybersocialclub.com.ar/api/members')
+    .then(function(res) { return res.ok ? res.json() : []; })
+    .then(function(data) {
+      if (Array.isArray(data) && data.length > 0) {
+        var el = document.getElementById('member-count');
+        if (el) {
+          var target = data.length;
+          el.dataset.target = target;
+          // Animate the counter
+          var duration = 2000;
+          var step = Math.ceil(target / (duration / 16));
+          var current = 0;
+          var timer = setInterval(function() {
+            current += step;
+            if (current >= target) {
+              el.textContent = target;
+              clearInterval(timer);
+            } else {
+              el.textContent = current;
+            }
+          }, 16);
+        }
+      }
+    })
+    .catch(function() {});
+
+  // ==========================================================================
   // Navbar scroll effect
   // ==========================================================================
   const navbar = document.getElementById('navbar');
