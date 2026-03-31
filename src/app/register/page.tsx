@@ -106,6 +106,47 @@ function StepIndicator({ current }: { current: number }) {
 /* ------------------------------------------------------------------ */
 /* Page                                                                */
 /* ------------------------------------------------------------------ */
+/* ---- Password Input Component (defined outside to avoid re-renders) ---- */
+function PasswordInput({
+  id,
+  value,
+  onChange,
+  placeholder,
+  error,
+}: {
+  id: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder: string;
+  error?: string;
+}) {
+  const [show, setShow] = useState(false);
+  return (
+    <div className="relative">
+      <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/20" />
+      <input
+        id={id}
+        type={show ? "text" : "password"}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className={`w-full rounded-md border bg-[#0A0A0A] py-2 pl-10 pr-10 font-mono text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-1 ${
+          error
+            ? "border-red-500/30 focus:border-red-500/30 focus:ring-red-500/20"
+            : "border-white/5 focus:border-csc-orange/30 focus:ring-csc-orange/20"
+        }`}
+      />
+      <button
+        type="button"
+        onClick={() => setShow(!show)}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/40"
+      >
+        {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+      </button>
+    </div>
+  );
+}
+
 export default function RegisterPage() {
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<FormData>(initialForm);
@@ -243,46 +284,7 @@ export default function RegisterPage() {
   const inputClass = "border-white/5 bg-[#0A0A0A] text-white font-mono text-sm placeholder:text-white/20";
   const labelClass = "font-mono text-xs uppercase tracking-widest text-white/40";
 
-  /* ---- Password Input Component ---- */
-  function PasswordInput({
-    id,
-    value,
-    onChange,
-    placeholder,
-    error,
-  }: {
-    id: string;
-    value: string;
-    onChange: (v: string) => void;
-    placeholder: string;
-    error?: string;
-  }) {
-    const [show, setShow] = useState(false);
-    return (
-      <div className="relative">
-        <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/20" />
-        <input
-          id={id}
-          type={show ? "text" : "password"}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
-          className={`w-full rounded-md border bg-[#0A0A0A] py-2 pl-10 pr-10 font-mono text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-1 ${
-            error
-              ? "border-red-500/30 focus:border-red-500/30 focus:ring-red-500/20"
-              : "border-white/5 focus:border-csc-orange/30 focus:ring-csc-orange/20"
-          }`}
-        />
-        <button
-          type="button"
-          onClick={() => setShow(!show)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/40"
-        >
-          {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-        </button>
-      </div>
-    );
-  }
+  /* ---- Password Input: uses top-level component defined above ---- */
 
   /* ---- Success ---- */
   if (submitted) {
