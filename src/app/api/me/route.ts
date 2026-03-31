@@ -123,6 +123,7 @@ export async function PATCH(req: Request) {
     updates.last_name = ln;
   }
   // Recalculate full_name when first/last change
+  const supabaseAdmin = getSupabaseAdmin();
   if (updates.first_name || updates.last_name) {
     // Fetch current member to fill in the missing name part
     const { data: currentMember } = await supabaseAdmin
@@ -180,7 +181,6 @@ export async function PATCH(req: Request) {
     }
   }
 
-  const supabaseAdmin = getSupabaseAdmin();
   const { error } = await supabaseAdmin
     .from("members")
     .update(updates)
