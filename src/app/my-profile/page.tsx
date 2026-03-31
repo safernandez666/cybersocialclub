@@ -349,7 +349,7 @@ export default function MyProfilePage() {
             transition={{ delay: 0.1 }}
             className="lg:col-span-2"
           >
-            <div className="rounded-3xl border border-white/5 bg-[#141211] p-6 sm:p-8">
+            <div className="h-full rounded-3xl border border-white/5 bg-[#141211] p-6 sm:p-8">
               {/* Profile Header */}
               <div className="flex flex-col sm:flex-row sm:items-center gap-6 mb-8">
                 {/* Avatar */}
@@ -638,7 +638,7 @@ export default function MyProfilePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <div className="rounded-3xl border border-white/5 bg-[#141211] p-6">
+            <div className="h-full rounded-3xl border border-white/5 bg-[#141211] p-6">
               <div className="mb-6 text-center">
                 <h3 className="font-mono text-sm font-bold tracking-widest text-csc-orange mb-1">
                   CYBER SOCIAL CLUB
