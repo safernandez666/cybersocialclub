@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { sendAdminNotification } from "@/lib/email";
 
+const ALLOWED_COUNTRIES = [
+  "Argentina", "Bolivia", "Brasil", "Chile", "Colombia", "Costa Rica", "Cuba",
+  "Ecuador", "El Salvador", "Guatemala", "Honduras", "México", "Nicaragua",
+  "Panamá", "Paraguay", "Perú", "República Dominicana", "Uruguay", "Venezuela", "Otros",
+];
+
 /**
  * PATCH /api/members/complete-profile
  * Updates a pending member's profile fields after Google registration.
@@ -15,7 +21,7 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "JSON inválido" }, { status: 400 });
   }
 
-  const { id, company, job_title, role_type, linkedin_url, years_experience, phone } = body as Record<string, string>;
+  const { id, company, job_title, role_type, linkedin_url, years_experience, phone, country } = body as Record<string, string>;
 
   if (!id || typeof id !== "string") {
     return NextResponse.json({ error: "ID requerido" }, { status: 400 });
@@ -38,17 +44,27 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Solo se pueden completar perfiles pendientes" }, { status: 400 });
   }
 
+  // Validate country if provided
+  if (country && !ALLOWED_COUNTRIES.includes(country)) {
+    return NextResponse.json({ error: "País inválido" }, { status: 400 });
+  }
+
   // Update only allowed fields
+  const updateFields: Record<string, unknown> = {
+    company: company || null,
+    job_title: job_title || null,
+    role_type: role_type || null,
+    linkedin_url: linkedin_url || null,
+    years_experience: years_experience ? parseInt(years_experience as string) : null,
+    phone: phone || null,
+  };
+  if (country) {
+    updateFields.country = country;
+  }
+
   const { error: updateError } = await supabase
     .from("members")
-    .update({
-      company: company || null,
-      job_title: job_title || null,
-      role_type: role_type || null,
-      linkedin_url: linkedin_url || null,
-      years_experience: years_experience ? parseInt(years_experience as string) : null,
-      phone: phone || null,
-    })
+    .update(updateFields)
     .eq("id", id);
 
   if (updateError) {

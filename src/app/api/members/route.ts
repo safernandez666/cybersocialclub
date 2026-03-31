@@ -5,13 +5,23 @@ const supabase = getSupabaseAdmin();
 import { randomBytes } from "crypto";
 import { sendVerificationEmail } from "@/lib/email";
 
+const ALLOWED_COUNTRIES = [
+  "Argentina", "Bolivia", "Brasil", "Chile", "Colombia", "Costa Rica", "Cuba",
+  "Ecuador", "El Salvador", "Guatemala", "Honduras", "México", "Nicaragua",
+  "Panamá", "Paraguay", "Perú", "República Dominicana", "Uruguay", "Venezuela", "Otros",
+];
+
 export async function POST(req: NextRequest) {
   const body = await req.json();
 
-  const { full_name, email, phone, company, job_title, role_type, linkedin_url, years_experience, captcha_token } = body;
+  const { full_name, email, phone, company, job_title, role_type, linkedin_url, years_experience, captcha_token, country } = body;
 
-  if (!full_name || !email) {
-    return NextResponse.json({ error: "Nombre y email son obligatorios" }, { status: 400 });
+  if (!full_name || !email || !country) {
+    return NextResponse.json({ error: "Nombre, email y país son obligatorios" }, { status: 400 });
+  }
+
+  if (!ALLOWED_COUNTRIES.includes(country)) {
+    return NextResponse.json({ error: "País inválido" }, { status: 400 });
   }
 
   // Verify hCaptcha if configured (soft mode: log but don't block if no token)
@@ -87,6 +97,7 @@ export async function POST(req: NextRequest) {
       role_type: role_type || null,
       linkedin_url: linkedin_url || null,
       years_experience: years_experience ? parseInt(years_experience) : null,
+      country,
       status: "pending_verification",
       verification_token: verificationToken,
     });

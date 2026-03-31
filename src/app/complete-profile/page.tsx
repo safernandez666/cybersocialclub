@@ -1,11 +1,11 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight, CheckCircle } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle, ChevronDown, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -16,7 +16,15 @@ interface ProfileForm {
   linkedin_url: string;
   years_experience: string;
   phone: string;
+  country: string;
 }
+
+const countryOptions = [
+  "Argentina", "Bolivia", "Brasil", "Chile", "Colombia",
+  "Costa Rica", "Cuba", "Ecuador", "El Salvador", "Guatemala",
+  "Honduras", "México", "Nicaragua", "Panamá", "Paraguay",
+  "Perú", "República Dominicana", "Uruguay", "Venezuela", "Otros"
+];
 
 const roleOptions = ["CISO", "Security Engineer", "Pentester", "SOC Analyst", "Security Architect", "GRC", "DevSecOps", "Researcher", "Student", "Other"];
 const experienceOptions = ["0-2", "3-5", "6-10", "10+"];
@@ -42,7 +50,26 @@ function CompleteProfileContent() {
     linkedin_url: isLinkedIn ? "https://linkedin.com/in/" : "",
     years_experience: "",
     phone: "",
+    country: "",
   });
+  const [countryOpen, setCountryOpen] = useState(false);
+  const [countrySearch, setCountrySearch] = useState("");
+  const countryDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close country dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (countryDropdownRef.current && !countryDropdownRef.current.contains(event.target as Node)) {
+        setCountryOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filteredCountries = countrySearch
+    ? countryOptions.filter(c => c.toLowerCase().includes(countrySearch.toLowerCase()))
+    : countryOptions;
   const [errors, setErrors] = useState<Partial<Record<keyof ProfileForm, string>>>({});
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -78,6 +105,7 @@ function CompleteProfileContent() {
           linkedin_url: form.linkedin_url || null,
           years_experience: form.years_experience || null,
           phone: form.phone || null,
+          country: form.country || null,
         }),
       });
 
@@ -278,6 +306,78 @@ function CompleteProfileContent() {
                 onChange={(e) => set("phone", e.target.value)}
                 className={inputClass}
               />
+            </div>
+
+            {/* Country Combobox */}
+            <div className="space-y-1.5" ref={countryDropdownRef}>
+              <Label className={labelClass}>
+                País
+              </Label>
+              <button
+                type="button"
+                onClick={() => setCountryOpen(!countryOpen)}
+                className={`flex w-full items-center justify-between rounded-md border px-3 py-2 font-mono text-sm transition-all ${
+                  countryOpen
+                    ? "border-csc-orange ring-1 ring-csc-orange/20"
+                    : "border-white/5 hover:border-white/10"
+                } ${form.country ? "text-white" : "text-white/30"} bg-[#0A0A0A]`}
+              >
+                <span>{form.country || "Seleccioná tu país"}</span>
+                <ChevronDown className={`h-4 w-4 text-white/30 transition-transform ${countryOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              <AnimatePresence>
+                {countryOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.15 }}
+                    className="z-50 overflow-hidden rounded-md border border-white/10 bg-[#141211] shadow-xl"
+                  >
+                    {/* Search input */}
+                    <div className="border-b border-white/5 p-2">
+                      <div className="relative">
+                        <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-white/30" />
+                        <input
+                          type="text"
+                          placeholder="Buscar país..."
+                          value={countrySearch}
+                          onChange={(e) => setCountrySearch(e.target.value)}
+                          className="w-full rounded bg-white/5 py-1.5 pl-8 pr-2 font-mono text-xs text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-csc-orange/30"
+                          autoFocus
+                        />
+                      </div>
+                    </div>
+                    {/* Country list */}
+                    <div className="max-h-48 overflow-y-auto">
+                      {filteredCountries.length > 0 ? (
+                        filteredCountries.map((c) => (
+                          <button
+                            key={c}
+                            type="button"
+                            onClick={() => {
+                              set("country", c);
+                              setCountryOpen(false);
+                              setCountrySearch("");
+                            }}
+                            className={`flex w-full items-center justify-between px-3 py-2 font-mono text-xs transition-all hover:bg-white/5 ${
+                              form.country === c ? "text-csc-orange" : "text-white/60"
+                            }`}
+                          >
+                            <span>{c}</span>
+                            {form.country === c && <CheckCircle className="h-3.5 w-3.5" />}
+                          </button>
+                        ))
+                      ) : (
+                        <div className="px-3 py-3 font-mono text-xs text-white/30">
+                          No se encontraron resultados
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </motion.div>
 
