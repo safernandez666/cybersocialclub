@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { getSecurityHeaders } from "@/lib/auth-utils";
@@ -30,8 +31,11 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Sign in via Supabase Auth
-  const supabase = await createSupabaseServerClient();
+  // Sign in via a fresh Supabase client (no cookies) to avoid stale refresh token errors
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
   const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
     email,
     password,
@@ -84,6 +88,15 @@ export async function POST(req: NextRequest) {
     .eq("id", member.id);
 
   await logAuthEvent("login_success", member.id, "email", req);
+
+  // Set session cookies via the SSR client so middleware can validate on subsequent requests
+  if (signInData.session) {
+    const serverClient = await createSupabaseServerClient();
+    await serverClient.auth.setSession({
+      access_token: signInData.session.access_token,
+      refresh_token: signInData.session.refresh_token,
+    });
+  }
 
   return NextResponse.json(
     { redirect: "/my-profile" },
