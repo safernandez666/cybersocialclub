@@ -32,15 +32,15 @@ export async function POST(req: NextRequest) {
 
   // Sign in via Supabase Auth
   const supabase = await createSupabaseServerClient();
-  const { error: signInError } = await supabase.auth.signInWithPassword({
+  const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
-  if (signInError) {
+  if (signInError || !signInData.user) {
     await logAuthEvent("login_failed", null, "email", req, {
       email,
-      reason: signInError.message,
+      reason: signInError?.message || "no user returned",
     });
     return NextResponse.json(
       { error: "Credenciales inválidas" },
@@ -48,17 +48,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Verify member exists and is approved
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json(
-      { error: "Credenciales inválidas" },
-      { status: 401, headers: securityHeaders }
-    );
-  }
+  const user = signInData.user;
 
   const supabaseAdmin = getSupabaseAdmin();
   const { data: member } = await supabaseAdmin
