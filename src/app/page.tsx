@@ -149,17 +149,17 @@ export default function Home() {
 
           <div className="flex flex-col gap-3 sm:flex-row">
             <Link
-              href="/register"
+              href="/login"
               className="group inline-flex items-center gap-3 rounded-full bg-white px-8 py-4 font-mono text-sm font-medium text-[#0A0A0A] transition-all hover:bg-csc-orange hover:text-white"
             >
-              Únete al Club
+              Iniciar Sesión
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
             <Link
-              href="#about"
-              className="inline-flex items-center gap-2 rounded-full px-8 py-4 font-mono text-sm text-white/50 transition-all hover:text-white"
+              href="/register"
+              className="inline-flex items-center gap-2 rounded-full border border-white/10 px-8 py-4 font-mono text-sm text-white/50 transition-all hover:border-csc-orange/30 hover:text-white"
             >
-              Descubrí más
+              Registrate
             </Link>
           </div>
         </Reveal>
@@ -314,13 +314,21 @@ export default function Home() {
           <p className="mb-10 font-mono text-sm text-white/30">
             Sumate a la comunidad que más crece en Latinoamérica
           </p>
-          <Link
-            href="/register"
-            className="group inline-flex items-center gap-3 rounded-full bg-csc-orange px-10 py-4 font-mono text-sm font-medium text-white transition-all hover:bg-csc-amber hover:shadow-xl hover:shadow-csc-orange/20"
-          >
-            Registrate Ahora
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </Link>
+          <div className="flex flex-col items-center gap-4 sm:flex-row">
+            <Link
+              href="/login"
+              className="group inline-flex items-center gap-3 rounded-full bg-csc-orange px-10 py-4 font-mono text-sm font-medium text-white transition-all hover:bg-csc-amber hover:shadow-xl hover:shadow-csc-orange/20"
+            >
+              Iniciar Sesión
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+            <Link
+              href="/register"
+              className="inline-flex items-center gap-2 rounded-full border border-white/10 px-8 py-4 font-mono text-sm text-white/50 transition-all hover:border-csc-orange/30 hover:text-white"
+            >
+              Registrate
+            </Link>
+          </div>
         </Reveal>
       </section>
 

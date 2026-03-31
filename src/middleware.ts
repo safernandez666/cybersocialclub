@@ -60,11 +60,6 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const ip = getClientIp(req);
 
-  // Redirect home to login
-  if (pathname === "/") {
-    return NextResponse.redirect(new URL("/login", req.url));
-  }
-
   // Check POST /api/members specifically
   if (pathname === "/api/members" && req.method === "POST") {
     const key = `members-post:${ip}`;
@@ -123,7 +118,6 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/",
     "/api/admin/:path*",
     "/api/credential/:path*",
     "/api/verify-email",
