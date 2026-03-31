@@ -32,6 +32,8 @@ import { motion, AnimatePresence } from "framer-motion";
 
 interface MemberData {
   id: string;
+  first_name: string | null;
+  last_name: string | null;
   full_name: string;
   email: string;
   phone: string | null;
@@ -159,7 +161,8 @@ export default function MyProfilePage() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          full_name: editForm.full_name,
+          first_name: editForm.first_name,
+          last_name: editForm.last_name,
           phone: editForm.phone,
           company: editForm.company,
           job_title: editForm.job_title,
@@ -376,14 +379,27 @@ export default function MyProfilePage() {
                 {/* Name & Basic Info */}
                 <div className="flex-1">
                   {isEditing ? (
-                    <div className="space-y-3">
-                      <label className={labelClass}>Nombre completo</label>
-                      <input
-                        type="text"
-                        value={editForm.full_name || ""}
-                        onChange={(e) => setEditValue("full_name", e.target.value)}
-                        className={inputClass}
-                      />
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div className="space-y-1.5">
+                        <label className={labelClass}>Nombre</label>
+                        <input
+                          type="text"
+                          value={editForm.first_name || ""}
+                          onChange={(e) => setEditValue("first_name", e.target.value || null)}
+                          placeholder="Tu nombre"
+                          className={inputClass}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className={labelClass}>Apellido</label>
+                        <input
+                          type="text"
+                          value={editForm.last_name || ""}
+                          onChange={(e) => setEditValue("last_name", e.target.value || null)}
+                          placeholder="Tu apellido"
+                          className={inputClass}
+                        />
+                      </div>
                     </div>
                   ) : (
                     <>

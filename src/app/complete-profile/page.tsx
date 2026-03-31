@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 interface ProfileForm {
+  first_name: string;
+  last_name: string;
   company: string;
   job_title: string;
   role_type: string;
@@ -44,6 +46,8 @@ function CompleteProfileContent() {
   const isLinkedIn = provider === "linkedin_oidc";
 
   const [form, setForm] = useState<ProfileForm>({
+    first_name: "",
+    last_name: "",
     company: "",
     job_title: "",
     role_type: "",
@@ -82,6 +86,10 @@ function CompleteProfileContent() {
 
   const validate = (): boolean => {
     const newErrors: Partial<Record<keyof ProfileForm, string>> = {};
+    if (!form.first_name.trim()) newErrors.first_name = "El nombre es obligatorio";
+    else if (form.first_name.length > 50) newErrors.first_name = "Máximo 50 caracteres";
+    if (!form.last_name.trim()) newErrors.last_name = "El apellido es obligatorio";
+    else if (form.last_name.length > 50) newErrors.last_name = "Máximo 50 caracteres";
     if (!form.linkedin_url.trim()) newErrors.linkedin_url = "LinkedIn es obligatorio";
     else if (!form.linkedin_url.includes("linkedin.com")) newErrors.linkedin_url = "Ingresá una URL de LinkedIn válida";
     setErrors(newErrors);
@@ -99,6 +107,8 @@ function CompleteProfileContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id: memberId,
+          first_name: form.first_name,
+          last_name: form.last_name,
           company: form.company || null,
           job_title: form.job_title || null,
           role_type: form.role_type || null,
@@ -210,6 +220,42 @@ function CompleteProfileContent() {
                 {apiError}
               </div>
             )}
+
+            {/* First Name & Last Name */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="firstName" className={labelClass}>
+                  Nombre <span className="text-csc-wine">*</span>
+                </Label>
+                <Input
+                  id="firstName"
+                  type="text"
+                  placeholder="Tu nombre"
+                  value={form.first_name}
+                  onChange={(e) => set("first_name", e.target.value)}
+                  className={inputClass}
+                />
+                {errors.first_name && (
+                  <p className="font-mono text-xs text-csc-wine">{errors.first_name}</p>
+                )}
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="lastName" className={labelClass}>
+                  Apellido <span className="text-csc-wine">*</span>
+                </Label>
+                <Input
+                  id="lastName"
+                  type="text"
+                  placeholder="Tu apellido"
+                  value={form.last_name}
+                  onChange={(e) => set("last_name", e.target.value)}
+                  className={inputClass}
+                />
+                {errors.last_name && (
+                  <p className="font-mono text-xs text-csc-wine">{errors.last_name}</p>
+                )}
+              </div>
+            </div>
 
             <div className="space-y-1.5">
               <Label htmlFor="linkedin" className={labelClass}>

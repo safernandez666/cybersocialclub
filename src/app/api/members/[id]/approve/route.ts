@@ -34,36 +34,55 @@ export async function PATCH(
   }
 
   if (action === "approve") {
-    // Generate member number: CSC-XXXX (find max existing number to avoid duplicates)
-    const { data: lastMember } = await getSupabaseAdmin()
-      .from("members")
-      .select("member_number")
-      .not("member_number", "is", null)
-      .order("member_number", { ascending: false })
-      .limit(1)
-      .single();
-
-    let nextNumber = 1;
-    if (lastMember?.member_number) {
-      const match = lastMember.member_number.match(/CSC-(\d+)/);
-      if (match) nextNumber = parseInt(match[1]) + 1;
-    }
-    const memberNumber = `CSC-${String(nextNumber).padStart(4, "0")}`;
     const credentialToken = randomBytes(32).toString("hex");
-
-    // Token expires in 90 days
-    // NOTE: Requires `credential_token_expires_at` column (timestamptz) in Supabase `members` table
     const expiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString();
 
-    const { error: updateError } = await getSupabaseAdmin()
-      .from("members")
-      .update({
-        status: "approved",
-        member_number: memberNumber,
-        credential_token: credentialToken,
-        credential_token_expires_at: expiresAt,
-      })
-      .eq("id", id);
+    // Generate member number with retry for race conditions (REC-1: max 3 attempts)
+    let memberNumber = "";
+    let updateError = null;
+    const maxAttempts = 3;
+
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      const { data: lastMember } = await getSupabaseAdmin()
+        .from("members")
+        .select("member_number")
+        .not("member_number", "is", null)
+        .order("member_number", { ascending: false })
+        .limit(1)
+        .single();
+
+      let nextNumber = 1;
+      if (lastMember?.member_number) {
+        const match = lastMember.member_number.match(/CSC-(\d+)/);
+        if (match) nextNumber = parseInt(match[1]) + 1;
+      }
+      memberNumber = `CSC-${String(nextNumber).padStart(4, "0")}`;
+
+      const { error } = await getSupabaseAdmin()
+        .from("members")
+        .update({
+          status: "approved",
+          member_number: memberNumber,
+          credential_token: credentialToken,
+          credential_token_expires_at: expiresAt,
+        })
+        .eq("id", id);
+
+      if (!error) {
+        updateError = null;
+        break;
+      }
+
+      // 23505 = unique violation on member_number — retry with next number
+      if (error.code === "23505" && attempt < maxAttempts - 1) {
+        console.warn(`[approve] member_number collision (${memberNumber}), retrying...`);
+        updateError = error;
+        continue;
+      }
+
+      updateError = error;
+      break;
+    }
 
     if (updateError) {
       console.error("[approve] Update error:", JSON.stringify(updateError));
@@ -74,7 +93,7 @@ export async function PATCH(
     after(async () => {
       try {
         console.log("[after] Sending approval email to:", member.email, "member:", memberNumber);
-        await sendApprovalEmail(member.email, member.full_name, memberNumber, credentialToken);
+        await sendApprovalEmail(member.email, member.full_name, memberNumber, credentialToken, member.first_name);
         console.log("[after] Approval email sent successfully to:", member.email);
 
         await getSupabaseAdmin()

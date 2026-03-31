@@ -17,8 +17,13 @@ function getFromEmail() { return process.env.SMTP_FROM || "info@cybersocialclub.
 function getAdminEmail() { return process.env.ADMIN_EMAIL || "info@cybersocialclub.com.ar"; }
 function getAppUrl() { return process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || "https://socios.cybersocialclub.com.ar"; }
 
-export async function sendVerificationEmail(to: string, fullName: string, verificationToken: string) {
-  const firstName = fullName.split(" ")[0];
+/** Get display first name: prefer first_name field, fallback to splitting full_name */
+function getFirstName(fullName: string, firstName?: string | null): string {
+  return firstName || fullName.split(" ")[0];
+}
+
+export async function sendVerificationEmail(to: string, fullName: string, verificationToken: string, firstNameField?: string | null) {
+  const firstName = getFirstName(fullName, firstNameField);
   const verifyUrl = `${getAppUrl()}/api/verify-email?token=${verificationToken}`;
 
   await transporter.sendMail({
@@ -61,8 +66,8 @@ export async function sendVerificationEmail(to: string, fullName: string, verifi
   });
 }
 
-export async function sendClaimAccountEmail(to: string, fullName: string, claimToken: string) {
-  const firstName = fullName.split(" ")[0];
+export async function sendClaimAccountEmail(to: string, fullName: string, claimToken: string, firstNameField?: string | null) {
+  const firstName = getFirstName(fullName, firstNameField);
   const claimUrl = `${getAppUrl()}/claim-account/set-password?token=${claimToken}`;
 
   await transporter.sendMail({
@@ -107,8 +112,8 @@ export async function sendClaimAccountEmail(to: string, fullName: string, claimT
   });
 }
 
-export async function sendWelcomeEmail(to: string, fullName: string) {
-  const firstName = fullName.split(" ")[0];
+export async function sendWelcomeEmail(to: string, fullName: string, firstNameField?: string | null) {
+  const firstName = getFirstName(fullName, firstNameField);
 
   await transporter.sendMail({
     from: `"${FROM_NAME}" <${getFromEmail()}>`,
@@ -214,8 +219,8 @@ export async function sendAdminNotification(member: {
   });
 }
 
-export async function sendApprovalEmail(to: string, fullName: string, memberNumber: string, credentialToken: string) {
-  const firstName = fullName.split(" ")[0];
+export async function sendApprovalEmail(to: string, fullName: string, memberNumber: string, credentialToken: string, firstNameField?: string | null) {
+  const firstName = getFirstName(fullName, firstNameField);
   const credentialUrl = `${getAppUrl()}/credential?token=${credentialToken}`;
   const imageUrl = `${getAppUrl()}/api/credential/image?token=${credentialToken}`;
 

@@ -3,6 +3,12 @@ import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { getSecurityHeaders } from "@/lib/auth-utils";
 
+const NAME_REGEX = /^[\p{L}\s'-]{1,50}$/u;
+
+function sanitizeName(name: string): string {
+  return name.trim().replace(/\s+/g, " ");
+}
+
 /**
  * GET /api/me — Returns the authenticated socio's member data.
  * Requires a valid Supabase session (cookie-based).
@@ -26,7 +32,7 @@ export async function GET() {
   const { data: member, error } = await supabaseAdmin
     .from("members")
     .select(
-      "id, full_name, email, phone, company, job_title, role_type, linkedin_url, years_experience, country, status, member_number, photo_url, auth_provider, created_at"
+      "id, first_name, last_name, full_name, email, phone, company, job_title, role_type, linkedin_url, years_experience, country, status, member_number, photo_url, auth_provider, created_at"
     )
     .eq("auth_provider_id", user.id)
     .single();
@@ -64,7 +70,8 @@ export async function PATCH(req: Request) {
 
   // Whitelist of editable fields (never: email, member_number, status, auth_provider, auth_provider_id)
   const allowedFields = [
-    "full_name",
+    "first_name",
+    "last_name",
     "phone",
     "company",
     "job_title",
@@ -94,13 +101,40 @@ export async function PATCH(req: Request) {
     "Panamá", "Paraguay", "Perú", "República Dominicana", "Uruguay", "Venezuela", "Otros",
   ];
 
-  if (updates.full_name !== undefined) {
-    const name = updates.full_name as string;
-    if (!name || name.length < 2 || name.length > 100) {
+  // Validate and sanitize first_name / last_name (REC-4, REC-5)
+  if (updates.first_name !== undefined) {
+    const fn = sanitizeName(updates.first_name as string);
+    if (!fn || !NAME_REGEX.test(fn)) {
       return NextResponse.json(
-        { error: "Nombre debe tener entre 2 y 100 caracteres" },
+        { error: "Nombre contiene caracteres inválidos o excede 50 caracteres" },
         { status: 400, headers: securityHeaders }
       );
+    }
+    updates.first_name = fn;
+  }
+  if (updates.last_name !== undefined) {
+    const ln = sanitizeName(updates.last_name as string);
+    if (!ln || !NAME_REGEX.test(ln)) {
+      return NextResponse.json(
+        { error: "Apellido contiene caracteres inválidos o excede 50 caracteres" },
+        { status: 400, headers: securityHeaders }
+      );
+    }
+    updates.last_name = ln;
+  }
+  // Recalculate full_name when first/last change
+  if (updates.first_name || updates.last_name) {
+    // Fetch current member to fill in the missing name part
+    const { data: currentMember } = await supabaseAdmin
+      .from("members")
+      .select("first_name, last_name")
+      .eq("auth_provider_id", user.id)
+      .single();
+
+    const newFirst = (updates.first_name as string) || currentMember?.first_name;
+    const newLast = (updates.last_name as string) || currentMember?.last_name;
+    if (newFirst && newLast) {
+      updates.full_name = `${newFirst} ${newLast}`;
     }
   }
   if (updates.phone !== undefined && updates.phone !== null) {

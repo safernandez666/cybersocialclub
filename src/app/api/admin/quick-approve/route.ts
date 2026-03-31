@@ -59,35 +59,54 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  // Generate member number (find max existing to avoid duplicates)
-  const { data: lastMember } = await supabase
-    .from("members")
-    .select("member_number")
-    .not("member_number", "is", null)
-    .order("member_number", { ascending: false })
-    .limit(1)
-    .single();
-
-  let nextNumber = 1;
-  if (lastMember?.member_number) {
-    const match = lastMember.member_number.match(/CSC-(\d+)/);
-    if (match) nextNumber = parseInt(match[1]) + 1;
-  }
-  const memberNumber = `CSC-${String(nextNumber).padStart(4, "0")}`;
+  // Generate member number with retry for race conditions (REC-1: max 3 attempts)
   const credentialToken = randomBytes(32).toString("hex");
   const expiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString();
 
-  const { error: updateError } = await supabase
-    .from("members")
-    .update({
-      status: "approved",
-      member_number: memberNumber,
-      credential_token: credentialToken,
-      credential_token_expires_at: expiresAt,
-    })
-    .eq("id", memberId);
+  let memberNumber = "";
+  let approveSuccess = false;
+  const maxAttempts = 3;
 
-  if (updateError) {
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const { data: lastMember } = await supabase
+      .from("members")
+      .select("member_number")
+      .not("member_number", "is", null)
+      .order("member_number", { ascending: false })
+      .limit(1)
+      .single();
+
+    let nextNumber = 1;
+    if (lastMember?.member_number) {
+      const match = lastMember.member_number.match(/CSC-(\d+)/);
+      if (match) nextNumber = parseInt(match[1]) + 1;
+    }
+    memberNumber = `CSC-${String(nextNumber).padStart(4, "0")}`;
+
+    const { error: updateError } = await supabase
+      .from("members")
+      .update({
+        status: "approved",
+        member_number: memberNumber,
+        credential_token: credentialToken,
+        credential_token_expires_at: expiresAt,
+      })
+      .eq("id", memberId);
+
+    if (!updateError) {
+      approveSuccess = true;
+      break;
+    }
+
+    if (updateError.code === "23505" && attempt < maxAttempts - 1) {
+      console.warn(`[quick-approve] member_number collision (${memberNumber}), retrying...`);
+      continue;
+    }
+
+    break;
+  }
+
+  if (!approveSuccess) {
     return new NextResponse(
       quickResponsePage("Error", "No se pudo aprobar al miembro. Intentá desde el panel de admin.", appUrl),
       { headers: { "Content-Type": "text/html" } }
@@ -97,7 +116,7 @@ export async function GET(req: NextRequest) {
   // Send approval email in background
   after(async () => {
     try {
-      await sendApprovalEmail(member.email, member.full_name, memberNumber, credentialToken);
+      await sendApprovalEmail(member.email, member.full_name, memberNumber, credentialToken, member.first_name);
       await supabase
         .from("members")
         .update({ credential_email_sent_at: new Date().toISOString() })

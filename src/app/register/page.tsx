@@ -22,7 +22,8 @@ import { CheckCircle, ArrowLeft, ArrowRight, ChevronDown, Search, Lock, Eye, Eye
 /* Types                                                               */
 /* ------------------------------------------------------------------ */
 interface FormData {
-  fullName: string;
+  firstName: string;
+  lastName: string;
   email: string;
   phone: string;
   country: string;
@@ -37,7 +38,8 @@ interface FormData {
 }
 
 const initialForm: FormData = {
-  fullName: "",
+  firstName: "",
+  lastName: "",
   email: "",
   phone: "",
   country: "",
@@ -158,7 +160,10 @@ export default function RegisterPage() {
   function validateStep(s: number): boolean {
     const errs: typeof errors = {};
     if (s === 0) {
-      if (!form.fullName.trim()) errs.fullName = "El nombre es obligatorio";
+      if (!form.firstName.trim()) errs.firstName = "El nombre es obligatorio";
+      else if (form.firstName.length > 50) errs.firstName = "Máximo 50 caracteres";
+      if (!form.lastName.trim()) errs.lastName = "El apellido es obligatorio";
+      else if (form.lastName.length > 50) errs.lastName = "Máximo 50 caracteres";
       if (!form.email.trim()) errs.email = "El email es obligatorio";
       else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
         errs.email = "Email inválido";
@@ -202,7 +207,8 @@ export default function RegisterPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          full_name: form.fullName,
+          first_name: form.firstName,
+          last_name: form.lastName,
           email: form.email,
           phone: form.phone,
           country: form.country,
@@ -425,20 +431,37 @@ export default function RegisterPage() {
                   </span>
                 </div>
 
-                <div className="space-y-1.5">
-                  <Label htmlFor="fullName" className={labelClass}>
-                    Nombre Completo <span className="text-csc-wine">*</span>
-                  </Label>
-                  <Input
-                    id="fullName"
-                    placeholder="Juan Pérez"
-                    value={form.fullName}
-                    onChange={(e) => set("fullName", e.target.value)}
-                    className={inputClass}
-                  />
-                  {errors.fullName && (
-                    <p className="font-mono text-xs text-csc-wine">{errors.fullName}</p>
-                  )}
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="firstName" className={labelClass}>
+                      Nombre <span className="text-csc-wine">*</span>
+                    </Label>
+                    <Input
+                      id="firstName"
+                      placeholder="Juan"
+                      value={form.firstName}
+                      onChange={(e) => set("firstName", e.target.value)}
+                      className={inputClass}
+                    />
+                    {errors.firstName && (
+                      <p className="font-mono text-xs text-csc-wine">{errors.firstName}</p>
+                    )}
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="lastName" className={labelClass}>
+                      Apellido <span className="text-csc-wine">*</span>
+                    </Label>
+                    <Input
+                      id="lastName"
+                      placeholder="Pérez"
+                      value={form.lastName}
+                      onChange={(e) => set("lastName", e.target.value)}
+                      className={inputClass}
+                    />
+                    {errors.lastName && (
+                      <p className="font-mono text-xs text-csc-wine">{errors.lastName}</p>
+                    )}
+                  </div>
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="email" className={labelClass}>
@@ -714,7 +737,8 @@ export default function RegisterPage() {
 
                 <div className="space-y-3 rounded-xl border border-white/5 bg-[#0A0A0A] p-5">
                   {[
-                    ["Nombre", form.fullName],
+                    ["Nombre", form.firstName],
+                    ["Apellido", form.lastName],
                     ["Email", form.email],
                     ["Teléfono", form.phone || "—"],
                     ["País", form.country],

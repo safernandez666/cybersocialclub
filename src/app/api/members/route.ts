@@ -7,22 +7,53 @@ import { sendVerificationEmail } from "@/lib/email";
 
 const MIN_PASSWORD_LENGTH = 8;
 
+// Allows letters (including accented), spaces, hyphens, apostrophes (REC-4: character validation)
+const NAME_REGEX = /^[\p{L}\s'-]{1,50}$/u;
+
 const ALLOWED_COUNTRIES = [
   "Argentina", "Bolivia", "Brasil", "Chile", "Colombia", "Costa Rica", "Cuba",
   "Ecuador", "El Salvador", "Guatemala", "Honduras", "México", "Nicaragua",
   "Panamá", "Paraguay", "Perú", "República Dominicana", "Uruguay", "Venezuela", "Otros",
 ];
 
+function sanitizeName(name: string): string {
+  return name.trim().replace(/\s+/g, " ");
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.json();
 
-  const { full_name, email, phone, company, job_title, role_type, linkedin_url, years_experience, captcha_token, country, password } = body;
+  const { first_name, last_name, full_name, email, phone, company, job_title, role_type, linkedin_url, years_experience, captcha_token, country, password } = body;
 
   // Normalize email (REC-4: lowercase + trim)
   const normalizedEmail = email?.toLowerCase().trim();
 
-  if (!full_name || !normalizedEmail || !country) {
-    return NextResponse.json({ error: "Nombre, email y país son obligatorios" }, { status: 400 });
+  // Support both new (first_name + last_name) and legacy (full_name) inputs
+  let resolvedFirstName: string | null = null;
+  let resolvedLastName: string | null = null;
+  let resolvedFullName: string;
+
+  if (first_name && last_name) {
+    resolvedFirstName = sanitizeName(first_name);
+    resolvedLastName = sanitizeName(last_name);
+    resolvedFullName = `${resolvedFirstName} ${resolvedLastName}`;
+
+    // Validate characters (REC-4)
+    if (!NAME_REGEX.test(resolvedFirstName)) {
+      return NextResponse.json({ error: "Nombre contiene caracteres inválidos" }, { status: 400 });
+    }
+    if (!NAME_REGEX.test(resolvedLastName)) {
+      return NextResponse.json({ error: "Apellido contiene caracteres inválidos" }, { status: 400 });
+    }
+  } else if (full_name) {
+    // Backwards compat: accept full_name from legacy clients
+    resolvedFullName = sanitizeName(full_name);
+  } else {
+    return NextResponse.json({ error: "Nombre y apellido son obligatorios" }, { status: 400 });
+  }
+
+  if (!normalizedEmail || !country) {
+    return NextResponse.json({ error: "Email y país son obligatorios" }, { status: 400 });
   }
 
   // Validate password if provided (optional — social login users won't have one)
@@ -62,7 +93,7 @@ export async function POST(req: NextRequest) {
 
   // Input length validation
   const lengthLimits: { field: string; value: string | undefined; max: number }[] = [
-    { field: "full_name", value: full_name, max: 100 },
+    { field: "full_name", value: resolvedFullName, max: 100 },
     { field: "email", value: email, max: 255 },
     { field: "phone", value: phone, max: 50 },
     { field: "company", value: company, max: 100 },
@@ -131,7 +162,9 @@ export async function POST(req: NextRequest) {
   const { error } = await supabase
     .from("members")
     .insert({
-      full_name,
+      full_name: resolvedFullName,
+      ...(resolvedFirstName && { first_name: resolvedFirstName }),
+      ...(resolvedLastName && { last_name: resolvedLastName }),
       email: normalizedEmail,
       phone: phone || null,
       company: company || null,
@@ -158,7 +191,7 @@ export async function POST(req: NextRequest) {
 
   // Send verification email
   try {
-    await sendVerificationEmail(normalizedEmail, full_name, verificationToken);
+    await sendVerificationEmail(normalizedEmail, resolvedFullName, verificationToken, resolvedFirstName);
   } catch (emailError) {
     console.error("Failed to send verification email:", emailError);
   }

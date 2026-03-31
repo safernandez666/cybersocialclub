@@ -8,6 +8,12 @@ const ALLOWED_COUNTRIES = [
   "Panamá", "Paraguay", "Perú", "República Dominicana", "Uruguay", "Venezuela", "Otros",
 ];
 
+const NAME_REGEX = /^[\p{L}\s'-]{1,50}$/u;
+
+function sanitizeName(name: string): string {
+  return name.trim().replace(/\s+/g, " ");
+}
+
 /**
  * PATCH /api/members/complete-profile
  * Updates a pending member's profile fields after Google registration.
@@ -21,7 +27,7 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "JSON inválido" }, { status: 400 });
   }
 
-  const { id, company, job_title, role_type, linkedin_url, years_experience, phone, country } = body as Record<string, string>;
+  const { id, first_name, last_name, company, job_title, role_type, linkedin_url, years_experience, phone, country } = body as Record<string, string>;
 
   if (!id || typeof id !== "string") {
     return NextResponse.json({ error: "ID requerido" }, { status: 400 });
@@ -49,6 +55,14 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "País inválido" }, { status: 400 });
   }
 
+  // Validate names if provided (REC-4: character validation)
+  if (first_name && !NAME_REGEX.test(sanitizeName(first_name))) {
+    return NextResponse.json({ error: "Nombre contiene caracteres inválidos" }, { status: 400 });
+  }
+  if (last_name && !NAME_REGEX.test(sanitizeName(last_name))) {
+    return NextResponse.json({ error: "Apellido contiene caracteres inválidos" }, { status: 400 });
+  }
+
   // Update only allowed fields
   const updateFields: Record<string, unknown> = {
     company: company || null,
@@ -60,6 +74,16 @@ export async function PATCH(req: NextRequest) {
   };
   if (country) {
     updateFields.country = country;
+  }
+  if (first_name) {
+    updateFields.first_name = sanitizeName(first_name);
+  }
+  if (last_name) {
+    updateFields.last_name = sanitizeName(last_name);
+  }
+  // Recalculate full_name if both names provided
+  if (first_name && last_name) {
+    updateFields.full_name = `${sanitizeName(first_name)} ${sanitizeName(last_name)}`;
   }
 
   const { error: updateError } = await supabase

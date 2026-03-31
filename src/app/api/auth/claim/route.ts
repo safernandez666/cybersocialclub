@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
   // Lookup: approved member without auth account
   const { data: member } = await supabaseAdmin
     .from("members")
-    .select("id, full_name, email")
+    .select("id, full_name, first_name, email")
     .eq("email", email)
     .eq("status", "approved")
     .is("auth_provider_id", null)
@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
 
   // Send claim email
   try {
-    await sendClaimAccountEmail(member.email, member.full_name, token);
+    await sendClaimAccountEmail(member.email, member.full_name, token, member.first_name);
   } catch (emailError) {
     console.error("[auth/claim] Email send error:", emailError);
   }

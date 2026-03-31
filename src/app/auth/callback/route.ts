@@ -75,12 +75,13 @@ export async function GET(req: NextRequest) {
     return res;
   }
 
-  // Lookup member by email
+  // Lookup member by email (normalize to lowercase for case-insensitive match)
+  const normalizedEmail = email.toLowerCase().trim();
   const supabaseAdmin = getSupabaseAdmin();
   const { data: member } = await supabaseAdmin
     .from("members")
     .select("*")
-    .eq("email", email)
+    .eq("email", normalizedEmail)
     .single();
 
   let redirectPath: string;
@@ -90,7 +91,7 @@ export async function GET(req: NextRequest) {
     const fullName = user.user_metadata.full_name || user.user_metadata.name || email;
     const { error: insertError } = await supabaseAdmin.from("members").insert({
       full_name: fullName,
-      email,
+      email: normalizedEmail,
       photo_url: user.user_metadata.avatar_url || user.user_metadata.picture || null,
       auth_provider: provider,
       auth_provider_id: user.id,
@@ -110,7 +111,7 @@ export async function GET(req: NextRequest) {
     const { data: newMember } = await supabaseAdmin
       .from("members")
       .select("id")
-      .eq("email", email)
+      .eq("email", normalizedEmail)
       .single();
 
     // Admin notification will be sent AFTER user completes the profile form
