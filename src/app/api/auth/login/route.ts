@@ -36,10 +36,40 @@ export async function POST(req: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
-  const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+  let { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
+
+  // If email not confirmed, check if member is approved and auto-confirm
+  if (signInError?.message === "Email not confirmed") {
+    const supabaseAdmin = getSupabaseAdmin();
+    // Look up member by email to check if they're approved
+    const { data: pendingMember } = await supabaseAdmin
+      .from("members")
+      .select("id, status, auth_provider_id")
+      .eq("email", email)
+      .eq("status", "approved")
+      .single();
+
+    if (pendingMember?.auth_provider_id) {
+      // Member is approved — confirm their email and retry sign-in
+      console.log("[auth/login] Auto-confirming email for approved member:", email);
+      await supabaseAdmin.auth.admin.updateUserById(
+        pendingMember.auth_provider_id,
+        { email_confirm: true }
+      );
+      // Retry sign-in
+      const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (!retryError && retryData.user) {
+        signInData = retryData;
+        signInError = null;
+      }
+    }
+  }
 
   if (signInError || !signInData.user) {
     console.error("[auth/login] STEP 1 FAILED - signInWithPassword:", signInError?.message, "code:", signInError?.status);
