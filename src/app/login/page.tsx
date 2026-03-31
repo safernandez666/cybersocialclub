@@ -155,6 +155,7 @@ function LoginContent() {
               <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/20" />
               <input
                 type="email"
+                autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="nombre@empresa.com"
@@ -176,6 +177,7 @@ function LoginContent() {
               <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/20" />
               <input
                 type="password"
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
