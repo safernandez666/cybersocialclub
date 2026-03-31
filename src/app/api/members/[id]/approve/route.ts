@@ -91,7 +91,7 @@ export async function PATCH(
 
     // If member registered with password, confirm their email in Supabase Auth so they can login
     if (member.auth_provider_id) {
-      const { error: confirmError } = await getSupabaseAdmin().auth.admin.updateUser(
+      const { error: confirmError } = await getSupabaseAdmin().auth.admin.updateUserById(
         member.auth_provider_id,
         { email_confirm: true }
       );
