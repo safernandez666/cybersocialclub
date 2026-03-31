@@ -89,6 +89,17 @@ export async function PATCH(
       return NextResponse.json({ error: updateError.message, details: updateError.code }, { status: 500 });
     }
 
+    // If member registered with password, confirm their email in Supabase Auth so they can login
+    if (member.auth_provider_id) {
+      const { error: confirmError } = await getSupabaseAdmin().auth.admin.updateUser(
+        member.auth_provider_id,
+        { email_confirm: true }
+      );
+      if (confirmError) {
+        console.error("[approve] Failed to confirm auth email:", confirmError.message);
+      }
+    }
+
     // Send approval email in background (after response) to avoid Vercel function timeout
     after(async () => {
       try {
