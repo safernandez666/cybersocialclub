@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
   });
 
   if (signInError || !signInData.user) {
+    console.error("[auth/login] STEP 1 FAILED - signInWithPassword:", signInError?.message, "code:", signInError?.status);
     await logAuthEvent("login_failed", null, "email", req, {
       email,
       reason: signInError?.message || "no user returned",
@@ -53,15 +54,17 @@ export async function POST(req: NextRequest) {
   }
 
   const user = signInData.user;
+  console.log("[auth/login] STEP 1 OK - user:", user.id, "email:", user.email, "confirmed:", user.email_confirmed_at ? "yes" : "no");
 
   const supabaseAdmin = getSupabaseAdmin();
-  const { data: member } = await supabaseAdmin
+  const { data: member, error: memberError } = await supabaseAdmin
     .from("members")
-    .select("id, status")
+    .select("id, status, auth_provider_id")
     .eq("auth_provider_id", user.id)
     .single();
 
   if (!member) {
+    console.error("[auth/login] STEP 2 FAILED - no member with auth_provider_id:", user.id, "error:", memberError?.message);
     // Auth user exists but no member record — sign out
     await supabase.auth.signOut();
     return NextResponse.json(
@@ -69,6 +72,8 @@ export async function POST(req: NextRequest) {
       { status: 401, headers: securityHeaders }
     );
   }
+
+  console.log("[auth/login] STEP 2 OK - member:", member.id, "status:", member.status);
 
   if (member.status !== "approved") {
     await supabase.auth.signOut();
