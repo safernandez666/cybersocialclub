@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -16,10 +16,19 @@ import {
   Linkedin,
   Download,
   ShieldCheck,
-  Loader2
+  Loader2,
+  Pencil,
+  X,
+  Check,
+  ChevronDown,
+  Search,
+  Globe,
+  CheckCircle,
+  AlertCircle,
+  Lock
 } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface MemberData {
   id: string;
@@ -30,6 +39,7 @@ interface MemberData {
   job_title: string | null;
   role_type: string | null;
   linkedin_url: string | null;
+  country: string | null;
   years_experience: number | null;
   status: string;
   member_number: string;
@@ -39,23 +49,57 @@ interface MemberData {
   qr?: string;
 }
 
+const countryOptions = [
+  "Argentina", "Bolivia", "Brasil", "Chile", "Colombia",
+  "Costa Rica", "Cuba", "Ecuador", "El Salvador", "Guatemala",
+  "Honduras", "México", "Nicaragua", "Panamá", "Paraguay",
+  "Perú", "República Dominicana", "Uruguay", "Venezuela", "Otros"
+];
+
 export default function MyProfilePage() {
   const router = useRouter();
   const [member, setMember] = useState<MemberData | null>(null);
   const [loading, setLoading] = useState(true);
   const [logoutLoading, setLogoutLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Edit mode state
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState<Partial<MemberData>>({});
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  
+  // Country dropdown state
+  const [countryOpen, setCountryOpen] = useState(false);
+  const [countrySearch, setCountrySearch] = useState("");
+  const countryDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchMemberData();
   }, []);
+
+  // Close country dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (countryDropdownRef.current && !countryDropdownRef.current.contains(event.target as Node)) {
+        setCountryOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filteredCountries = countrySearch
+    ? countryOptions.filter(c => c.toLowerCase().includes(countrySearch.toLowerCase()))
+    : countryOptions;
 
   const fetchMemberData = async () => {
     try {
       const res = await fetch("/api/me");
       if (!res.ok) {
         if (res.status === 401) {
-          router.push("/register");
+          router.push("/login");
           return;
         }
         throw new Error("Error al cargar datos");
@@ -70,6 +114,7 @@ export default function MyProfilePage() {
       }
       
       setMember(data);
+      setEditForm(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error desconocido");
     } finally {
@@ -83,6 +128,67 @@ export default function MyProfilePage() {
     await supabase.auth.signOut();
     router.push("/");
     router.refresh();
+  };
+
+  const handleEdit = () => {
+    setIsEditing(true);
+    setSaveError(null);
+    setSaveSuccess(false);
+    if (member) {
+      setEditForm({ ...member });
+    }
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setSaveError(null);
+    setSaveSuccess(false);
+    if (member) {
+      setEditForm({ ...member });
+    }
+  };
+
+  const handleSave = async () => {
+    if (!member) return;
+    setSaving(true);
+    setSaveError(null);
+    setSaveSuccess(false);
+
+    try {
+      const res = await fetch("/api/me", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          full_name: editForm.full_name,
+          phone: editForm.phone,
+          company: editForm.company,
+          job_title: editForm.job_title,
+          linkedin_url: editForm.linkedin_url,
+          country: editForm.country,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setSaveError(data.error || "Error al guardar los cambios");
+        return;
+      }
+
+      // Update member data
+      setMember({ ...member, ...editForm });
+      setIsEditing(false);
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (err) {
+      setSaveError("Error de conexión. Intentá de nuevo.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const setEditValue = (field: keyof MemberData, value: string | null) => {
+    setEditForm((prev) => ({ ...prev, [field]: value }));
   };
 
   if (loading) {
@@ -131,6 +237,9 @@ export default function MyProfilePage() {
       .slice(0, 2);
   };
 
+  const inputClass = "w-full rounded-xl border border-white/5 bg-white/[0.02] py-2.5 px-4 font-mono text-sm text-white placeholder:text-white/20 focus:border-csc-orange/30 focus:outline-none focus:ring-1 focus:ring-csc-orange/20";
+  const labelClass = "font-mono text-xs uppercase tracking-widest text-white/40";
+
   return (
     <div className="min-h-screen bg-[#0A0A0A] px-4 py-16 pt-24">
       <div className="mx-auto max-w-5xl">
@@ -155,19 +264,79 @@ export default function MyProfilePage() {
               </p>
             </div>
           </div>
-          <button
-            onClick={handleLogout}
-            disabled={logoutLoading}
-            className="inline-flex items-center justify-center gap-2 rounded-full border border-red-500/20 bg-red-500/10 px-5 py-2.5 font-mono text-xs text-red-400 transition-all hover:bg-red-500/20 disabled:opacity-50"
-          >
-            {logoutLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+          <div className="flex items-center gap-3">
+            {!isEditing ? (
+              <button
+                onClick={handleEdit}
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-csc-orange/20 bg-csc-orange/10 px-5 py-2.5 font-mono text-xs text-csc-orange transition-all hover:bg-csc-orange/20"
+              >
+                <Pencil className="h-4 w-4" />
+                Editar perfil
+              </button>
             ) : (
-              <LogOut className="h-4 w-4" />
+              <>
+                <button
+                  onClick={handleCancel}
+                  disabled={saving}
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 px-5 py-2.5 font-mono text-xs text-white/40 transition-all hover:text-white disabled:opacity-50"
+                >
+                  <X className="h-4 w-4" />
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-csc-orange px-5 py-2.5 font-mono text-xs text-white transition-all hover:bg-csc-amber disabled:opacity-50"
+                >
+                  {saving ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Check className="h-4 w-4" />
+                  )}
+                  Guardar
+                </button>
+              </>
             )}
-            Cerrar Sesión
-          </button>
+            <button
+              onClick={handleLogout}
+              disabled={logoutLoading}
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-red-500/20 bg-red-500/10 px-5 py-2.5 font-mono text-xs text-red-400 transition-all hover:bg-red-500/20 disabled:opacity-50"
+            >
+              {logoutLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <LogOut className="h-4 w-4" />
+              )}
+              Cerrar Sesión
+            </button>
+          </div>
         </motion.div>
+
+        {/* Success/Error Messages */}
+        <AnimatePresence>
+          {saveSuccess && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="mb-6 flex items-center gap-3 rounded-xl border border-green-500/20 bg-green-500/10 px-4 py-3"
+            >
+              <CheckCircle className="h-4 w-4 text-green-400" />
+              <p className="font-mono text-xs text-green-400">Perfil actualizado correctamente</p>
+            </motion.div>
+          )}
+          {saveError && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="mb-6 flex items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3"
+            >
+              <AlertCircle className="h-4 w-4 text-red-400" />
+              <p className="font-mono text-xs text-red-400">{saveError}</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Profile Card */}
@@ -206,61 +375,93 @@ export default function MyProfilePage() {
 
                 {/* Name & Basic Info */}
                 <div className="flex-1">
-                  <h2 className="text-2xl font-bold text-white mb-1">{member.full_name}</h2>
-                  <div className="flex flex-wrap items-center gap-3 text-white/40">
-                    <span className="flex items-center gap-1.5 font-mono text-xs">
-                      <Mail className="h-3 w-3" />
-                      {member.email}
-                    </span>
-                    {member.auth_provider && (
-                      <span className="rounded-full bg-white/5 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider">
-                        {member.auth_provider === "google" ? "Google" : "LinkedIn"}
-                      </span>
-                    )}
-                  </div>
+                  {isEditing ? (
+                    <div className="space-y-3">
+                      <label className={labelClass}>Nombre completo</label>
+                      <input
+                        type="text"
+                        value={editForm.full_name || ""}
+                        onChange={(e) => setEditValue("full_name", e.target.value)}
+                        className={inputClass}
+                      />
+                    </div>
+                  ) : (
+                    <>
+                      <h2 className="text-2xl font-bold text-white mb-1">{member.full_name}</h2>
+                      <div className="flex flex-wrap items-center gap-3 text-white/40">
+                        <span className="flex items-center gap-1.5 font-mono text-xs">
+                          <Mail className="h-3 w-3" />
+                          {member.email}
+                        </span>
+                        {member.auth_provider && (
+                          <span className="rounded-full bg-white/5 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider">
+                            {member.auth_provider === "google" ? "Google" : member.auth_provider === "linkedin_oidc" ? "LinkedIn" : "Email"}
+                          </span>
+                        )}
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 
               {/* Details Grid */}
               <div className="grid gap-4 sm:grid-cols-2">
-                {member.company && (
-                  <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Building2 className="h-3.5 w-3.5 text-csc-orange/60" />
-                      <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
-                        Empresa
-                      </span>
-                    </div>
-                    <p className="text-white/80">{member.company}</p>
-                  </div>
-                )}
-
-                {member.job_title && (
-                  <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Briefcase className="h-3.5 w-3.5 text-csc-orange/60" />
-                      <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
-                        Cargo
-                      </span>
-                    </div>
-                    <p className="text-white/80">{member.job_title}</p>
-                  </div>
-                )}
-
-                {member.role_type && (
-                  <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <UserCircle className="h-3.5 w-3.5 text-csc-orange/60" />
-                      <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
-                        Rol
-                      </span>
-                    </div>
-                    <p className="text-csc-orange/70">{member.role_type}</p>
-                  </div>
-                )}
-
+                {/* Company */}
                 <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4">
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Building2 className="h-3.5 w-3.5 text-csc-orange/60" />
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
+                      Empresa
+                    </span>
+                  </div>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editForm.company || ""}
+                      onChange={(e) => setEditValue("company", e.target.value || null)}
+                      placeholder="Tu empresa"
+                      className={inputClass}
+                    />
+                  ) : (
+                    <p className="text-white/80">{member.company || "—"}</p>
+                  )}
+                </div>
+
+                {/* Job Title */}
+                <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Briefcase className="h-3.5 w-3.5 text-csc-orange/60" />
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
+                      Cargo
+                    </span>
+                  </div>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editForm.job_title || ""}
+                      onChange={(e) => setEditValue("job_title", e.target.value || null)}
+                      placeholder="Tu cargo"
+                      className={inputClass}
+                    />
+                  ) : (
+                    <p className="text-white/80">{member.job_title || "—"}</p>
+                  )}
+                </div>
+
+                {/* Role Type - Read Only */}
+                <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <UserCircle className="h-3.5 w-3.5 text-csc-orange/60" />
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
+                      Rol
+                    </span>
+                  </div>
+                  <p className="text-csc-orange/70">{member.role_type || "—"}</p>
+                </div>
+
+                {/* Member Since - Read Only */}
+                <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4">
+                  <div className="flex items-center gap-2 mb-2">
                     <Calendar className="h-3.5 w-3.5 text-csc-orange/60" />
                     <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
                       Miembro desde
@@ -269,48 +470,148 @@ export default function MyProfilePage() {
                   <p className="text-white/80 capitalize">{memberSince}</p>
                 </div>
 
-                {member.phone && (
-                  <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Phone className="h-3.5 w-3.5 text-csc-orange/60" />
-                      <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
-                        Teléfono
-                      </span>
-                    </div>
-                    <p className="text-white/80">{member.phone}</p>
+                {/* Phone */}
+                <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Phone className="h-3.5 w-3.5 text-csc-orange/60" />
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
+                      Teléfono
+                    </span>
                   </div>
-                )}
+                  {isEditing ? (
+                    <input
+                      type="tel"
+                      value={editForm.phone || ""}
+                      onChange={(e) => setEditValue("phone", e.target.value || null)}
+                      placeholder="+54 11 ..."
+                      className={inputClass}
+                    />
+                  ) : (
+                    <p className="text-white/80">{member.phone || "—"}</p>
+                  )}
+                </div>
 
-                {member.linkedin_url && (
-                  <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Linkedin className="h-3.5 w-3.5 text-csc-orange/60" />
-                      <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
-                        LinkedIn
-                      </span>
-                    </div>
-                    <a 
-                      href={member.linkedin_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-csc-orange/70 hover:text-csc-orange transition-colors text-sm truncate block"
-                    >
-                      Ver perfil →
-                    </a>
+                {/* LinkedIn */}
+                <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Linkedin className="h-3.5 w-3.5 text-csc-orange/60" />
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
+                      LinkedIn
+                    </span>
                   </div>
-                )}
+                  {isEditing ? (
+                    <input
+                      type="url"
+                      value={editForm.linkedin_url || ""}
+                      onChange={(e) => setEditValue("linkedin_url", e.target.value || null)}
+                      placeholder="https://linkedin.com/in/..."
+                      className={inputClass}
+                    />
+                  ) : (
+                    member.linkedin_url ? (
+                      <a 
+                        href={member.linkedin_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-csc-orange/70 hover:text-csc-orange transition-colors text-sm truncate block"
+                      >
+                        Ver perfil →
+                      </a>
+                    ) : (
+                      <p className="text-white/80">—</p>
+                    )
+                  )}
+                </div>
 
-                {member.years_experience !== null && member.years_experience !== undefined && (
-                  <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Briefcase className="h-3.5 w-3.5 text-csc-orange/60" />
-                      <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
-                        Experiencia
-                      </span>
-                    </div>
-                    <p className="text-white/80">{member.years_experience} años</p>
+                {/* Country */}
+                <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Globe className="h-3.5 w-3.5 text-csc-orange/60" />
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
+                      País
+                    </span>
                   </div>
-                )}
+                  {isEditing ? (
+                    <div className="relative" ref={countryDropdownRef}>
+                      <button
+                        type="button"
+                        onClick={() => setCountryOpen(!countryOpen)}
+                        className={`flex w-full items-center justify-between rounded-xl border px-3 py-2.5 font-mono text-sm transition-all ${
+                          countryOpen
+                            ? "border-csc-orange ring-1 ring-csc-orange/20"
+                            : "border-white/5 hover:border-white/10"
+                        } ${editForm.country ? "text-white" : "text-white/30"} bg-[#0A0A0A]`}
+                      >
+                        <span>{editForm.country || "Seleccioná tu país"}</span>
+                        <ChevronDown className={`h-4 w-4 text-white/30 transition-transform ${countryOpen ? "rotate-180" : ""}`} />
+                      </button>
+
+                      <AnimatePresence>
+                        {countryOpen && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -8 }}
+                            transition={{ duration: 0.15 }}
+                            className="absolute z-50 mt-1 w-full overflow-hidden rounded-xl border border-white/10 bg-[#141211] shadow-xl"
+                          >
+                            <div className="border-b border-white/5 p-2">
+                              <div className="relative">
+                                <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-white/30" />
+                                <input
+                                  type="text"
+                                  placeholder="Buscar país..."
+                                  value={countrySearch}
+                                  onChange={(e) => setCountrySearch(e.target.value)}
+                                  className="w-full rounded bg-white/5 py-1.5 pl-8 pr-2 font-mono text-xs text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-csc-orange/30"
+                                  autoFocus
+                                />
+                              </div>
+                            </div>
+                            <div className="max-h-48 overflow-y-auto">
+                              {filteredCountries.length > 0 ? (
+                                filteredCountries.map((c) => (
+                                  <button
+                                    key={c}
+                                    type="button"
+                                    onClick={() => {
+                                      setEditValue("country", c);
+                                      setCountryOpen(false);
+                                      setCountrySearch("");
+                                    }}
+                                    className={`flex w-full items-center justify-between px-3 py-2 font-mono text-xs transition-all hover:bg-white/5 ${
+                                      editForm.country === c ? "text-csc-orange" : "text-white/60"
+                                    }`}
+                                  >
+                                    <span>{c}</span>
+                                    {editForm.country === c && <Check className="h-3.5 w-3.5" />}
+                                  </button>
+                                ))
+                              ) : (
+                                <div className="px-3 py-3 font-mono text-xs text-white/30">
+                                  No se encontraron resultados
+                                </div>
+                              )}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  ) : (
+                    <p className="text-white/80">{member.country || "—"}</p>
+                  )}
+                </div>
+
+                {/* Years Experience - Read Only */}
+                <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Briefcase className="h-3.5 w-3.5 text-csc-orange/60" />
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
+                      Experiencia
+                    </span>
+                  </div>
+                  <p className="text-white/80">{member.years_experience ? `${member.years_experience} años` : "—"}</p>
+                </div>
               </div>
             </div>
           </motion.div>

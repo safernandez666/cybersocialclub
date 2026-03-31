@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CheckCircle, ArrowLeft, ArrowRight, ChevronDown, Search } from "lucide-react";
+import { CheckCircle, ArrowLeft, ArrowRight, ChevronDown, Search, Lock, Eye, EyeOff } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
@@ -26,6 +26,8 @@ interface FormData {
   email: string;
   phone: string;
   country: string;
+  password: string;
+  confirmPassword: string;
   company: string;
   jobTitle: string;
   roleType: string;
@@ -39,6 +41,8 @@ const initialForm: FormData = {
   email: "",
   phone: "",
   country: "",
+  password: "",
+  confirmPassword: "",
   company: "",
   jobTitle: "",
   roleType: "",
@@ -159,6 +163,13 @@ export default function RegisterPage() {
       else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
         errs.email = "Email inválido";
       if (!form.country) errs.country = "Seleccioná un país";
+      // Password validation (optional but if provided, must match and be >= 8)
+      if (form.password && form.password.length < 8) {
+        errs.password = "La contraseña debe tener al menos 8 caracteres";
+      }
+      if (form.password && form.password !== form.confirmPassword) {
+        errs.confirmPassword = "Las contraseñas no coinciden";
+      }
     }
     if (s === 1) {
       if (!form.company.trim()) errs.company = "La empresa es obligatoria";
@@ -195,6 +206,7 @@ export default function RegisterPage() {
           email: form.email,
           phone: form.phone,
           country: form.country,
+          password: form.password || undefined,
           company: form.company,
           job_title: form.jobTitle,
           role_type: form.roleType,
@@ -224,6 +236,47 @@ export default function RegisterPage() {
 
   const inputClass = "border-white/5 bg-[#0A0A0A] text-white font-mono text-sm placeholder:text-white/20";
   const labelClass = "font-mono text-xs uppercase tracking-widest text-white/40";
+
+  /* ---- Password Input Component ---- */
+  function PasswordInput({
+    id,
+    value,
+    onChange,
+    placeholder,
+    error,
+  }: {
+    id: string;
+    value: string;
+    onChange: (v: string) => void;
+    placeholder: string;
+    error?: string;
+  }) {
+    const [show, setShow] = useState(false);
+    return (
+      <div className="relative">
+        <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/20" />
+        <input
+          id={id}
+          type={show ? "text" : "password"}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className={`w-full rounded-md border bg-[#0A0A0A] py-2 pl-10 pr-10 font-mono text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-1 ${
+            error
+              ? "border-red-500/30 focus:border-red-500/30 focus:ring-red-500/20"
+              : "border-white/5 focus:border-csc-orange/30 focus:ring-csc-orange/20"
+          }`}
+        />
+        <button
+          type="button"
+          onClick={() => setShow(!show)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/40"
+        >
+          {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+        </button>
+      </div>
+    );
+  }
 
   /* ---- Success ---- */
   if (submitted) {
@@ -491,6 +544,45 @@ export default function RegisterPage() {
                     <p className="font-mono text-xs text-csc-wine">{errors.country}</p>
                   )}
                 </div>
+
+                {/* Password Fields */}
+                <div className="rounded-xl border border-white/5 bg-white/[0.02] p-4 space-y-4">
+                  <p className="font-mono text-xs text-white/40">
+                    <span className="text-csc-orange">Opcional:</span> Creá una contraseña para iniciar sesión sin Google/LinkedIn
+                  </p>
+                  
+                  <div className="space-y-1.5">
+                    <Label htmlFor="password" className={labelClass}>
+                      Contraseña
+                    </Label>
+                    <PasswordInput
+                      id="password"
+                      value={form.password}
+                      onChange={(v) => set("password", v)}
+                      placeholder="Mínimo 8 caracteres"
+                      error={errors.password}
+                    />
+                    {errors.password && (
+                      <p className="font-mono text-xs text-csc-wine">{errors.password}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="confirmPassword" className={labelClass}>
+                      Confirmar contraseña
+                    </Label>
+                    <PasswordInput
+                      id="confirmPassword"
+                      value={form.confirmPassword}
+                      onChange={(v) => set("confirmPassword", v)}
+                      placeholder="Repetí la contraseña"
+                      error={errors.confirmPassword}
+                    />
+                    {errors.confirmPassword && (
+                      <p className="font-mono text-xs text-csc-wine">{errors.confirmPassword}</p>
+                    )}
+                  </div>
+                </div>
               </motion.div>
             )}
 
@@ -626,6 +718,7 @@ export default function RegisterPage() {
                     ["Email", form.email],
                     ["Teléfono", form.phone || "—"],
                     ["País", form.country],
+                    ["Contraseña", form.password ? "••••••••" : "Sin contraseña (usarás Google/LinkedIn)"],
                     ["Empresa", form.company],
                     ["Cargo", form.jobTitle],
                     ["Rol", form.roleType],

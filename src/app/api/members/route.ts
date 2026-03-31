@@ -5,6 +5,8 @@ const supabase = getSupabaseAdmin();
 import { randomBytes } from "crypto";
 import { sendVerificationEmail } from "@/lib/email";
 
+const MIN_PASSWORD_LENGTH = 8;
+
 const ALLOWED_COUNTRIES = [
   "Argentina", "Bolivia", "Brasil", "Chile", "Colombia", "Costa Rica", "Cuba",
   "Ecuador", "El Salvador", "Guatemala", "Honduras", "México", "Nicaragua",
@@ -14,10 +16,23 @@ const ALLOWED_COUNTRIES = [
 export async function POST(req: NextRequest) {
   const body = await req.json();
 
-  const { full_name, email, phone, company, job_title, role_type, linkedin_url, years_experience, captcha_token, country } = body;
+  const { full_name, email, phone, company, job_title, role_type, linkedin_url, years_experience, captcha_token, country, password } = body;
 
-  if (!full_name || !email || !country) {
+  // Normalize email (REC-4: lowercase + trim)
+  const normalizedEmail = email?.toLowerCase().trim();
+
+  if (!full_name || !normalizedEmail || !country) {
     return NextResponse.json({ error: "Nombre, email y país son obligatorios" }, { status: 400 });
+  }
+
+  // Validate password if provided (optional — social login users won't have one)
+  if (password !== undefined && password !== null && password !== "") {
+    if (typeof password !== "string" || password.length < MIN_PASSWORD_LENGTH) {
+      return NextResponse.json(
+        { error: `La contraseña debe tener al menos ${MIN_PASSWORD_LENGTH} caracteres` },
+        { status: 400 }
+      );
+    }
   }
 
   if (!ALLOWED_COUNTRIES.includes(country)) {
@@ -64,7 +79,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Basic email validation
-  const emailDomain = email.split("@")[1]?.toLowerCase();
+  const emailDomain = normalizedEmail.split("@")[1]?.toLowerCase();
   if (!emailDomain) {
     return NextResponse.json({ error: "Email inválido" }, { status: 400 });
   }
@@ -75,7 +90,7 @@ export async function POST(req: NextRequest) {
   const { data: existing } = await supabase
     .from("members")
     .select("id, status")
-    .eq("email", email)
+    .eq("email", normalizedEmail)
     .single();
 
   if (existing) {
@@ -86,11 +101,38 @@ export async function POST(req: NextRequest) {
     await supabase.from("members").delete().eq("id", existing.id);
   }
 
+  // If password provided, create Supabase Auth user first
+  let authUserId: string | null = null;
+  if (password && typeof password === "string" && password.length >= MIN_PASSWORD_LENGTH) {
+    const { data: newAuthUser, error: createAuthError } =
+      await supabase.auth.admin.createUser({
+        email: normalizedEmail,
+        password,
+        email_confirm: false,
+      });
+
+    if (createAuthError) {
+      if (createAuthError.message.includes("already been registered")) {
+        return NextResponse.json(
+          { error: "Ya existe una cuenta con este email" },
+          { status: 409 }
+        );
+      }
+      console.error("[members/POST] Auth create error:", createAuthError.message);
+      return NextResponse.json(
+        { error: "Error al crear la cuenta" },
+        { status: 500 }
+      );
+    }
+
+    authUserId = newAuthUser.user.id;
+  }
+
   const { error } = await supabase
     .from("members")
     .insert({
       full_name,
-      email,
+      email: normalizedEmail,
       phone: phone || null,
       company: company || null,
       job_title: job_title || null,
@@ -100,9 +142,14 @@ export async function POST(req: NextRequest) {
       country,
       status: "pending_verification",
       verification_token: verificationToken,
+      ...(authUserId && { auth_provider_id: authUserId, auth_provider: "email" }),
     });
 
   if (error) {
+    // Rollback auth user if member insert fails
+    if (authUserId) {
+      await supabase.auth.admin.deleteUser(authUserId);
+    }
     if (error.code === "23505") {
       return NextResponse.json({ error: "Este email ya está registrado" }, { status: 409 });
     }
@@ -111,7 +158,7 @@ export async function POST(req: NextRequest) {
 
   // Send verification email
   try {
-    await sendVerificationEmail(email, full_name, verificationToken);
+    await sendVerificationEmail(normalizedEmail, full_name, verificationToken);
   } catch (emailError) {
     console.error("Failed to send verification email:", emailError);
   }

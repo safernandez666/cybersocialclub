@@ -9,6 +9,12 @@ const RATE_LIMITS: { pattern: RegExp; maxRequests: number; windowMs: number }[] 
   { pattern: /^\/api\/verify-email/, maxRequests: 10, windowMs: 15 * 60 * 1000 },
   // OAuth callback — strict limit (Male review S10: 5/15min)
   { pattern: /^\/auth\/callback/, maxRequests: 5, windowMs: 15 * 60 * 1000 },
+  // Login — 10/15min (spec + security review)
+  { pattern: /^\/api\/auth\/login/, maxRequests: 10, windowMs: 15 * 60 * 1000 },
+  // Claim account — strict 3/15min (prevent email spam)
+  { pattern: /^\/api\/auth\/claim\/verify/, maxRequests: 5, windowMs: 15 * 60 * 1000 },
+  { pattern: /^\/api\/auth\/claim\/complete/, maxRequests: 5, windowMs: 15 * 60 * 1000 },
+  { pattern: /^\/api\/auth\/claim/, maxRequests: 3, windowMs: 15 * 60 * 1000 },
   // Member API
   { pattern: /^\/api\/me/, maxRequests: 30, windowMs: 60 * 1000 },
 ];
@@ -101,7 +107,7 @@ export async function middleware(req: NextRequest) {
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return NextResponse.redirect(new URL("/register", req.url));
+      return NextResponse.redirect(new URL("/login", req.url));
     }
 
     return res;
@@ -117,6 +123,7 @@ export const config = {
     "/api/verify-email",
     "/api/members",
     "/api/me",
+    "/api/auth/:path*",
     "/auth/callback",
     "/complete-profile",
     "/pending-approval",

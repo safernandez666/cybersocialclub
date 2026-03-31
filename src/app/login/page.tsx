@@ -2,9 +2,10 @@
 
 import { Suspense, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { ArrowLeft, Loader2, Mail, Lock, AlertCircle } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
+import { motion } from "framer-motion";
 
 const ERROR_MESSAGES: Record<string, string> = {
   preview_disabled: "Social login no está disponible en entornos de preview.",
@@ -15,6 +16,9 @@ const ERROR_MESSAGES: Record<string, string> = {
   linking_conflict: "Tu email ya está vinculado a otro proveedor de login.",
   rejected: "Tu solicitud de membresía fue rechazada.",
   rate_limited: "Demasiados intentos. Esperá unos minutos.",
+  invalid_credentials: "Email o contraseña incorrectos.",
+  not_approved: "Tu cuenta está pendiente de aprobación.",
+  account_disabled: "Tu cuenta ha sido deshabilitada.",
 };
 
 export default function LoginPage() {
@@ -26,12 +30,74 @@ export default function LoginPage() {
 }
 
 function LoginContent() {
+  const router = useRouter();
   const [loading, setLoading] = useState<string | null>(null);
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [loginError, setLoginError] = useState("");
+  
   const searchParams = useSearchParams();
   const errorParam = searchParams.get("error");
   const errorMessage = errorParam ? ERROR_MESSAGES[errorParam] || `Error: ${errorParam}` : null;
 
-  const isPreview = false; // Disabled — preview detection unreliable
+  const isPreview = false;
+
+  const validateEmailForm = (): boolean => {
+    let valid = true;
+    setEmailError("");
+    setPasswordError("");
+    setLoginError("");
+
+    if (!email.trim()) {
+      setEmailError("El email es obligatorio");
+      valid = false;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setEmailError("Email inválido");
+      valid = false;
+    }
+
+    if (!password) {
+      setPasswordError("La contraseña es obligatoria");
+      valid = false;
+    }
+
+    return valid;
+  };
+
+  const handleEmailLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateEmailForm()) return;
+
+    setEmailLoading(true);
+    setLoginError("");
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        const errorKey = data.error || "invalid_credentials";
+        setLoginError(ERROR_MESSAGES[errorKey] || "Error al iniciar sesión");
+        return;
+      }
+
+      // Successful login - redirect
+      router.push(data.redirect || "/my-profile");
+      router.refresh();
+    } catch (err) {
+      setLoginError("Error de conexión. Intentá de nuevo.");
+    } finally {
+      setEmailLoading(false);
+    }
+  };
 
   const handleSocialLogin = async (provider: "google" | "linkedin_oidc") => {
     setLoading(provider);
@@ -56,7 +122,11 @@ function LoginContent() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A] px-4 pt-16">
-      <div className="w-full max-w-sm">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-sm"
+      >
         <div className="mb-8">
           <Link href="/" className="mb-6 inline-flex items-center gap-2 text-white/30 transition-colors hover:text-white">
             <ArrowLeft className="h-4 w-4" />
@@ -64,16 +134,87 @@ function LoginContent() {
           </Link>
           <h1 className="mb-2 font-mono text-xl text-white">Acceso Socios</h1>
           <p className="font-mono text-xs text-white/30">
-            Ingresá con tu cuenta de Google o LinkedIn
+            Ingresá a tu cuenta de Cyber Social Club
           </p>
         </div>
 
-        {errorMessage && (
-          <div className="mb-6 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 font-mono text-xs text-red-400">
-            {errorMessage}
+        {(errorMessage || loginError) && (
+          <div className="mb-6 flex items-start gap-3 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3">
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-400" />
+            <p className="font-mono text-xs text-red-400">{loginError || errorMessage}</p>
           </div>
         )}
 
+        {/* Email + Password Form */}
+        <form onSubmit={handleEmailLogin} className="space-y-4">
+          <div className="space-y-1.5">
+            <label className="font-mono text-xs uppercase tracking-widest text-white/40">
+              Email
+            </label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/20" />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="nombre@empresa.com"
+                className={`w-full rounded-xl border bg-white/[0.02] py-3 pl-10 pr-4 font-mono text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-1 ${
+                  emailError ? "border-red-500/30 focus:ring-red-500/20" : "border-white/5 focus:border-csc-orange/30 focus:ring-csc-orange/20"
+                }`}
+              />
+            </div>
+            {emailError && (
+              <p className="font-mono text-xs text-red-400">{emailError}</p>
+            )}
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="font-mono text-xs uppercase tracking-widest text-white/40">
+              Contraseña
+            </label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/20" />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className={`w-full rounded-xl border bg-white/[0.02] py-3 pl-10 pr-4 font-mono text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-1 ${
+                  passwordError ? "border-red-500/30 focus:ring-red-500/20" : "border-white/5 focus:border-csc-orange/30 focus:ring-csc-orange/20"
+                }`}
+              />
+            </div>
+            {passwordError && (
+              <p className="font-mono text-xs text-red-400">{passwordError}</p>
+            )}
+          </div>
+
+          <button
+            type="submit"
+            disabled={emailLoading}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-csc-orange px-4 py-3.5 font-mono text-sm text-white transition-all hover:bg-csc-amber disabled:opacity-50"
+          >
+            {emailLoading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Iniciando sesión...
+              </>
+            ) : (
+              "Iniciar Sesión"
+            )}
+          </button>
+        </form>
+
+        {/* Social Login Divider */}
+        <div className="my-6 flex items-center gap-4">
+          <div className="h-px flex-1 bg-white/5" />
+          <span className="font-mono text-[10px] uppercase tracking-widest text-white/20">
+            o continuar con
+          </span>
+          <div className="h-px flex-1 bg-white/5" />
+        </div>
+
+        {/* Social Buttons */}
         {isPreview ? (
           <div className="rounded-xl border border-csc-orange/20 bg-csc-orange/5 px-4 py-6 text-center">
             <p className="font-mono text-sm text-csc-orange">
@@ -124,15 +265,22 @@ function LoginContent() {
           </div>
         )}
 
-        <div className="mt-8 border-t border-white/5 pt-6">
+        {/* Links */}
+        <div className="mt-8 space-y-3 border-t border-white/5 pt-6">
           <p className="text-center font-mono text-xs text-white/20">
             ¿No tenés cuenta?{" "}
             <Link href="/register" className="text-csc-orange/60 transition-colors hover:text-csc-orange">
               Registrate acá
             </Link>
           </p>
+          <p className="text-center font-mono text-xs text-white/20">
+            ¿Ya sos miembro pero no tenés cuenta?{" "}
+            <Link href="/claim-account" className="text-csc-orange/60 transition-colors hover:text-csc-orange">
+              Reclamá tu acceso
+            </Link>
+          </p>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

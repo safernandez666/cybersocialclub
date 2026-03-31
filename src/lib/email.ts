@@ -61,6 +61,52 @@ export async function sendVerificationEmail(to: string, fullName: string, verifi
   });
 }
 
+export async function sendClaimAccountEmail(to: string, fullName: string, claimToken: string) {
+  const firstName = fullName.split(" ")[0];
+  const claimUrl = `${getAppUrl()}/claim-account/set-password?token=${claimToken}`;
+
+  await transporter.sendMail({
+    from: `"${FROM_NAME}" <${getFromEmail()}>`,
+    to,
+    subject: `${firstName}, activá tu acceso a Cyber Social Club`,
+    html: `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0;padding:0;background-color:#0A0A0A;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <div style="max-width:560px;margin:0 auto;padding:48px 24px;">
+    <div style="text-align:center;margin-bottom:40px;">
+      <h1 style="color:#E87B1E;font-size:24px;margin:0;">Cyber Social Club</h1>
+      <p style="color:rgba(255,255,255,0.3);font-size:13px;margin:4px 0 0;">Where Cyber Minds Connect</p>
+    </div>
+    <div style="background-color:#141211;border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:32px;">
+      <h2 style="color:#FFFFFF;font-size:20px;margin:0 0 8px;">Hola ${firstName}!</h2>
+      <p style="color:rgba(255,255,255,0.5);font-size:14px;line-height:1.6;margin:0 0 24px;">
+        Recibimos tu solicitud para activar tu cuenta de miembro en Cyber Social Club. Hacé click en el siguiente botón para crear tu contraseña y acceder a tu portal de miembro.
+      </p>
+      <div style="text-align:center;margin-bottom:24px;">
+        <a href="${claimUrl}" style="display:inline-block;background-color:#E87B1E;color:#FFFFFF;text-decoration:none;padding:14px 40px;border-radius:50px;font-size:14px;font-weight:600;">Activar Mi Cuenta</a>
+      </div>
+      <div style="background-color:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:12px 16px;margin-bottom:24px;">
+        <p style="color:rgba(255,255,255,0.3);font-size:12px;margin:0;">
+          Este link expira en 24 horas. Si no solicitaste esto, podés ignorar este email.
+        </p>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:32px;">
+      <p style="color:rgba(255,255,255,0.2);font-size:12px;margin:0;">
+        &copy; ${new Date().getFullYear()} Cyber Social Club. Todos los derechos reservados.
+      </p>
+    </div>
+  </div>
+</body>
+</html>`,
+  });
+}
+
 export async function sendWelcomeEmail(to: string, fullName: string) {
   const firstName = fullName.split(" ")[0];
 
