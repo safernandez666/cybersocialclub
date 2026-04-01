@@ -40,13 +40,12 @@ export async function POST(req: NextRequest) {
 
   const supabaseAdmin = getSupabaseAdmin();
 
-  // Lookup: approved member without auth account
+  // Lookup: approved member (with or without auth account — social login users need passwords too)
   const { data: member } = await supabaseAdmin
     .from("members")
-    .select("id, full_name, first_name, email")
+    .select("id, full_name, first_name, email, auth_provider_id")
     .eq("email", email)
     .eq("status", "approved")
-    .is("auth_provider_id", null)
     .single();
 
   if (!member) {

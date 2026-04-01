@@ -71,36 +71,64 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Create Supabase Auth user (email already verified — they're an approved member)
-  const { data: authUser, error: createError } =
-    await supabaseAdmin.auth.admin.createUser({
-      email: matchedClaim.email,
-      password,
-      email_confirm: true,
-    });
+  // Check if member already has an auth account (e.g. Google/LinkedIn login)
+  const { data: member } = await supabaseAdmin
+    .from("members")
+    .select("id, auth_provider_id")
+    .eq("id", matchedClaim.member_id)
+    .single();
 
-  if (createError) {
-    console.error("[auth/claim/complete] Create user error:", createError.message);
+  let authUserId: string;
 
-    // Handle case where auth user already exists for this email
-    if (createError.message.includes("already been registered")) {
+  if (member?.auth_provider_id) {
+    // Existing auth user (social login) — add password to their account
+    const { error: updateAuthError } = await supabaseAdmin.auth.admin.updateUserById(
+      member.auth_provider_id,
+      { password, email_confirm: true }
+    );
+
+    if (updateAuthError) {
+      console.error("[auth/claim/complete] Update auth user error:", updateAuthError.message);
       return NextResponse.json(
-        { error: "Ya existe una cuenta con este email. Intentá iniciar sesión." },
-        { status: 409, headers: securityHeaders }
+        { error: "Error al configurar la contraseña. Intentá de nuevo." },
+        { status: 500, headers: securityHeaders }
       );
     }
 
-    return NextResponse.json(
-      { error: "Error al crear la cuenta. Intentá de nuevo." },
-      { status: 500, headers: securityHeaders }
-    );
+    authUserId = member.auth_provider_id;
+  } else {
+    // No auth user — create one
+    const { data: authUser, error: createError } =
+      await supabaseAdmin.auth.admin.createUser({
+        email: matchedClaim.email,
+        password,
+        email_confirm: true,
+      });
+
+    if (createError) {
+      console.error("[auth/claim/complete] Create user error:", createError.message);
+
+      if (createError.message.includes("already been registered")) {
+        return NextResponse.json(
+          { error: "Ya existe una cuenta con este email. Intentá iniciar sesión." },
+          { status: 409, headers: securityHeaders }
+        );
+      }
+
+      return NextResponse.json(
+        { error: "Error al crear la cuenta. Intentá de nuevo." },
+        { status: 500, headers: securityHeaders }
+      );
+    }
+
+    authUserId = authUser.user.id;
   }
 
-  // Link auth user to member record
+  // Link auth user to member record (update provider to email since they now have a password)
   const { error: updateError } = await supabaseAdmin
     .from("members")
     .update({
-      auth_provider_id: authUser.user.id,
+      auth_provider_id: authUserId,
       auth_provider: "email",
       last_login_at: new Date().toISOString(),
     })
@@ -108,8 +136,10 @@ export async function POST(req: NextRequest) {
 
   if (updateError) {
     console.error("[auth/claim/complete] Update member error:", updateError.message);
-    // Rollback: delete the auth user we just created
-    await supabaseAdmin.auth.admin.deleteUser(authUser.user.id);
+    if (!member?.auth_provider_id) {
+      // Rollback: only delete auth user if we created it
+      await supabaseAdmin.auth.admin.deleteUser(authUserId);
+    }
     return NextResponse.json(
       { error: "Error al vincular la cuenta. Intentá de nuevo." },
       { status: 500, headers: securityHeaders }
