@@ -30,7 +30,7 @@ export function Navbar() {
       }`}
     >
       <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-8">
-        <Link href="/" className="relative z-10">
+        <a href="https://cybersocialclub.com.ar" className="relative z-10">
           <Image
             src="/logos/logo-light.png"
             alt="Cyber Social Club"
@@ -39,7 +39,7 @@ export function Navbar() {
             className="h-7 w-auto"
             priority
           />
-        </Link>
+        </a>
 
         {/* Desktop nav */}
         <nav className="hidden items-center gap-8 md:flex">
