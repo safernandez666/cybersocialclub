@@ -72,15 +72,25 @@ export async function POST(req: NextRequest) {
   }
 
   // Check if member already has an auth account (e.g. Google/LinkedIn login)
-  const { data: member } = await supabaseAdmin
+  const { data: member, error: memberError } = await supabaseAdmin
     .from("members")
-    .select("id, auth_provider_id")
+    .select("id, auth_provider_id, email")
     .eq("id", matchedClaim.member_id)
     .single();
 
+  console.log("[auth/claim/complete] Member lookup:", member?.id, "auth_provider_id:", member?.auth_provider_id, "error:", memberError?.message);
+
+  if (!member) {
+    console.error("[auth/claim/complete] Member not found for claim:", matchedClaim.member_id);
+    return NextResponse.json(
+      { error: "Miembro no encontrado. Contactá a info@cybersocialclub.com.ar" },
+      { status: 404, headers: securityHeaders }
+    );
+  }
+
   let authUserId: string;
 
-  if (member?.auth_provider_id) {
+  if (member.auth_provider_id) {
     // Existing auth user (social login) — add password to their account
     const { error: updateAuthError } = await supabaseAdmin.auth.admin.updateUserById(
       member.auth_provider_id,

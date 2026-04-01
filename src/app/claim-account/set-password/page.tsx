@@ -96,11 +96,15 @@ function SetPasswordContent() {
       const data = await res.json();
 
       if (!res.ok) {
-        const errorKey = data.error || "invalid_or_expired";
-        if (errorKey === "password_too_weak") {
-          setPasswordError("La contraseña es demasiado débil");
-        } else {
+        const errorMsg = data.error || "Error desconocido";
+        if (errorMsg.includes("contraseña") || errorMsg.includes("password")) {
+          setPasswordError(errorMsg);
+        } else if (errorMsg.includes("Ya existe")) {
+          setError("Ya existe una cuenta con este email. Intentá iniciar sesión directamente.");
+        } else if (errorMsg.includes("expirado") || errorMsg.includes("inválido") || errorMsg.includes("Token")) {
           setError("El link expiró o no es válido. Solicitá uno nuevo.");
+        } else {
+          setError(errorMsg);
         }
         return;
       }
