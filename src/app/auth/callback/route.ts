@@ -117,9 +117,15 @@ export async function GET(req: NextRequest) {
     // Admin notification will be sent AFTER user completes the profile form
     redirectPath = `/complete-profile?id=${newMember?.id || ""}&provider=${provider}`;
   } else if (member.status === "approved") {
-    // Already approved — redirect to their public profile
+    // Already approved — update auth link if needed, redirect to profile
+    if (!member.auth_provider_id) {
+      await supabaseAdmin
+        .from("members")
+        .update({ auth_provider_id: user.id, auth_provider: provider })
+        .eq("id", member.id);
+    }
     await logAuthEvent("login_existing_approved", member.id, provider, req);
-    redirectPath = `/member/${member.id}`;
+    redirectPath = "/my-profile";
   } else if (member.status === "pending" || member.status === "pending_verification") {
     // Already registered, still pending — let them complete profile if needed
     await logAuthEvent("login_pending_member", member.id, provider, req);
