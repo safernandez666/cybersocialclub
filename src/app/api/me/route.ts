@@ -164,7 +164,12 @@ export async function PATCH(req: Request) {
     }
   }
   if (updates.linkedin_url !== undefined && updates.linkedin_url !== null) {
-    const url = updates.linkedin_url as string;
+    let url = updates.linkedin_url as string;
+    // Auto-add https:// if missing
+    if (url && !url.startsWith("https://") && !url.startsWith("http://")) {
+      url = `https://${url}`;
+      updates.linkedin_url = url;
+    }
     if (url.length > 500 || (url && !url.startsWith("https://linkedin.com/in/") && !url.startsWith("https://www.linkedin.com/in/"))) {
       return NextResponse.json(
         { error: "URL de LinkedIn inválida" },
