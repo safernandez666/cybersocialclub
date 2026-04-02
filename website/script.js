@@ -179,17 +179,20 @@
   }
 
   // ==========================================================================
-  // Photo Carousel
+  // Photo Carousels (supports multiple)
   // ==========================================================================
-  const track = document.querySelector('.carousel-track');
-  const images = document.querySelectorAll('.carousel-img');
-  const prevBtn = document.querySelector('.carousel-prev');
-  const nextBtn = document.querySelector('.carousel-next');
-  const counterCurrent = document.querySelector('.carousel-current');
+  document.querySelectorAll('.carousel-container').forEach(function(container) {
+    var track = container.querySelector('.carousel-track');
+    var images = container.querySelectorAll('.carousel-img');
+    var prevBtn = container.querySelector('.carousel-prev');
+    var nextBtn = container.querySelector('.carousel-next');
+    var parent = container.parentElement;
+    var counterEl = parent ? parent.querySelector('.carousel-counter .carousel-current') : null;
 
-  if (track && images.length > 0) {
-    let current = 0;
-    const total = images.length;
+    if (!track || images.length === 0) return;
+
+    var current = 0;
+    var total = images.length;
     var autoplay = null;
 
     function goTo(index) {
@@ -197,7 +200,7 @@
       if (current < 0) current = total - 1;
       if (current >= total) current = 0;
       track.style.transform = 'translateX(-' + (current * 100) + '%)';
-      if (counterCurrent) counterCurrent.textContent = current + 1;
+      if (counterEl) counterEl.textContent = current + 1;
     }
 
     function startAutoplay() {
@@ -213,7 +216,6 @@
     nextBtn.addEventListener('click', function() { goTo(current + 1); });
 
     // Start autoplay only when carousel becomes visible
-    var carouselContainer = track.parentElement;
     var carouselObserver = new IntersectionObserver(function(entries) {
       entries.forEach(function(entry) {
         if (entry.isIntersecting) {
@@ -222,19 +224,19 @@
         }
       });
     }, { threshold: 0.1 });
-    carouselObserver.observe(carouselContainer);
+    carouselObserver.observe(container);
 
     // Pause on hover
-    carouselContainer.addEventListener('mouseenter', function() { stopAutoplay(); });
-    carouselContainer.addEventListener('mouseleave', function() { startAutoplay(); });
+    container.addEventListener('mouseenter', function() { stopAutoplay(); });
+    container.addEventListener('mouseleave', function() { startAutoplay(); });
 
     // Swipe support
-    let touchStartX = 0;
+    var touchStartX = 0;
     track.addEventListener('touchstart', function(e) { touchStartX = e.touches[0].clientX; }, { passive: true });
     track.addEventListener('touchend', function(e) {
       var diff = touchStartX - e.changedTouches[0].clientX;
       if (Math.abs(diff) > 50) { goTo(current + (diff > 0 ? 1 : -1)); }
     }, { passive: true });
-  }
+  });
 
 })();
