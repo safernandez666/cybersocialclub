@@ -127,9 +127,20 @@ export async function GET(req: NextRequest) {
     await logAuthEvent("login_existing_approved", member.id, provider, req);
     redirectPath = "/my-profile";
   } else if (member.status === "pending" || member.status === "pending_verification") {
-    // Already registered, still pending — let them complete profile if needed
+    // Update auth link if needed
+    if (!member.auth_provider_id) {
+      await supabaseAdmin
+        .from("members")
+        .update({ auth_provider_id: user.id, auth_provider: provider })
+        .eq("id", member.id);
+    }
     await logAuthEvent("login_pending_member", member.id, provider, req);
-    redirectPath = `/complete-profile?id=${member.id}&provider=${provider}`;
+    // If profile already has company/job_title filled, they already completed it — show pending page
+    if (member.company || member.job_title) {
+      redirectPath = "/pending-approval";
+    } else {
+      redirectPath = `/complete-profile?id=${member.id}&provider=${provider}`;
+    }
   } else {
     // rejected
     await logAuthEvent("login_rejected_status", member.id, provider, req, {
