@@ -19,6 +19,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   invalid_credentials: "Email o contraseña incorrectos.",
   not_approved: "Tu cuenta está pendiente de aprobación.",
   account_disabled: "Tu cuenta ha sido deshabilitada.",
+  no_account: "No existe una cuenta con este email. Registrate primero.",
 };
 
 export default function LoginPage() {
@@ -110,7 +111,7 @@ function LoginContent() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${siteUrl}/auth/callback`,
+        redirectTo: `${siteUrl}/auth/callback?mode=login`,
       },
     });
 

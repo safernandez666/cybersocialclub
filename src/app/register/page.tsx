@@ -326,7 +326,7 @@ export default function RegisterPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A] px-4 py-24">
       {siteKey && (
-        <Script src="https://js.hcaptcha.com/1/api.js?render=explicit&onload=onHcaptchaLoad" strategy="afterInteractive" />
+        <Script src="https://js.hcaptcha.com/1/api.js?render=explicit" strategy="afterInteractive" />
       )}
       <div className="w-full max-w-xl">
         <div className="mb-10 flex justify-center">
@@ -353,7 +353,7 @@ export default function RegisterPage() {
                 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
                 await supabase.auth.signInWithOAuth({
                   provider: "google",
-                  options: { redirectTo: `${siteUrl}/auth/callback` },
+                  options: { redirectTo: `${siteUrl}/auth/callback?mode=register` },
                 });
               }}
               disabled={googleLoading || linkedinLoading}
@@ -382,7 +382,7 @@ export default function RegisterPage() {
                 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
                 await supabase.auth.signInWithOAuth({
                   provider: "linkedin_oidc",
-                  options: { redirectTo: `${siteUrl}/auth/callback` },
+                  options: { redirectTo: `${siteUrl}/auth/callback?mode=register` },
                 });
               }}
               disabled={linkedinLoading || googleLoading}

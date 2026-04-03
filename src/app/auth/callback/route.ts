@@ -29,6 +29,7 @@ export async function GET(req: NextRequest) {
   const code = searchParams.get("code");
   const error = searchParams.get("error");
   const errorDescription = searchParams.get("error_description");
+  const mode = searchParams.get("mode"); // "login" or "register"
 
   if (error) {
     console.error("[auth/callback] OAuth error:", error, errorDescription);
@@ -87,7 +88,16 @@ export async function GET(req: NextRequest) {
   let redirectPath: string;
 
   if (!member) {
-    // New member — register with Google data, status: pending
+    // Login mode — don't create new members, redirect to login with error
+    if (mode === "login") {
+      await supabase.auth.signOut();
+      await logAuthEvent("login_no_account", null, provider, req, { email: normalizedEmail });
+      const res = NextResponse.redirect(`${safeOrigin}/login?error=no_account`);
+      Object.entries(securityHeaders).forEach(([k, v]) => res.headers.set(k, v));
+      return res;
+    }
+
+    // Register mode — create new member with Google data, status: pending
     const fullName = user.user_metadata.full_name || user.user_metadata.name || email;
     const { error: insertError } = await supabaseAdmin.from("members").insert({
       full_name: fullName,
