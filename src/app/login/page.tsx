@@ -19,7 +19,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   invalid_credentials: "Email o contraseña incorrectos.",
   not_approved: "Tu cuenta está pendiente de aprobación.",
   account_disabled: "Tu cuenta ha sido deshabilitada.",
-  no_account: "No existe una cuenta con este email. Registrate primero.",
+  no_account: "No existe una cuenta con este email.",
 };
 
 export default function LoginPage() {
@@ -142,7 +142,14 @@ function LoginContent() {
         {(errorMessage || loginError) && (
           <div className="mb-6 flex items-start gap-3 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3">
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-400" />
-            <p className="font-mono text-xs text-red-400">{loginError || errorMessage}</p>
+            <div>
+              <p className="font-mono text-xs text-red-400">{loginError || errorMessage}</p>
+              {errorParam === "no_account" && (
+                <Link href="/register" className="mt-1 inline-block font-mono text-xs text-csc-orange hover:text-csc-amber transition-colors">
+                  Registrate acá →
+                </Link>
+              )}
+            </div>
           </div>
         )}
 

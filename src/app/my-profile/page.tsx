@@ -369,8 +369,8 @@ export default function MyProfilePage() {
                       </span>
                     </div>
                   )}
-                  <div className="absolute -bottom-2 -right-2 rounded-full bg-green-500/10 border border-green-500/20 px-2 py-0.5">
-                    <span className="text-[10px] font-mono text-green-400 uppercase tracking-wider">
+                  <div className="absolute -top-2 -right-2 rounded-full bg-green-500 px-2 py-0.5">
+                    <span className="text-[10px] font-mono text-white font-bold uppercase tracking-wider">
                       Activo
                     </span>
                   </div>
