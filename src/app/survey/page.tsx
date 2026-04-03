@@ -499,7 +499,7 @@ export default function SurveyPage() {
                 priority
               />
             </div>
-            <p className="mx-auto max-w-lg text-sm text-white/50">
+            <p className="mx-auto max-w-lg font-mono text-sm text-white/90">
               Ayudanos a construir la comunidad de ciberseguridad que queremos.
               Tu opinión importa.
             </p>
