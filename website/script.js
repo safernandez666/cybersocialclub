@@ -188,12 +188,16 @@
     var nextBtn = container.querySelector('.carousel-next');
     var parent = container.parentElement;
     var counterEl = parent ? parent.querySelector('.carousel-counter .carousel-current') : null;
+    var totalEl = parent ? parent.querySelector('.carousel-counter .carousel-total') : null;
 
     if (!track || images.length === 0) return;
 
     var current = 0;
     var total = images.length;
     var autoplay = null;
+
+    // Set total count dynamically
+    if (totalEl) totalEl.textContent = total;
 
     function goTo(index) {
       current = index;
