@@ -103,9 +103,11 @@ export async function POST(req: NextRequest) {
   const q9 = trimText(body.q9, TEXT_MAX);
   const q10 = trimText(body.q10, TEXT_MAX);
   const q11 = trimText(body.q11, EMAIL_MAX);
+  const q12 = validateJsonArray(body.q12);
+  const q13 = trimText(body.q13, TEXT_MAX);
 
   // At least one answer required
-  if (!q1 && !q2 && !q3 && !q4 && !q5 && !q6 && !q7 && !q8 && !q9 && !q10) {
+  if (!q1 && !q2 && !q3 && !q4 && !q5 && !q6 && !q7 && !q8 && !q9 && !q10 && !q12 && !q13) {
     return NextResponse.json(
       { error: "Completá al menos una pregunta" },
       { status: 400 }
@@ -133,6 +135,8 @@ export async function POST(req: NextRequest) {
     q9,
     q10,
     q11,
+    q12: q12 ? JSON.stringify(q12) : null,
+    q13,
     ip_address: ip,
     user_agent: req.headers.get("user-agent") || "unknown",
   });
@@ -160,7 +164,7 @@ export async function POST(req: NextRequest) {
     const adminEmail = process.env.ADMIN_EMAIL || "info@cybersocialclub.com.ar";
     const fromEmail = process.env.SMTP_FROM || "info@cybersocialclub.com.ar";
 
-    const answeredCount = [q1, q2, q3, q4, q5, q6, q7, q8, q9, q10].filter(Boolean).length;
+    const answeredCount = [q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q12, q13].filter(Boolean).length;
 
     await transporter.sendMail({
       from: `"Cyber Social Club" <${fromEmail}>`,
@@ -181,7 +185,7 @@ export async function POST(req: NextRequest) {
       <table style="width:100%;border-collapse:collapse;">
         ${q7 ? `<tr><td style="color:rgba(255,255,255,0.3);font-size:13px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">Perfil</td><td style="color:#E87B1E;font-size:14px;font-weight:600;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);text-align:right;">${q7}</td></tr>` : ""}
         ${q11 ? `<tr><td style="color:rgba(255,255,255,0.3);font-size:13px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">Email</td><td style="color:#FFFFFF;font-size:14px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);text-align:right;">${q11}</td></tr>` : ""}
-        <tr><td style="color:rgba(255,255,255,0.3);font-size:13px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">Preguntas respondidas</td><td style="color:#FFFFFF;font-size:14px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);text-align:right;">${answeredCount} / 10</td></tr>
+        <tr><td style="color:rgba(255,255,255,0.3);font-size:13px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">Preguntas respondidas</td><td style="color:#FFFFFF;font-size:14px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);text-align:right;">${answeredCount} / 12</td></tr>
         ${q1 ? `<tr><td colspan="2" style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><p style="color:rgba(255,255,255,0.3);font-size:11px;margin:0 0 4px;">Visión para la comunidad</p><p style="color:rgba(255,255,255,0.7);font-size:13px;margin:0;line-height:1.5;">${q1.slice(0, 300)}${q1.length > 300 ? "…" : ""}</p></td></tr>` : ""}
         ${q8 ? `<tr><td colspan="2" style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><p style="color:rgba(255,255,255,0.3);font-size:11px;margin:0 0 4px;">Club ideal</p><p style="color:rgba(255,255,255,0.7);font-size:13px;margin:0;line-height:1.5;">${q8.slice(0, 300)}${q8.length > 300 ? "…" : ""}</p></td></tr>` : ""}
       </table>

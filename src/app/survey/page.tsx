@@ -19,6 +19,8 @@ interface SurveyData {
   crazyIdeas: string;
   notWant: string;
   email: string;
+  clubActivities: string[];
+  otherActivities: string;
 }
 
 const INITIAL_DATA: SurveyData = {
@@ -33,6 +35,8 @@ const INITIAL_DATA: SurveyData = {
   crazyIdeas: "",
   notWant: "",
   email: "",
+  clubActivities: [],
+  otherActivities: "",
 };
 
 // Question configurations
@@ -76,8 +80,23 @@ const PROFESSIONAL_TYPES = [
   "Cloud Security",
   "GRC",
   "CISO/liderazgo",
-  "Vendor",
+  "Vendor/Fabricante",
+  "Distribuidor",
+  "Canal/Integrador",
+  "Consultor",
+  "Empresa (usuario final)",
   "Estudiante",
+  "Otro",
+];
+
+const CLUB_ACTIVITIES = [
+  "Música (jam sessions, karaoke, DJ)",
+  "Deportes (fútbol, paddle, running)",
+  "Talleres de electrónica / robótica",
+  "Gaming / eSports",
+  "Sociales (asados, catas, after offices temáticos)",
+  "Cultura (club de lectura, cine, debates)",
+  "Otro",
 ];
 
 // Animation variants
@@ -400,6 +419,8 @@ export default function SurveyPage() {
     if (data.idealClub.trim()) filled++;
     if (data.crazyIdeas.trim()) filled++;
     if (data.notWant.trim()) filled++;
+    if (data.clubActivities.length > 0) filled++;
+    if (data.otherActivities.trim()) filled++;
     // Email is optional, doesn't count for progress
     return filled;
   }, [data]);
@@ -422,6 +443,8 @@ export default function SurveyPage() {
         q9: data.crazyIdeas || null,
         q10: data.notWant || null,
         q11: data.email || null,
+        q12: data.clubActivities.length > 0 ? data.clubActivities : null,
+        q13: data.otherActivities || null,
         captcha_token: captchaToken || undefined,
       };
 
@@ -506,7 +529,7 @@ export default function SurveyPage() {
           </motion.div>
 
           {/* Progress */}
-          <ProgressBar current={progress} total={10} />
+          <ProgressBar current={progress} total={12} />
 
           {/* Form */}
           <form onSubmit={handleSubmit}>
@@ -618,6 +641,24 @@ export default function SurveyPage() {
                 <p className="mt-2 text-xs text-white/30">
                   Opcional. Si querés que te contactemos sobre tus sugerencias.
                 </p>
+              </QuestionCard>
+
+              {/* Question 12: Club Activities */}
+              <QuestionCard number="12" label="¿Qué actividades de club te interesan?">
+                <CheckboxGrid
+                  options={CLUB_ACTIVITIES}
+                  selected={data.clubActivities}
+                  onChange={(v) => setData((d) => ({ ...d, clubActivities: v }))}
+                />
+              </QuestionCard>
+
+              {/* Question 13: Other Activities */}
+              <QuestionCard number="13" label="¿Qué otras actividades te gustaría que organice el club?">
+                <TextArea
+                  value={data.otherActivities}
+                  onChange={(v) => setData((d) => ({ ...d, otherActivities: v }))}
+                  placeholder="¿Tenés alguna idea para actividades que no mencionamos? Contanos..."
+                />
               </QuestionCard>
 
               {/* Error message */}
