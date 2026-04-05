@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -20,15 +20,16 @@ import {
   Pencil,
   X,
   Check,
-  ChevronDown,
-  Search,
   Globe,
-  CheckCircle,
   AlertCircle,
-  Lock
+  Lock,
+  CheckCircle
 } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 import { motion, AnimatePresence } from "framer-motion";
+import { Skeleton, SkeletonAvatar, SkeletonText, SkeletonButton } from "@/components/ui/skeleton";
+import { CountrySelect } from "@/components/ui/country-select";
+import { FormError } from "@/components/ui/form-error";
 
 interface MemberData {
   id: string;
@@ -51,12 +52,7 @@ interface MemberData {
   qr?: string;
 }
 
-const countryOptions = [
-  "Argentina", "Bolivia", "Brasil", "Chile", "Colombia",
-  "Costa Rica", "Cuba", "Ecuador", "El Salvador", "Guatemala",
-  "Honduras", "México", "Nicaragua", "Panamá", "Paraguay",
-  "Perú", "República Dominicana", "Uruguay", "Venezuela", "Otros"
-];
+
 
 export default function MyProfilePage() {
   const router = useRouter();
@@ -72,29 +68,9 @@ export default function MyProfilePage() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
   
-  // Country dropdown state
-  const [countryOpen, setCountryOpen] = useState(false);
-  const [countrySearch, setCountrySearch] = useState("");
-  const countryDropdownRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     fetchMemberData();
   }, []);
-
-  // Close country dropdown when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (countryDropdownRef.current && !countryDropdownRef.current.contains(event.target as Node)) {
-        setCountryOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const filteredCountries = countrySearch
-    ? countryOptions.filter(c => c.toLowerCase().includes(countrySearch.toLowerCase()))
-    : countryOptions;
 
   const fetchMemberData = async () => {
     try {
@@ -196,10 +172,56 @@ export default function MyProfilePage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A]">
-        <div className="flex items-center gap-3 font-mono text-sm text-white/30">
-          <Loader2 className="h-5 w-5 animate-spin" />
-          Cargando perfil...
+      <div className="min-h-screen bg-[#0A0A0A] px-4 py-16 pt-24">
+        <div className="mx-auto max-w-5xl">
+          <div className="mb-8 flex items-center gap-4">
+            <Skeleton width="40px" height="40px" shape="rounded" />
+            <div className="flex-1">
+              <Skeleton width="200px" height="24px" className="mb-2" />
+              <Skeleton width="150px" height="14px" />
+            </div>
+          </div>
+          <div className="grid gap-6 lg:grid-cols-3">
+            <div className="lg:col-span-2">
+              <div className="rounded-3xl border border-white/5 bg-[#141211] p-6 sm:p-8">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-6 mb-8">
+                  <SkeletonAvatar size="xl" />
+                  <div className="flex-1 space-y-3">
+                    <Skeleton width="60%" height="28px" />
+                    <Skeleton width="40%" height="16px" />
+                  </div>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <div key={i} className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
+                      <Skeleton width="80px" height="12px" className="mb-3" />
+                      <Skeleton width="70%" height="20px" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="rounded-3xl border border-white/5 bg-[#141211] p-6">
+              <div className="mb-6 text-center">
+                <Skeleton width="180px" height="16px" className="mx-auto mb-2" />
+                <Skeleton width="120px" height="10px" className="mx-auto" />
+              </div>
+              <div className="flex justify-center mb-6">
+                <Skeleton width="160px" height="160px" shape="rounded" />
+              </div>
+              <div className="border-t border-white/5 pt-4 space-y-3">
+                <div className="flex justify-between">
+                  <Skeleton width="80px" height="14px" />
+                  <Skeleton width="60px" height="20px" />
+                </div>
+                <div className="flex justify-between">
+                  <Skeleton width="60px" height="14px" />
+                  <Skeleton width="100px" height="16px" />
+                </div>
+              </div>
+              <Skeleton width="100%" height="40px" shape="rounded" className="mt-6" />
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -548,71 +570,11 @@ export default function MyProfilePage() {
                     </span>
                   </div>
                   {isEditing ? (
-                    <div className="relative" ref={countryDropdownRef}>
-                      <button
-                        type="button"
-                        onClick={() => setCountryOpen(!countryOpen)}
-                        className={`flex w-full items-center justify-between rounded-xl border px-3 py-2.5 font-mono text-sm transition-all ${
-                          countryOpen
-                            ? "border-csc-orange ring-1 ring-csc-orange/20"
-                            : "border-white/5 hover:border-white/10"
-                        } ${editForm.country ? "text-white" : "text-white/30"} bg-[#0A0A0A]`}
-                      >
-                        <span>{editForm.country || "Seleccioná tu país"}</span>
-                        <ChevronDown className={`h-4 w-4 text-white/30 transition-transform ${countryOpen ? "rotate-180" : ""}`} />
-                      </button>
-
-                      <AnimatePresence>
-                        {countryOpen && (
-                          <motion.div
-                            initial={{ opacity: 0, y: -8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -8 }}
-                            transition={{ duration: 0.15 }}
-                            className="absolute z-50 mt-1 w-full overflow-hidden rounded-xl border border-white/10 bg-[#141211] shadow-xl"
-                          >
-                            <div className="border-b border-white/5 p-2">
-                              <div className="relative">
-                                <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-white/30" />
-                                <input
-                                  type="text"
-                                  placeholder="Buscar país..."
-                                  value={countrySearch}
-                                  onChange={(e) => setCountrySearch(e.target.value)}
-                                  className="w-full rounded bg-white/5 py-1.5 pl-8 pr-2 font-mono text-xs text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-csc-orange/30"
-                                  autoFocus
-                                />
-                              </div>
-                            </div>
-                            <div className="max-h-48 overflow-y-auto">
-                              {filteredCountries.length > 0 ? (
-                                filteredCountries.map((c) => (
-                                  <button
-                                    key={c}
-                                    type="button"
-                                    onClick={() => {
-                                      setEditValue("country", c);
-                                      setCountryOpen(false);
-                                      setCountrySearch("");
-                                    }}
-                                    className={`flex w-full items-center justify-between px-3 py-2 font-mono text-xs transition-all hover:bg-white/5 ${
-                                      editForm.country === c ? "text-csc-orange" : "text-white/60"
-                                    }`}
-                                  >
-                                    <span>{c}</span>
-                                    {editForm.country === c && <Check className="h-3.5 w-3.5" />}
-                                  </button>
-                                ))
-                              ) : (
-                                <div className="px-3 py-3 font-mono text-xs text-white/30">
-                                  No se encontraron resultados
-                                </div>
-                              )}
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
+                    <CountrySelect
+                      value={editForm.country || null}
+                      onChange={(value) => setEditValue("country", value)}
+                      placeholder="Seleccioná tu país"
+                    />
                   ) : (
                     <p className="text-white/80">{member.country || "—"}</p>
                   )}

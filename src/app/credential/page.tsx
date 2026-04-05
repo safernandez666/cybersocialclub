@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Download, ShieldCheck, Building2, Briefcase, UserCircle, Calendar } from "lucide-react";
+import { Skeleton, SkeletonButton } from "@/components/ui/skeleton";
 
 interface CredentialData {
   member_number: string;
@@ -17,9 +18,55 @@ interface CredentialData {
   verify_url: string;
 }
 
+function CredentialSkeleton() {
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center bg-[#0A0A0A] px-4 pt-20 pb-12">
+      <div className="w-full max-w-md mx-auto">
+        <div className="overflow-hidden rounded-3xl border border-white/5 bg-[#141211]">
+          <div className="flex items-center justify-between border-b border-white/5 px-4 sm:px-6 py-5">
+            <div>
+              <Skeleton width="180px" height="16px" className="mb-2" />
+              <Skeleton width="150px" height="10px" />
+            </div>
+            <div className="text-right">
+              <Skeleton width="60px" height="10px" className="mb-1 ml-auto" />
+              <Skeleton width="80px" height="28px" className="ml-auto" />
+            </div>
+          </div>
+          <div className="px-4 sm:px-6 py-6">
+            <div className="mb-6">
+              <Skeleton width="100px" height="10px" className="mb-2" />
+              <Skeleton width="70%" height="24px" />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i}>
+                  <Skeleton width="80px" height="10px" className="mb-2" />
+                  <Skeleton width="90%" height="18px" />
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-col items-center border-t border-white/5 px-4 sm:px-6 py-6">
+            <Skeleton width="128px" height="128px" shape="rounded" className="mb-3" />
+            <Skeleton width="120px" height="10px" />
+          </div>
+          <div className="flex items-center justify-between border-t border-white/5 px-4 sm:px-6 py-3">
+            <Skeleton width="100px" height="10px" />
+            <Skeleton width="60px" height="20px" shape="rounded" />
+          </div>
+        </div>
+        <div className="mt-6 text-center">
+          <SkeletonButton width="200px" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function CredentialPage() {
   return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-[#0A0A0A]"><div className="font-mono text-sm text-white/30">Cargando...</div></div>}>
+    <Suspense fallback={<CredentialSkeleton />}>
       <CredentialContent />
     </Suspense>
   );
@@ -53,11 +100,7 @@ function CredentialContent() {
   }, [token]);
 
   if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A]">
-        <div className="font-mono text-sm text-white/30">Cargando credencial...</div>
-      </div>
-    );
+    return <CredentialSkeleton />;
   }
 
   if (error || !data) {

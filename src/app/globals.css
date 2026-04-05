@@ -141,4 +141,29 @@
   html {
     @apply font-sans;
   }
+  
+  /* Global focus-visible styles for better accessibility on dark theme */
+  :focus-visible {
+    @apply outline-none ring-2 ring-csc-orange/50 ring-offset-2 ring-offset-[#0A0A0A];
+  }
+  
+  /* Ensure focus is visible on buttons, links, and inputs */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    @apply outline-none ring-2 ring-csc-orange/50;
+  }
+  
+  /* Reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 }

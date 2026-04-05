@@ -58,8 +58,12 @@
 
   if (navbarToggle && navbarMobile) {
     navbarToggle.addEventListener('click', function() {
-      this.classList.toggle('active');
+      const isExpanded = this.classList.toggle('active');
       navbarMobile.classList.toggle('active');
+      
+      // Update ARIA attributes
+      this.setAttribute('aria-expanded', isExpanded);
+      this.setAttribute('aria-label', isExpanded ? 'Cerrar menú' : 'Abrir menú');
       
       // Prevent body scroll when menu is open
       document.body.style.overflow = navbarMobile.classList.contains('active') ? 'hidden' : '';
@@ -69,6 +73,8 @@
     navbarMobile.querySelectorAll('a').forEach(link => {
       link.addEventListener('click', function() {
         navbarToggle.classList.remove('active');
+        navbarToggle.setAttribute('aria-expanded', 'false');
+        navbarToggle.setAttribute('aria-label', 'Abrir menú');
         navbarMobile.classList.remove('active');
         document.body.style.overflow = '';
       });

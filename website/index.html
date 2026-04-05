@@ -14,6 +14,9 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <!-- Skip Navigation -->
+  <a href="#main-content" class="skip-link">Saltar al contenido</a>
+  
   <!-- Navbar -->
   <header class="navbar" id="navbar">
     <div class="navbar-container">
@@ -28,7 +31,7 @@
         <a href="https://socios.cybersocialclub.com.ar/login" class="navbar-cta">Iniciar Sesión</a>
       </nav>
       
-      <button class="navbar-toggle" id="navbarToggle" aria-label="Toggle menu">
+      <button class="navbar-toggle" id="navbarToggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="navbarMobile">
         <span></span>
         <span></span>
         <span></span>
@@ -44,6 +47,9 @@
     </div>
   </header>
 
+  <!-- Main Content -->
+  <main id="main-content">
+  
   <!-- Hero Section -->
   <section class="hero">
     <div class="hero-glow"></div>
@@ -64,7 +70,7 @@
             <path d="M5 12h14M12 5l7 7-7 7"/>
           </svg>
         </a>
-        <a href="https://socios.cybersocialclub.com.ar/register" class="btn-secondary" style="margin-left: 12px; border: 1px solid rgba(255,255,255,0.1); border-radius: 9999px; padding: 16px 32px; font-family: monospace; font-size: 14px; color: rgba(255,255,255,0.5); text-decoration: none; transition: all 0.3s;">
+        <a href="https://socios.cybersocialclub.com.ar/register" class="btn-secondary" style="margin-left: 12px;">
           Registrate
         </a>
       </div>
@@ -272,20 +278,15 @@
       </div>
       
       <div class="evento-card reveal">
-        <div class="evento-badge">RSAC 2025</div>
-        <h2 class="evento-title">RSAC Party</h2>
+        <div class="evento-badge">PRÓXIMAMENTE</div>
+        <h2 class="evento-title">Cumpleaños del Club</h2>
         <div class="evento-details">
           <div class="evento-detail">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
               <circle cx="12" cy="10" r="3"/>
             </svg>
-            <a href="https://www.harlequinsf.com/" target="_blank" rel="noopener" class="evento-link">
-              The Harlequin, San Francisco
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M7 17L17 7M17 7H7M17 7V17"/>
-              </svg>
-            </a>
+            <span>Lugar a confirmar</span>
           </div>
           <div class="evento-detail">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -294,15 +295,12 @@
               <line x1="8" y1="2" x2="8" y2="6"/>
               <line x1="3" y1="10" x2="21" y2="10"/>
             </svg>
-            <span>Martes 24 de Marzo, 22:00 hs</span>
+            <span>Fecha a confirmar</span>
           </div>
         </div>
-        <a href="https://www.eventbrite.com.ar/e/cyber-social-club-rsa-conference-tickets-1984162220614?aff=oddtdtcreator&keep_tld=true" target="_blank" rel="noopener" class="btn-primary btn-large">
-          Reservar mi lugar
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
-        </a>
+        <button class="btn-primary btn-large btn-disabled" disabled>
+          Próximamente
+        </button>
       </div>
 
       <!-- Sponsors Placeholder -->
@@ -326,44 +324,44 @@
 
       <h2 class="section-heading reveal">Momentos que nos <span class="highlight">definen</span></h2>
 
-      <!-- 5to Evento: RSA 2026 -->
-      <div class="event-album reveal" style="margin-bottom:48px;">
-        <h3 style="color:#E87B1E;font-size:18px;font-weight:600;margin:0 0 6px;">5to Evento: RSA 2026</h3>
-        <p style="color:rgba(255,255,255,0.3);font-family:monospace;font-size:12px;margin:0 0 20px;letter-spacing:0.05em;">THE HARLEQUIN — SAN FRANCISCO</p>
+      <!-- 5to Evento -->
+      <div class="event-album reveal">
+        <h3 class="event-album-title">5to Evento Cyber Social Club</h3>
+        <p class="event-album-subtitle">SAN FRANCISCO</p>
         <div class="carousel-container">
-          <button class="carousel-btn carousel-prev" aria-label="Previous"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <button class="carousel-btn carousel-prev" aria-label="Anterior"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
           <div class="carousel-track">
-            <img src="https://live.staticflickr.com/65535/55182852807_382e7bd6d1_z.jpg" alt="RSA 2026" class="carousel-img" loading="lazy" />
-            <img src="https://live.staticflickr.com/65535/55182855447_ff9f443a25_c.jpg" alt="RSA 2026" class="carousel-img" loading="lazy" />
-            <img src="https://live.staticflickr.com/65535/55182855477_0bde5bd34a_z.jpg" alt="RSA 2026" class="carousel-img" loading="lazy" />
-            <img src="https://live.staticflickr.com/65535/55182857067_254fe48fc1_c.jpg" alt="RSA 2026" class="carousel-img" loading="lazy" />
-            <img src="https://live.staticflickr.com/65535/55183740201_d6ca177ac3_c.jpg" alt="RSA 2026" class="carousel-img" loading="lazy" />
-            <img src="https://live.staticflickr.com/65535/55183796611_cc9d95ea3c_z.jpg" alt="RSA 2026" class="carousel-img" loading="lazy" />
-            <img src="https://live.staticflickr.com/65535/55183898083_e73c765067_c.jpg" alt="RSA 2026" class="carousel-img" loading="lazy" />
-            <img src="https://live.staticflickr.com/65535/55183898358_d82961fb87_c.jpg" alt="RSA 2026" class="carousel-img" loading="lazy" />
-            <img src="https://live.staticflickr.com/65535/55183900848_3847bf6614_z.jpg" alt="RSA 2026" class="carousel-img" loading="lazy" />
-            <img src="https://live.staticflickr.com/65535/55183902343_aba1b8f178_z.jpg" alt="RSA 2026" class="carousel-img" loading="lazy" />
-            <img src="https://live.staticflickr.com/65535/55183902363_27b8d26b31_z.jpg" alt="RSA 2026" class="carousel-img" loading="lazy" />
-            <img src="https://live.staticflickr.com/65535/55183902403_7e6b53a077_c.jpg" alt="RSA 2026" class="carousel-img" loading="lazy" />
-            <img src="https://live.staticflickr.com/65535/55183999744_5493187773_h.jpg" alt="RSA 2026" class="carousel-img" loading="lazy" />
-            <img src="https://live.staticflickr.com/65535/55184137025_a032eed428_z.jpg" alt="RSA 2026" class="carousel-img" loading="lazy" />
-            <img src="https://live.staticflickr.com/65535/55184139755_dac75842fd_c.jpg" alt="RSA 2026" class="carousel-img" loading="lazy" />
-            <img src="https://live.staticflickr.com/65535/55184139925_8756d714a6_z.jpg" alt="RSA 2026" class="carousel-img" loading="lazy" />
-            <img src="https://live.staticflickr.com/65535/55184139975_23644de196_z.jpg" alt="RSA 2026" class="carousel-img" loading="lazy" />
-            <img src="https://live.staticflickr.com/65535/55184141570_1ed41f9df5_c.jpg" alt="RSA 2026" class="carousel-img" loading="lazy" />
-            <img src="https://live.staticflickr.com/65535/55184141585_15d10d5d86_h.jpg" alt="RSA 2026" class="carousel-img" loading="lazy" />
+            <img src="https://live.staticflickr.com/65535/55182852807_382e7bd6d1_z.jpg" alt="5to Evento" class="carousel-img" loading="lazy" />
+            <img src="https://live.staticflickr.com/65535/55182855447_ff9f443a25_c.jpg" alt="5to Evento" class="carousel-img" loading="lazy" />
+            <img src="https://live.staticflickr.com/65535/55182855477_0bde5bd34a_z.jpg" alt="5to Evento" class="carousel-img" loading="lazy" />
+            <img src="https://live.staticflickr.com/65535/55182857067_254fe48fc1_c.jpg" alt="5to Evento" class="carousel-img" loading="lazy" />
+            <img src="https://live.staticflickr.com/65535/55183740201_d6ca177ac3_c.jpg" alt="5to Evento" class="carousel-img" loading="lazy" />
+            <img src="https://live.staticflickr.com/65535/55183796611_cc9d95ea3c_z.jpg" alt="5to Evento" class="carousel-img" loading="lazy" />
+            <img src="https://live.staticflickr.com/65535/55183898083_e73c765067_c.jpg" alt="5to Evento" class="carousel-img" loading="lazy" />
+            <img src="https://live.staticflickr.com/65535/55183898358_d82961fb87_c.jpg" alt="5to Evento" class="carousel-img" loading="lazy" />
+            <img src="https://live.staticflickr.com/65535/55183900848_3847bf6614_z.jpg" alt="5to Evento" class="carousel-img" loading="lazy" />
+            <img src="https://live.staticflickr.com/65535/55183902343_aba1b8f178_z.jpg" alt="5to Evento" class="carousel-img" loading="lazy" />
+            <img src="https://live.staticflickr.com/65535/55183902363_27b8d26b31_z.jpg" alt="5to Evento" class="carousel-img" loading="lazy" />
+            <img src="https://live.staticflickr.com/65535/55183902403_7e6b53a077_c.jpg" alt="5to Evento" class="carousel-img" loading="lazy" />
+            <img src="https://live.staticflickr.com/65535/55183999744_5493187773_h.jpg" alt="5to Evento" class="carousel-img" loading="lazy" />
+            <img src="https://live.staticflickr.com/65535/55184137025_a032eed428_z.jpg" alt="5to Evento" class="carousel-img" loading="lazy" />
+            <img src="https://live.staticflickr.com/65535/55184139755_dac75842fd_c.jpg" alt="5to Evento" class="carousel-img" loading="lazy" />
+            <img src="https://live.staticflickr.com/65535/55184139925_8756d714a6_z.jpg" alt="5to Evento" class="carousel-img" loading="lazy" />
+            <img src="https://live.staticflickr.com/65535/55184139975_23644de196_z.jpg" alt="5to Evento" class="carousel-img" loading="lazy" />
+            <img src="https://live.staticflickr.com/65535/55184141570_1ed41f9df5_c.jpg" alt="5to Evento" class="carousel-img" loading="lazy" />
+            <img src="https://live.staticflickr.com/65535/55184141585_15d10d5d86_h.jpg" alt="5to Evento" class="carousel-img" loading="lazy" />
           </div>
-          <button class="carousel-btn carousel-next" aria-label="Next"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+          <button class="carousel-btn carousel-next" aria-label="Siguiente"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
         </div>
         <div class="carousel-counter"><span class="carousel-current">1</span> / <span class="carousel-total">19</span></div>
       </div>
 
       <!-- 4to Evento Cyber Social Club -->
-      <div class="event-album reveal" style="margin-bottom:48px;">
-        <h3 style="color:#E87B1E;font-size:18px;font-weight:600;margin:0 0 6px;">4to Evento Cyber Social Club</h3>
-        <p style="color:rgba(255,255,255,0.3);font-family:monospace;font-size:12px;margin:0 0 20px;letter-spacing:0.05em;">BUENOS AIRES</p>
+      <div class="event-album reveal">
+        <h3 class="event-album-title">4to Evento Cyber Social Club</h3>
+        <p class="event-album-subtitle">BUENOS AIRES</p>
         <div class="carousel-container">
-          <button class="carousel-btn carousel-prev" aria-label="Previous"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <button class="carousel-btn carousel-prev" aria-label="Anterior"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
           <div class="carousel-track">
             <img src="https://live.staticflickr.com/65535/54974933068_3e24a4a859_b.jpg" alt="4to Evento" class="carousel-img" loading="lazy" />
             <img src="https://live.staticflickr.com/65535/54973863357_3d18fe023d_h.jpg" alt="4to Evento" class="carousel-img" loading="lazy" />
@@ -390,17 +388,17 @@
             <img src="https://live.staticflickr.com/65535/54975053770_3ee623545b_h.jpg" alt="4to Evento" class="carousel-img" loading="lazy" />
             <img src="https://live.staticflickr.com/65535/54975053890_c8f3ec6be0_h.jpg" alt="4to Evento" class="carousel-img" loading="lazy" />
           </div>
-          <button class="carousel-btn carousel-next" aria-label="Next"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+          <button class="carousel-btn carousel-next" aria-label="Siguiente"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
         </div>
         <div class="carousel-counter"><span class="carousel-current">1</span> / <span class="carousel-total">24</span></div>
       </div>
 
       <!-- 3er Evento Cyber Social Club -->
       <div class="event-album reveal">
-        <h3 style="color:#E87B1E;font-size:18px;font-weight:600;margin:0 0 6px;">3er Evento Cyber Social Club</h3>
-        <p style="color:rgba(255,255,255,0.3);font-family:monospace;font-size:12px;margin:0 0 20px;letter-spacing:0.05em;">BUENOS AIRES</p>
+        <h3 class="event-album-title">3er Evento Cyber Social Club</h3>
+        <p class="event-album-subtitle">BUENOS AIRES</p>
         <div class="carousel-container">
-          <button class="carousel-btn carousel-prev" aria-label="Previous"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <button class="carousel-btn carousel-prev" aria-label="Anterior"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
           <div class="carousel-track">
             <img src="https://live.staticflickr.com/65535/54813852899_c00197dd63_b.jpg" alt="3er Evento" class="carousel-img" loading="lazy" />
             <img src="https://live.staticflickr.com/65535/54813879563_41a38a88d4_c.jpg" alt="3er Evento" class="carousel-img" loading="lazy" />
@@ -417,7 +415,7 @@
             <img src="https://live.staticflickr.com/65535/54818853568_e7c995fd9e_c.jpg" alt="3er Evento" class="carousel-img" loading="lazy" />
             <img src="https://live.staticflickr.com/65535/54818923360_da849ed5f8_c.jpg" alt="3er Evento" class="carousel-img" loading="lazy" />
           </div>
-          <button class="carousel-btn carousel-next" aria-label="Next"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+          <button class="carousel-btn carousel-next" aria-label="Siguiente"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
         </div>
         <div class="carousel-counter"><span class="carousel-current">1</span> / <span class="carousel-total">14</span></div>
       </div>
@@ -434,6 +432,8 @@
       <span>Cyber Social Club — Where Cyber Minds Connect —</span>
     </div>
   </div>
+
+  </main>
 
   <!-- Footer -->
   <footer class="footer">
@@ -473,7 +473,7 @@
       </div>
       
       <div class="footer-bottom">
-        <p>&copy; 2025 Cyber Social Club. Todos los derechos reservados.</p>
+        <p>&copy; 2026 Cyber Social Club. Todos los derechos reservados.</p>
         <p>cybersocialclub.com.ar</p>
       </div>
     </div>

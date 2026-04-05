@@ -116,7 +116,7 @@ function LoginContent() {
     });
 
     if (error) {
-      console.error("OAuth error:", error.message);
+      setLoginError("Error al iniciar sesión. Intentá de nuevo.");
       setLoading(null);
     }
   };

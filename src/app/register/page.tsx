@@ -16,7 +16,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CheckCircle, ArrowLeft, ArrowRight, ChevronDown, Search, Lock, Eye, EyeOff } from "lucide-react";
+import { CheckCircle, ArrowLeft, ArrowRight, Lock, Eye, EyeOff } from "lucide-react";
+import { CountrySelect } from "@/components/ui/country-select";
+import { FormError } from "@/components/ui/form-error";
 
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
@@ -53,12 +55,7 @@ const initialForm: FormData = {
   acceptTerms: false,
 };
 
-const countryOptions = [
-  "Argentina", "Bolivia", "Brasil", "Chile", "Colombia",
-  "Costa Rica", "Cuba", "Ecuador", "El Salvador", "Guatemala",
-  "Honduras", "México", "Nicaragua", "Panamá", "Paraguay",
-  "Perú", "República Dominicana", "Uruguay", "Venezuela", "Otros"
-];
+
 
 const steps = ["Datos Personales", "Info Profesional", "Revisar y Enviar"];
 const roleOptions = ["CISO", "Manager", "Analyst", "Partner", "Sponsor"];
@@ -139,7 +136,8 @@ function PasswordInput({
       <button
         type="button"
         onClick={() => setShow(!show)}
-        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/40"
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-csc-orange/50 rounded"
+        aria-label={show ? "Ocultar contraseña" : "Mostrar contraseña"}
       >
         {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
       </button>
@@ -156,26 +154,8 @@ export default function RegisterPage() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState("");
-  const [countryOpen, setCountryOpen] = useState(false);
-  const [countrySearch, setCountrySearch] = useState("");
-  const countryDropdownRef = useRef<HTMLDivElement>(null);
   const siteKey = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || "";
   const captchaRendered = useRef(false);
-
-  // Close country dropdown when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (countryDropdownRef.current && !countryDropdownRef.current.contains(event.target as Node)) {
-        setCountryOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const filteredCountries = countrySearch
-    ? countryOptions.filter(c => c.toLowerCase().includes(countrySearch.toLowerCase()))
-    : countryOptions;
 
   // Explicitly render hCaptcha when step 2 is shown (div must be in DOM)
   useEffect(() => {
@@ -446,7 +426,7 @@ export default function RegisterPage() {
                       className={inputClass}
                     />
                     {errors.firstName && (
-                      <p className="font-mono text-xs text-csc-wine">{errors.firstName}</p>
+                      <FormError message={errors.firstName} />
                     )}
                   </div>
                   <div className="space-y-1.5">
@@ -461,7 +441,7 @@ export default function RegisterPage() {
                       className={inputClass}
                     />
                     {errors.lastName && (
-                      <p className="font-mono text-xs text-csc-wine">{errors.lastName}</p>
+                      <FormError message={errors.lastName} />
                     )}
                   </div>
                 </div>
@@ -478,7 +458,7 @@ export default function RegisterPage() {
                     className={inputClass}
                   />
                   {errors.email && (
-                    <p className="font-mono text-xs text-csc-wine">{errors.email}</p>
+                    <FormError message={errors.email} />
                   )}
                 </div>
                 <div className="space-y-1.5">
@@ -495,80 +475,13 @@ export default function RegisterPage() {
                   />
                 </div>
 
-                <div className="space-y-1.5" ref={countryDropdownRef}>
-                  <Label className={labelClass}>
-                    País <span className="text-csc-wine">*</span>
-                  </Label>
-                  <button
-                    type="button"
-                    onClick={() => setCountryOpen(!countryOpen)}
-                    className={`flex w-full items-center justify-between rounded-md border px-3 py-2 font-mono text-sm transition-all ${
-                      countryOpen
-                        ? "border-csc-orange ring-1 ring-csc-orange/20"
-                        : "border-white/5 hover:border-white/10"
-                    } ${form.country ? "text-white" : "text-white/30"} bg-[#0A0A0A]`}
-                  >
-                    <span>{form.country || "Seleccioná tu país"}</span>
-                    <ChevronDown className={`h-4 w-4 text-white/30 transition-transform ${countryOpen ? "rotate-180" : ""}`} />
-                  </button>
-
-                  <AnimatePresence>
-                    {countryOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -8 }}
-                        transition={{ duration: 0.15 }}
-                        className="z-50 overflow-hidden rounded-md border border-white/10 bg-[#141211] shadow-xl"
-                      >
-                        {/* Search input */}
-                        <div className="border-b border-white/5 p-2">
-                          <div className="relative">
-                            <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-white/30" />
-                            <input
-                              type="text"
-                              placeholder="Buscar país..."
-                              value={countrySearch}
-                              onChange={(e) => setCountrySearch(e.target.value)}
-                              className="w-full rounded bg-white/5 py-1.5 pl-8 pr-2 font-mono text-xs text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-csc-orange/30"
-                              autoFocus
-                            />
-                          </div>
-                        </div>
-                        {/* Country list */}
-                        <div className="max-h-48 overflow-y-auto">
-                          {filteredCountries.length > 0 ? (
-                            filteredCountries.map((c) => (
-                              <button
-                                key={c}
-                                type="button"
-                                onClick={() => {
-                                  set("country", c);
-                                  setCountryOpen(false);
-                                  setCountrySearch("");
-                                }}
-                                className={`flex w-full items-center justify-between px-3 py-2 font-mono text-xs transition-all hover:bg-white/5 ${
-                                  form.country === c ? "text-csc-orange" : "text-white/60"
-                                }`}
-                              >
-                                <span>{c}</span>
-                                {form.country === c && <CheckCircle className="h-3.5 w-3.5" />}
-                              </button>
-                            ))
-                          ) : (
-                            <div className="px-3 py-3 font-mono text-xs text-white/30">
-                              No se encontraron resultados
-                            </div>
-                          )}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  {errors.country && (
-                    <p className="font-mono text-xs text-csc-wine">{errors.country}</p>
-                  )}
-                </div>
+                <CountrySelect
+                  value={form.country}
+                  onChange={(value) => set("country", value)}
+                  label="País"
+                  error={errors.country}
+                  required
+                />
 
                 {/* Password Fields */}
                 <div className="rounded-xl border border-white/5 bg-white/[0.02] p-4 space-y-4">
@@ -588,7 +501,7 @@ export default function RegisterPage() {
                       error={errors.password}
                     />
                     {errors.password && (
-                      <p className="font-mono text-xs text-csc-wine">{errors.password}</p>
+                      <FormError message={errors.password} />
                     )}
                   </div>
 
@@ -604,7 +517,7 @@ export default function RegisterPage() {
                       error={errors.confirmPassword}
                     />
                     {errors.confirmPassword && (
-                      <p className="font-mono text-xs text-csc-wine">{errors.confirmPassword}</p>
+                      <FormError message={errors.confirmPassword} />
                     )}
                   </div>
                 </div>
@@ -642,7 +555,7 @@ export default function RegisterPage() {
                     className={inputClass}
                   />
                   {errors.company && (
-                    <p className="font-mono text-xs text-csc-wine">{errors.company}</p>
+                    <FormError message={errors.company} />
                   )}
                 </div>
                 <div className="space-y-1.5">
@@ -657,7 +570,7 @@ export default function RegisterPage() {
                     className={inputClass}
                   />
                   {errors.jobTitle && (
-                    <p className="font-mono text-xs text-csc-wine">{errors.jobTitle}</p>
+                    <FormError message={errors.jobTitle} />
                   )}
                 </div>
                 <div className="space-y-1.5">
@@ -680,7 +593,7 @@ export default function RegisterPage() {
                     </SelectContent>
                   </Select>
                   {errors.roleType && (
-                    <p className="font-mono text-xs text-csc-wine">{errors.roleType}</p>
+                    <FormError message={errors.roleType} />
                   )}
                 </div>
                 <div className="space-y-1.5">
@@ -778,7 +691,7 @@ export default function RegisterPage() {
                   </label>
                 </div>
                 {errors.acceptTerms && (
-                  <p className="font-mono text-xs text-csc-wine">{errors.acceptTerms}</p>
+                  <FormError message={errors.acceptTerms} />
                 )}
 
                 {siteKey && (

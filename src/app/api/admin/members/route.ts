@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     .select("*")
     .order("created_at", { ascending: false });
 
-  if (status) {
+  if (status && status !== "all") {
     query = query.eq("status", status);
   }
 

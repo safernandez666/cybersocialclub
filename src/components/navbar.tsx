@@ -70,15 +70,18 @@ export function Navbar() {
         {/* Mobile toggle */}
         <button
           onClick={() => setOpen(!open)}
-          className="relative z-10 flex h-9 w-9 items-center justify-center text-white/50 md:hidden"
+          className="relative z-10 flex h-11 w-11 items-center justify-center rounded-xl text-white/50 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-csc-orange/50 md:hidden"
+          aria-label={open ? "Cerrar menú" : "Abrir menú"}
+          aria-expanded={open}
+          aria-controls="navbarMobile"
         >
-          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          {open ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
         </button>
       </div>
 
       {/* Mobile menu */}
       {open && (
-        <div className="absolute inset-x-0 top-0 bg-[#0A0A0A]/98 px-4 pb-10 pt-20 backdrop-blur-2xl md:hidden">
+        <div id="navbarMobile" className="absolute inset-x-0 top-0 bg-[#0A0A0A]/98 px-4 pb-10 pt-20 backdrop-blur-2xl md:hidden">
           <nav className="flex flex-col gap-2">
             {navLinks.map((link) =>
               "external" in link && link.external ? (
@@ -88,7 +91,7 @@ export function Navbar() {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setOpen(false)}
-                  className="rounded-xl px-4 py-3 font-mono text-sm uppercase tracking-widest text-white/50 transition-colors hover:text-white"
+                  className="rounded-xl px-4 py-3 font-mono text-sm uppercase tracking-widest text-white/50 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-csc-orange/50"
                 >
                   {link.label}
                 </a>
@@ -97,7 +100,7 @@ export function Navbar() {
                   key={link.label}
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className="rounded-xl px-4 py-3 font-mono text-sm uppercase tracking-widest text-white/50 transition-colors hover:text-white"
+                  className="rounded-xl px-4 py-3 font-mono text-sm uppercase tracking-widest text-white/50 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-csc-orange/50"
                 >
                   {link.label}
                 </Link>
