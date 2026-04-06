@@ -3,7 +3,9 @@ import { createHmac, randomBytes } from "crypto";
 const SESSION_DURATION_MS = 1 * 60 * 60 * 1000; // 1 hour
 
 function getSigningKey(): string {
-  return process.env.ADMIN_SECRET_KEY || "fallback-key";
+  const key = process.env.ADMIN_SECRET_KEY;
+  if (!key) throw new Error("ADMIN_SECRET_KEY environment variable is required");
+  return key;
 }
 
 function sign(payload: string): string {
@@ -38,17 +40,12 @@ export function verifySessionToken(token: string): boolean {
 
 /**
  * Validate admin auth from request headers.
- * Accepts either a session token (x-admin-token) or legacy admin key (x-admin-key).
- * Returns true if authorized.
+ * Requires a valid MFA-authenticated session token (x-admin-token).
  */
 export function validateAdminAuth(headers: Headers): boolean {
   // Prefer session token (MFA-authenticated)
   const sessionToken = headers.get("x-admin-token");
   if (sessionToken && verifySessionToken(sessionToken)) return true;
-
-  // Fall back to admin key (backward compat — will be removed later)
-  const adminKey = headers.get("x-admin-key");
-  if (adminKey && adminKey === process.env.ADMIN_SECRET_KEY) return true;
 
   return false;
 }

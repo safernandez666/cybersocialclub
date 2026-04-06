@@ -11,9 +11,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Clave incorrecta" }, { status: 401 });
   }
 
-  // Check if TOTP is configured
+  // TOTP is required in production
   if (!process.env.ADMIN_TOTP_SECRET) {
-    // MFA not configured — issue session with just the key
+    if (process.env.NODE_ENV === "production" || process.env.VERCEL) {
+      return NextResponse.json(
+        { error: "MFA no configurado. ADMIN_TOTP_SECRET es obligatorio en producción." },
+        { status: 500 }
+      );
+    }
+    // Dev only: allow session without MFA
     const token = createSessionToken();
     return NextResponse.json({ token, mfa: false });
   }

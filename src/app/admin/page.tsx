@@ -67,8 +67,7 @@ export default function AdminPage() {
   const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; member: Member | null; action: "approve" | "reject" | null }>({ open: false, member: null, action: null });
 
   const authHeaders = (): Record<string, string> => {
-    if (sessionToken) return { "x-admin-token": sessionToken };
-    return { "x-admin-key": adminKey };
+    return { "x-admin-token": sessionToken };
   };
 
   const fetchStats = async () => {

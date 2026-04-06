@@ -58,5 +58,6 @@ export function getSecurityHeaders(): Record<string, string> {
     "X-XSS-Protection": "1; mode=block",
     "Cache-Control": "no-store, no-cache, must-revalidate",
     "Pragma": "no-cache",
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
   };
 }

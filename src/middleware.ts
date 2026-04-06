@@ -15,6 +15,8 @@ const RATE_LIMITS: { pattern: RegExp; maxRequests: number; windowMs: number }[] 
   { pattern: /^\/api\/auth\/claim\/verify/, maxRequests: 5, windowMs: 15 * 60 * 1000 },
   { pattern: /^\/api\/auth\/claim\/complete/, maxRequests: 5, windowMs: 15 * 60 * 1000 },
   { pattern: /^\/api\/auth\/claim/, maxRequests: 3, windowMs: 15 * 60 * 1000 },
+  // Complete profile — 10/15min
+  { pattern: /^\/api\/members\/complete-profile/, maxRequests: 10, windowMs: 15 * 60 * 1000 },
   // Member API
   { pattern: /^\/api\/me/, maxRequests: 30, windowMs: 60 * 1000 },
 ];
@@ -125,6 +127,8 @@ export const config = {
     "/api/me",
     "/api/auth/:path*",
     "/auth/callback",
+    "/api/credential/:path*",
+    "/api/members/complete-profile",
     "/complete-profile",
     "/pending-approval",
     "/my-profile",

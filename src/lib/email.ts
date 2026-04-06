@@ -160,7 +160,8 @@ export async function sendWelcomeEmail(to: string, fullName: string, firstNameFi
 }
 
 function generateApproveToken(memberId: string): string {
-  const key = process.env.ADMIN_SECRET_KEY || "fallback-key";
+  const key = process.env.ADMIN_SECRET_KEY;
+  if (!key) throw new Error("ADMIN_SECRET_KEY environment variable is required");
   return createHmac("sha256", key).update(`quick-approve:${memberId}`).digest("hex");
 }
 

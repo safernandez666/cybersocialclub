@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { sendAdminNotification } from "@/lib/email";
 
 const ALLOWED_COUNTRIES = [
@@ -33,17 +34,29 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "ID requerido" }, { status: 400 });
   }
 
+  // Auth check: require Supabase session and verify the requester owns this member record
+  const serverClient = await createSupabaseServerClient();
+  const { data: { user } } = await serverClient.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  }
+
   const supabase = getSupabaseAdmin();
 
   // Verify member exists and is pending
   const { data: member, error: fetchError } = await supabase
     .from("members")
-    .select("id, status")
+    .select("id, status, auth_provider_id")
     .eq("id", id)
     .single();
 
   if (fetchError || !member) {
     return NextResponse.json({ error: "Miembro no encontrado" }, { status: 404 });
+  }
+
+  // Verify the authenticated user owns this member record
+  if (member.auth_provider_id !== user.id) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 403 });
   }
 
   if (member.status !== "pending") {

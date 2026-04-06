@@ -6,7 +6,9 @@ import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { sendApprovalEmail } from "@/lib/email";
 
 function getSigningKey(): string {
-  return process.env.ADMIN_SECRET_KEY || "fallback-key";
+  const key = process.env.ADMIN_SECRET_KEY;
+  if (!key) throw new Error("ADMIN_SECRET_KEY environment variable is required");
+  return key;
 }
 
 /** Verify HMAC token: sign(memberId) must match */
