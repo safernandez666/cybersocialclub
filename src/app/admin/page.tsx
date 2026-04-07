@@ -75,15 +75,19 @@ export default function AdminPage() {
     const headers = token ? { "x-admin-token": token } : authHeaders();
     try {
       const statuses = ["pending", "approved", "rejected", "pending_verification"];
+      const [statusResults, allRes] = await Promise.all([
+        Promise.all(statuses.map(async (status) => {
+          const res = await fetch(`/api/admin/members?status=${status}&count=true`, { headers });
+          if (res.ok) {
+            const data = await res.json();
+            return { status, count: Array.isArray(data) ? data.length : 0 };
+          }
+          return { status, count: 0 };
+        })),
+        fetch(`/api/admin/members?status=all`, { headers })
+      ]);
       const counts: Record<string, number> = {};
-      for (const status of statuses) {
-        const res = await fetch(`/api/admin/members?status=${status}&count=true`, { headers });
-        if (res.ok) {
-          const data = await res.json();
-          counts[status] = Array.isArray(data) ? data.length : 0;
-        }
-      }
-      const allRes = await fetch(`/api/admin/members?status=all`, { headers });
+      statusResults.forEach(({ status, count }) => { counts[status] = count; });
       let allData: Member[] = [];
       if (allRes.ok) {
         allData = await allRes.json();
