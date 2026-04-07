@@ -144,9 +144,11 @@ export default function AdminPage() {
         return;
       }
       if (!res.ok) { setError(data.error || "Error de autenticación"); setLoading(false); return; }
+      setStatsLoading(true);
       setSessionToken(data.token);
       setAuthenticated(true);
-    } catch { setError("Error de conexión"); } finally { setLoading(false); }
+      // loading stays true — useEffect's fetchMembers will set it to false
+    } catch { setError("Error de conexión"); setLoading(false); }
   };
 
   const handleAction = async (memberId: string, action: "approve" | "reject") => {
