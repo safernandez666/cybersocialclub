@@ -128,7 +128,8 @@ export default function AdminPage() {
     } catch { setError("Error de conexión"); } finally { setLoading(false); }
   };
 
-  useEffect(() => { if (authenticated && sessionToken) { fetchMembers(); fetchStats(); } }, [filter, authenticated]);
+  useEffect(() => { if (authenticated && sessionToken) { fetchMembers(); } }, [filter, authenticated, sessionToken]);
+  useEffect(() => { if (authenticated && sessionToken) { fetchStats(); } }, [authenticated, sessionToken]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -145,8 +146,6 @@ export default function AdminPage() {
       if (!res.ok) { setError(data.error || "Error de autenticación"); setLoading(false); return; }
       setSessionToken(data.token);
       setAuthenticated(true);
-      fetchMembers(data.token);
-      fetchStats(data.token);
     } catch { setError("Error de conexión"); } finally { setLoading(false); }
   };
 
