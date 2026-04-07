@@ -32,6 +32,13 @@ function VerifyEmailContent() {
       description:
         "Este link de verificación ya fue usado o no es válido. Si ya verificaste tu email, esperá la aprobación del equipo.",
     },
+    expired: {
+      icon: AlertCircle,
+      iconColor: "text-orange-400",
+      title: "Link expirado",
+      description:
+        "Este link de verificación expiró. Por favor, registrate nuevamente para recibir un nuevo link.",
+    },
     error: {
       icon: XCircle,
       iconColor: "text-red-400",

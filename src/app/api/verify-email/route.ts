@@ -9,22 +9,34 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(new URL("/verify-email?status=error", req.url));
   }
 
-  // Find member with this verification token
+  // Find member with this verification token (must not be expired)
   const { data: member, error: fetchError } = await getSupabaseAdmin()
     .from("members")
     .select("*")
     .eq("verification_token", token)
     .eq("status", "pending_verification")
+    .gt("verification_token_expires_at", new Date().toISOString())
     .single();
 
   if (fetchError || !member) {
+    // Check if token exists but is expired
+    const { data: expiredMember } = await getSupabaseAdmin()
+      .from("members")
+      .select("id")
+      .eq("verification_token", token)
+      .eq("status", "pending_verification")
+      .single();
+
+    if (expiredMember) {
+      return NextResponse.redirect(new URL("/verify-email?status=expired", req.url));
+    }
     return NextResponse.redirect(new URL("/verify-email?status=invalid", req.url));
   }
 
   // Update status to pending (verified, awaiting admin approval)
   const { error: updateError } = await getSupabaseAdmin()
     .from("members")
-    .update({ status: "pending", verification_token: null })
+    .update({ status: "pending", verification_token: null, verification_token_expires_at: null })
     .eq("id", member.id);
 
   if (updateError) {

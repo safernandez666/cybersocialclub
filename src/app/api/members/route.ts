@@ -175,6 +175,7 @@ export async function POST(req: NextRequest) {
       country,
       status: "pending_verification",
       verification_token: verificationToken,
+      verification_token_expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
       ...(authUserId && { auth_provider_id: authUserId, auth_provider: "email" }),
     });
 

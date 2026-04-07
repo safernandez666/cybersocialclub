@@ -70,19 +70,20 @@ export default function AdminPage() {
     return { "x-admin-token": sessionToken };
   };
 
-  const fetchStats = async () => {
+  const fetchStats = async (token?: string) => {
     setStatsLoading(true);
+    const headers = token ? { "x-admin-token": token } : authHeaders();
     try {
       const statuses = ["pending", "approved", "rejected", "pending_verification"];
       const counts: Record<string, number> = {};
       for (const status of statuses) {
-        const res = await fetch(`/api/admin/members?status=${status}&count=true`, { headers: authHeaders() });
+        const res = await fetch(`/api/admin/members?status=${status}&count=true`, { headers });
         if (res.ok) {
           const data = await res.json();
           counts[status] = Array.isArray(data) ? data.length : 0;
         }
       }
-      const allRes = await fetch(`/api/admin/members?status=all`, { headers: authHeaders() });
+      const allRes = await fetch(`/api/admin/members?status=all`, { headers });
       let allData: Member[] = [];
       if (allRes.ok) {
         allData = await allRes.json();
@@ -100,11 +101,12 @@ export default function AdminPage() {
     } catch { } finally { setStatsLoading(false); }
   };
 
-  const fetchMembers = async () => {
+  const fetchMembers = async (token?: string) => {
     setError(null);
     setLoading(true);
+    const headers = token ? { "x-admin-token": token } : authHeaders();
     try {
-      const res = await fetch(`/api/admin/members?status=${filter}`, { headers: authHeaders() });
+      const res = await fetch(`/api/admin/members?status=${filter}`, { headers });
       if (res.status === 401) {
         setAuthenticated(false);
         setSessionToken("");
@@ -139,12 +141,8 @@ export default function AdminPage() {
       if (!res.ok) { setError(data.error || "Error de autenticación"); setLoading(false); return; }
       setSessionToken(data.token);
       setAuthenticated(true);
-      const membersRes = await fetch(`/api/admin/members?status=${filter}`, { headers: { "x-admin-token": data.token } });
-      if (membersRes.ok) {
-        const membersData = await membersRes.json();
-        setMembers(Array.isArray(membersData) ? membersData : []);
-      }
-      fetchStats();
+      fetchMembers(data.token);
+      fetchStats(data.token);
     } catch { setError("Error de conexión"); } finally { setLoading(false); }
   };
 
