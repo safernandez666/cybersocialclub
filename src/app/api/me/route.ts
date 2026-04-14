@@ -32,7 +32,7 @@ export async function GET() {
   const { data: member, error } = await supabaseAdmin
     .from("members")
     .select(
-      "id, first_name, last_name, full_name, email, phone, company, job_title, role_type, linkedin_url, years_experience, country, status, member_number, photo_url, auth_provider, created_at"
+      "id, first_name, last_name, full_name, email, phone, company, job_title, role_type, linkedin_url, years_experience, country, status, member_number, photo_url, auth_provider, created_at, credential_token"
     )
     .eq("auth_provider_id", user.id)
     .single();

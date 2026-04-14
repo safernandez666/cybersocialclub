@@ -15,7 +15,11 @@ import {
   Phone,
   Linkedin,
   Download,
+  FileText,
+  Share2,
+  Wallet,
   ShieldCheck,
+  CheckCircle2,
   Loader2,
   Pencil,
   X,
@@ -50,6 +54,7 @@ interface MemberData {
   auth_provider: string;
   created_at: string;
   qr?: string;
+  credential_token?: string;
 }
 
 
@@ -67,6 +72,9 @@ export default function MyProfilePage() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [shareLoading, setShareLoading] = useState(false);
+  const [shareDone, setShareDone] = useState(false);
+  const [walletLoading, setWalletLoading] = useState(false);
   
   useEffect(() => {
     fetchMemberData();
@@ -106,6 +114,52 @@ export default function MyProfilePage() {
     await supabase.auth.signOut();
     router.push("/");
     router.refresh();
+  };
+
+  const credentialShareUrl = member?.credential_token
+    ? `${typeof window !== "undefined" ? window.location.origin : ""}/credential?token=${member.credential_token}`
+    : "";
+
+  const handleShare = async () => {
+    if (!credentialShareUrl) return;
+    setShareLoading(true);
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: "Mi credencial CSC",
+          text: `Credencial digital de ${member?.full_name}`,
+          url: credentialShareUrl,
+        });
+      } else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(credentialShareUrl);
+        setShareDone(true);
+        setTimeout(() => setShareDone(false), 2000);
+      }
+    } catch {
+      // ignore
+    } finally {
+      setShareLoading(false);
+    }
+  };
+
+  const handleGoogleWallet = async () => {
+    if (!member?.credential_token) return;
+    setWalletLoading(true);
+    try {
+      const res = await fetch(`/api/credential/google-wallet?token=${member.credential_token}`);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "No disponible");
+      }
+      const json = await res.json();
+      if (json.url) {
+        window.location.href = json.url;
+      }
+    } catch {
+      // ignore
+    } finally {
+      setWalletLoading(false);
+    }
   };
 
   const handleEdit = () => {
@@ -595,74 +649,120 @@ export default function MyProfilePage() {
           </motion.div>
 
           {/* Credential Card */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <div className="h-full rounded-3xl border border-white/5 bg-[#141211] p-6">
-              <div className="mb-6 text-center">
-                <h3 className="font-mono text-sm font-bold tracking-widest text-csc-orange mb-1">
-                  CYBER SOCIAL CLUB
-                </h3>
-                <p className="font-mono text-[10px] tracking-[0.3em] text-white/40">
-                  CREDENCIAL DIGITAL
-                </p>
-              </div>
+            <div className="rounded-[28px] p-[1px] bg-gradient-to-br from-csc-orange via-csc-amber to-csc-orange/60">
+              <div className="h-full rounded-[27px] border border-white/5 bg-[#141211]/90 backdrop-blur-xl p-6">
+                <div className="mb-6 text-center">
+                  <h3 className="font-mono text-sm font-bold tracking-widest text-csc-orange mb-1">
+                    CYBER SOCIAL CLUB
+                  </h3>
+                  <p className="font-mono text-[10px] tracking-[0.3em] text-white/40">
+                    CREDENCIAL DIGITAL
+                  </p>
+                </div>
 
-              {/* QR Code */}
-              <div className="flex flex-col items-center mb-6">
-                {member.qr ? (
-                  <>
-                    <div className="rounded-2xl bg-[#0A0A0A] p-4 border border-white/5">
-                      <img 
-                        src={member.qr} 
-                        alt="QR de verificación" 
-                        className="h-40 w-40" 
-                      />
+                {/* QR Code */}
+                <div className="flex flex-col items-center mb-6">
+                  {member.qr ? (
+                    <>
+                      <div className="rounded-2xl bg-[#0A0A0A] p-4 border border-white/5">
+                        <img
+                          src={member.qr}
+                          alt="QR de verificación"
+                          className="h-40 w-40"
+                        />
+                      </div>
+                      <p className="mt-3 font-mono text-[10px] uppercase tracking-widest text-white/30">
+                        Escaneá para verificar
+                      </p>
+                    </>
+                  ) : (
+                    <div className="h-40 w-40 rounded-2xl bg-white/[0.02] border border-white/5 flex items-center justify-center">
+                      <p className="font-mono text-xs text-white/20 text-center px-4">
+                        QR no disponible
+                      </p>
                     </div>
-                    <p className="mt-3 font-mono text-[10px] uppercase tracking-widest text-white/30">
-                      Escaneá para verificar
-                    </p>
-                  </>
-                ) : (
-                  <div className="h-40 w-40 rounded-2xl bg-white/[0.02] border border-white/5 flex items-center justify-center">
-                    <p className="font-mono text-xs text-white/20 text-center px-4">
-                      QR no disponible
-                    </p>
+                  )}
+                </div>
+
+                {/* Member Info Summary */}
+                <div className="border-t border-white/5 pt-4 space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="font-mono text-[10px] text-white/40 uppercase tracking-wider">
+                      Miembro
+                    </span>
+                    <span className="font-mono text-lg font-bold text-csc-orange">
+                      #{member.member_number}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="font-mono text-[10px] text-white/40 uppercase tracking-wider">
+                      Nombre
+                    </span>
+                    <span className="text-sm text-white/80 truncate max-w-[150px]">
+                      {member.full_name}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+                  <a
+                    href={`/api/credential/download?memberId=${member.id}`}
+                    download={`CSC-Credencial-${member.member_number}.png`}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-csc-orange px-4 py-2 font-mono text-xs uppercase tracking-widest text-white transition-all hover:bg-csc-amber hover:shadow-xl hover:shadow-csc-orange/20"
+                  >
+                    <Download className="h-4 w-4" />
+                    PNG
+                  </a>
+
+                  {member.credential_token && (
+                    <a
+                      href={`/api/credential/pdf?token=${member.credential_token}`}
+                      download={`CSC-Credencial-${member.member_number}.pdf`}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-4 py-2 font-mono text-xs uppercase tracking-widest text-white/80 transition-all hover:border-csc-orange/40 hover:bg-white/10 hover:text-white"
+                    >
+                      <FileText className="h-4 w-4" />
+                      PDF
+                    </a>
+                  )}
+
+                  {member.credential_token && (
+                    <button
+                      onClick={handleShare}
+                      disabled={shareLoading}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-4 py-2 font-mono text-xs uppercase tracking-widest text-white/80 transition-all hover:border-csc-orange/40 hover:bg-white/10 hover:text-white disabled:opacity-60"
+                    >
+                      {shareDone ? <CheckCircle2 className="h-4 w-4 text-green-400" /> : <Share2 className="h-4 w-4" />}
+                      {shareDone ? "Copiado" : "Compartir"}
+                    </button>
+                  )}
+                </div>
+
+                {/* Google Wallet */}
+                {member.credential_token && (
+                  <div className="mt-3 flex justify-center">
+                    <button
+                      onClick={handleGoogleWallet}
+                      disabled={walletLoading}
+                      className="group relative inline-flex items-center gap-2 rounded-lg bg-black px-3 py-2 font-sans text-xs font-medium text-white transition-all hover:bg-black/80 disabled:opacity-60 sm:hidden"
+                      aria-label="Agregar a Google Wallet"
+                    >
+                      <Wallet className="h-4 w-4" />
+                      Add to Google Wallet
+                    </button>
+
+                    <span className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] text-white/40">
+                      <Wallet className="h-3.5 w-3.5" />
+                      Google Wallet disponible en Android
+                    </span>
                   </div>
                 )}
               </div>
-
-              {/* Member Info Summary */}
-              <div className="border-t border-white/5 pt-4 space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="font-mono text-[10px] text-white/40 uppercase tracking-wider">
-                    Miembro
-                  </span>
-                  <span className="font-mono text-lg font-bold text-csc-orange">
-                    #{member.member_number}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="font-mono text-[10px] text-white/40 uppercase tracking-wider">
-                    Nombre
-                  </span>
-                  <span className="text-sm text-white/80 truncate max-w-[150px]">
-                    {member.full_name}
-                  </span>
-                </div>
-              </div>
-
-              {/* Download Button */}
-              <a
-                href={`/api/credential/download?memberId=${member.id}`}
-                download={`CSC-Credencial-${member.member_number}.png`}
-                className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-csc-orange px-5 py-3 font-mono text-xs uppercase tracking-widest text-white transition-all hover:bg-csc-amber"
-              >
-                <Download className="h-4 w-4" />
-                Descargar
-              </a>
             </div>
           </motion.div>
         </div>
