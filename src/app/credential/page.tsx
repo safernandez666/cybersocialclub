@@ -1,5 +1,5 @@
 "use client";
-
+// Credential page v2 — premium design with PDF, Share, Google Wallet
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
