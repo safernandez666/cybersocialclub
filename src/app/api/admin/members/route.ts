@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
 
   let query = getSupabaseAdmin()
     .from("members")
-    .select("*")
+    .select("id, member_number, full_name, email, phone, company, job_title, role_type, status, created_at, photo_url, linkedin_url")
     .order("created_at", { ascending: false });
 
   if (status && status !== "all") {

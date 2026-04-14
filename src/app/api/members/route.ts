@@ -70,9 +70,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "País inválido" }, { status: 400 });
   }
 
-  // Verify hCaptcha if configured (soft mode: log but don't block if no token)
+  // Verify hCaptcha (required when configured)
   const hcaptchaSecret = process.env.HCAPTCHA_SECRET_KEY;
-  if (hcaptchaSecret && captcha_token) {
+  if (hcaptchaSecret) {
+    if (!captcha_token) {
+      return NextResponse.json({ error: "Captcha es obligatorio" }, { status: 400 });
+    }
+
     const verifyParams: Record<string, string> = { secret: hcaptchaSecret, response: captcha_token };
     const hcaptchaSiteKey = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY;
     if (hcaptchaSiteKey) verifyParams.sitekey = hcaptchaSiteKey;
@@ -83,12 +87,10 @@ export async function POST(req: NextRequest) {
       body: new URLSearchParams(verifyParams),
     });
     const verifyData = await verifyRes.json();
-    console.log("hCaptcha verify response:", JSON.stringify(verifyData));
     if (!verifyData.success) {
-      console.warn("hCaptcha verification failed but allowing registration:", JSON.stringify(verifyData));
+      console.error("[security] hCaptcha verification failed:", JSON.stringify(verifyData));
+      return NextResponse.json({ error: "Verificación de captcha fallida" }, { status: 400 });
     }
-  } else if (hcaptchaSecret && !captcha_token) {
-    console.warn("hCaptcha configured but no token received from client");
   }
 
   // Input length validation

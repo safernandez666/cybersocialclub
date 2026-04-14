@@ -1,4 +1,4 @@
-import { createHmac, randomBytes } from "crypto";
+import { createHmac, randomBytes, timingSafeEqual } from "crypto";
 
 const SESSION_DURATION_MS = 1 * 60 * 60 * 1000; // 1 hour
 
@@ -27,9 +27,11 @@ export function verifySessionToken(token: string): boolean {
   const [nonce, expStr, sig] = parts;
   const payload = `${nonce}.${expStr}`;
 
-  // Verify signature
+  // Verify signature (timing-safe comparison)
   const expected = sign(payload);
-  if (sig !== expected) return false;
+  const sigBuf = Buffer.from(sig, "hex");
+  const expectedBuf = Buffer.from(expected, "hex");
+  if (sigBuf.length !== expectedBuf.length || !timingSafeEqual(sigBuf, expectedBuf)) return false;
 
   // Check expiration
   const exp = parseInt(expStr, 10);
