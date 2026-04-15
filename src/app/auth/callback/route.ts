@@ -76,28 +76,21 @@ export async function GET(req: NextRequest) {
     return res;
   }
 
-  // Lookup member by email (normalize to lowercase for case-insensitive match)
+  // Lookup member by email (case-insensitive to handle casing mismatches)
   const normalizedEmail = email.toLowerCase().trim();
   const supabaseAdmin = getSupabaseAdmin();
   const { data: member } = await supabaseAdmin
     .from("members")
     .select("*")
-    .eq("email", normalizedEmail)
+    .ilike("email", normalizedEmail)
     .single();
 
   let redirectPath: string;
 
   if (!member) {
-    // Login mode — don't create new members, redirect to login with error
-    if (mode === "login") {
-      await supabase.auth.signOut();
-      await logAuthEvent("login_no_account", null, provider, req, { email: normalizedEmail });
-      const res = NextResponse.redirect(`${safeOrigin}/login?error=no_account`);
-      Object.entries(securityHeaders).forEach(([k, v]) => res.headers.set(k, v));
-      return res;
-    }
-
-    // Register mode — create new member with Google data, status: pending
+    // Social login unifies login/register: if Google auth succeeded but no member
+    // exists, create one regardless of mode. This avoids forcing users to go
+    // through /register when they already authenticated with Google on /login.
     const fullName = user.user_metadata.full_name || user.user_metadata.name || email;
     const { error: insertError } = await supabaseAdmin.from("members").insert({
       full_name: fullName,
@@ -183,8 +176,8 @@ async function logAuthEvent(
       member_id: memberId,
       provider,
       ip_address:
-        req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
         req.headers.get("x-real-ip") ||
+        req.headers.get("x-forwarded-for")?.split(",")?.pop()?.trim() ||
         "unknown",
       user_agent: req.headers.get("user-agent") || "unknown",
       metadata: extra ? JSON.stringify(extra) : null,
