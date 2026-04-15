@@ -13,6 +13,8 @@ import {
   Instagram,
   ArrowRight,
   ArrowUpRight,
+  Users,
+  Calendar,
 } from "lucide-react";
 import { CyberBackground } from "@/components/cyber-background";
 
@@ -175,41 +177,40 @@ export default function Home() {
         </motion.div>
       </motion.section>
 
-      {/* ---- ABOUT ---- */}
+      {/* ---- ABOUT / HISTORIA ---- */}
       <section id="about" className="px-4 py-32 sm:px-8">
         <div className="mx-auto max-w-5xl">
-          <SectionLabel number="01" text="Nosotros" />
+          <SectionLabel number="01" text="Nuestra Historia" />
 
           <div className="grid gap-16 lg:grid-cols-2 lg:gap-24">
             <Reveal>
               <h2 className="text-3xl font-light leading-snug tracking-tight text-white sm:text-4xl lg:text-5xl">
-                Una comunidad que conecta a los{" "}
-                <span className="text-csc-orange">profesionales de ciberseguridad</span>{" "}
-                de toda Latinoamérica
+                De amigos a{" "}
+                <span className="text-csc-orange italic">comunidad</span>
               </h2>
+              <p className="mt-6 font-mono text-sm leading-relaxed text-white/40">
+                Somos un grupo de colegas que nos hicimos amigos. Nos juntábamos a comer, beber y charlar de ciberseguridad y de la vida. Hasta que se nos ocurrió la idea de compartir y sumar gente del gremio.
+              </p>
             </Reveal>
 
             <Reveal delay={0.2}>
-              <p className="font-mono text-sm leading-relaxed text-white/40 lg:pt-4">
-                Cyber Social Club nació para crear un espacio donde CISOs, analistas,
-                managers y partners puedan compartir experiencias, aprender y crecer juntos.
-                Con eventos exclusivos, una credencial digital verificable y una red de
-                contactos que se expande cada día.
-              </p>
-              <div className="mt-10 grid grid-cols-2 gap-6 sm:gap-8">
+              <div className="grid grid-cols-2 gap-4 sm:gap-5">
                 {[
-                  { value: memberCount, suffix: "+", label: "Miembros registrados" },
-                  { value: 950, suffix: "+", label: "Seguidores en Instagram" },
-                  { value: 800, suffix: "+", label: "en LinkedIn" },
-                  { value: 40, suffix: "+", label: "Eventos generados" },
-                  { value: 300, suffix: "+", label: "Personas de asistencia" },
+                  { icon: Shield, value: memberCount, suffix: "+", label: "miembros registrados" },
+                  { icon: Instagram, value: 950, suffix: "+", label: "seguidores en Instagram" },
+                  { icon: Linkedin, value: 800, suffix: "+", label: "en LinkedIn" },
+                  { icon: Calendar, value: 40, suffix: "+", label: "eventos generados" },
+                  { icon: Users, value: 300, suffix: "+", label: "personas de asistencia" },
                 ].map((stat, i) => (
-                  <Reveal key={stat.label} delay={0.1 * i}>
-                    <div className="glass-card rounded-2xl p-6 transition-all duration-300 hover:border-csc-orange/30 card-lift">
-                      <div className="text-[1.75rem] sm:text-[2rem] font-semibold tracking-tight text-white">
+                  <Reveal key={stat.label} delay={0.05 * i}>
+                    <div className="glass-card rounded-2xl p-5 transition-all duration-300 hover:border-csc-orange/35 hover:shadow-[0_20px_50px_-20px_rgba(232,123,30,0.18)] hover:-translate-y-1">
+                      <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-lg bg-csc-orange/10 text-csc-orange">
+                        <stat.icon className="h-4 w-4" />
+                      </div>
+                      <div className="text-2xl font-semibold tracking-tight text-white sm:text-[1.75rem]">
                         <Counter target={stat.value} suffix={stat.suffix} />
                       </div>
-                      <div className="mt-1 font-mono text-xs text-white/25">
+                      <div className="mt-1 font-mono text-[11px] leading-snug text-white/30">
                         {stat.label}
                       </div>
                     </div>
