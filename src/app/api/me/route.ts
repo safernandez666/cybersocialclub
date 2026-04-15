@@ -102,7 +102,7 @@ export async function PATCH(req: Request) {
   ];
 
   // Validate and sanitize first_name / last_name (REC-4, REC-5)
-  if (updates.first_name !== undefined) {
+  if (updates.first_name != null) {
     const fn = sanitizeName(updates.first_name as string);
     if (!fn || !NAME_REGEX.test(fn)) {
       return NextResponse.json(
@@ -112,7 +112,7 @@ export async function PATCH(req: Request) {
     }
     updates.first_name = fn;
   }
-  if (updates.last_name !== undefined) {
+  if (updates.last_name != null) {
     const ln = sanitizeName(updates.last_name as string);
     if (!ln || !NAME_REGEX.test(ln)) {
       return NextResponse.json(
