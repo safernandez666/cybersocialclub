@@ -62,6 +62,12 @@ setInterval(() => {
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  // Serve static landing page at "/"
+  if (pathname === "/") {
+    return NextResponse.rewrite(new URL("/landing/index.html", req.url));
+  }
+
   const ip = getClientIp(req);
 
   // Check POST /api/members specifically
@@ -122,6 +128,7 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
+    "/",
     "/api/admin/:path*",
     "/api/credential/:path*",
     "/api/verify-email",
