@@ -69,6 +69,14 @@ export function CountrySelect({
   }, [isOpen]);
 
   const inputId = id || "country-select";
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => searchInputRef.current?.focus(), 50);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
 
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
@@ -104,14 +112,15 @@ export function CountrySelect({
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -8, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -8, scale: 0.98 }}
-            transition={{ duration: 0.15, ease: "easeOut" }}
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.12, ease: "easeOut" }}
             id="country-listbox"
             role="listbox"
             aria-label="Países"
-            className="glass-card absolute z-50 mt-1 w-full overflow-hidden rounded-xl shadow-2xl"
+            className="absolute z-50 mt-1 w-full overflow-hidden rounded-xl border border-white/8 bg-[#141211]/95 shadow-2xl"
+            style={{ willChange: "transform, opacity" }}
           >
             <div className="border-b border-white/5 p-3">
               <div className="relative">
@@ -122,7 +131,7 @@ export function CountrySelect({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full rounded-lg border border-white/8 bg-white/5 py-2 pl-9 pr-3 font-mono text-xs text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-csc-orange/30"
-                  autoFocus
+                  ref={searchInputRef}
                   aria-label="Buscar país"
                 />
               </div>
