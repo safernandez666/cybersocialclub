@@ -95,7 +95,7 @@ function SectionLabel({ text, number }: { text: string; number: string }) {
         {number}
       </span>
       <div className="h-px flex-1 bg-white/5" />
-      <span className="font-mono text-xs uppercase tracking-widest text-white/30">
+      <span className="font-mono text-xs uppercase tracking-[0.15em] text-white/30">
         {text}
       </span>
     </div>
@@ -420,12 +420,12 @@ export default function Home() {
             priority
           />
 
-          <h1 className="mb-6 max-w-3xl text-4xl font-light leading-[1.1] tracking-tight text-white sm:text-5xl lg:text-7xl">
+          <h1 className="mb-6 max-w-3xl text-4xl font-semibold leading-[1.05] tracking-[-0.03em] text-white sm:text-5xl lg:text-7xl">
             Where <span className="text-csc-orange">Cyber</span> Minds{" "}
-            <span className="italic">Connect</span>
+            <span className="italic font-light text-white/70">Connect</span>
           </h1>
 
-          <p className="mb-12 max-w-md font-mono text-sm leading-relaxed text-white/35">
+          <p className="mb-12 max-w-md font-mono text-[15px] leading-[1.7] text-white/30">
             La comunidad que más crece en Latinoamérica
           </p>
 
@@ -466,11 +466,11 @@ export default function Home() {
 
           <div className="grid gap-16 lg:grid-cols-2 lg:gap-24">
             <Reveal>
-              <h2 className="text-3xl font-light leading-snug tracking-tight text-white sm:text-4xl lg:text-5xl">
+              <h2 className="text-[2rem] font-light leading-[1.3] tracking-[-0.02em] text-white sm:text-[2.5rem] lg:text-[3rem]">
                 De amigos a{" "}
                 <span className="text-csc-orange italic">comunidad</span>
               </h2>
-              <p className="mt-6 font-mono text-sm leading-relaxed text-white/40">
+              <p className="mt-6 font-mono text-sm leading-[1.7] text-white/40">
                 Somos un grupo de colegas que nos hicimos amigos. Nos juntábamos a comer, beber y charlar de ciberseguridad y de la vida. Hasta que se nos ocurrió la idea de compartir y sumar gente del gremio.
               </p>
             </Reveal>
@@ -492,7 +492,7 @@ export default function Home() {
                       <div className="text-2xl font-semibold tracking-tight text-white sm:text-[1.75rem]">
                         <Counter target={stat.value} suffix={stat.suffix} />
                       </div>
-                      <div className="mt-1 font-mono text-[11px] leading-snug text-white/30">
+                      <div className="mt-1 font-mono text-[11px] leading-[1.4] text-white/25">
                         {stat.label}
                       </div>
                     </div>
@@ -510,7 +510,7 @@ export default function Home() {
           <SectionLabel number="02" text="Beneficios" />
 
           <Reveal>
-            <h2 className="mb-20 max-w-2xl text-3xl font-light leading-snug tracking-tight text-white sm:text-4xl">
+            <h2 className="mb-20 max-w-2xl text-[2rem] font-light leading-[1.3] text-white sm:text-[2.5rem]">
               Todo lo que necesitás en{" "}
               <span className="italic text-csc-orange">un solo lugar</span>
             </h2>
@@ -595,7 +595,7 @@ export default function Home() {
                 PRÓXIMAMENTE
               </div>
 
-              <h2 className="mb-6 text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-5xl">
+              <h2 className="mb-6 text-[2.75rem] font-semibold tracking-[-0.02em] text-white sm:text-4xl lg:text-5xl">
                 Cumpleaños del Club
               </h2>
 
@@ -608,7 +608,7 @@ export default function Home() {
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-2 sm:gap-3">
                     <div className="flex min-w-[3.5rem] flex-col items-center rounded-xl border border-white/[0.06] bg-black/25 px-3 py-2 sm:min-w-[4rem] sm:px-4 sm:py-3">
-                      <span className="text-lg font-semibold text-white sm:text-2xl">{item.value}</span>
+                      <span className="text-2xl font-semibold text-white sm:text-[2rem]">{item.value}</span>
                       <span className="text-[10px] uppercase tracking-widest text-white/30">{item.label}</span>
                     </div>
                     {i < 3 && <span className="text-white/30">:</span>}
@@ -616,7 +616,7 @@ export default function Home() {
                 ))}
               </div>
 
-              <div className="mb-8 flex flex-col items-center justify-center gap-4 text-white/40 sm:flex-row">
+              <div className="mb-8 flex flex-col items-center justify-center gap-4 text-white/60 sm:flex-row">
                 <div className="flex items-center gap-2">
                   <MapPin className="h-5 w-5" />
                   <span className="font-mono text-sm">Lugar a confirmar</span>
@@ -653,7 +653,7 @@ export default function Home() {
           <SectionLabel number="04" text="Galería" />
 
           <Reveal>
-            <h2 className="mb-16 text-3xl font-light tracking-tight text-white sm:text-4xl">
+            <h2 className="mb-16 text-[2rem] font-light leading-[1.3] text-white sm:text-[2.5rem]">
               Momentos que nos <span className="text-csc-orange">definen</span>
             </h2>
           </Reveal>
@@ -662,8 +662,8 @@ export default function Home() {
             {albums.map((album, albumIndex) => (
               <Reveal key={album.title} delay={albumIndex * 0.1}>
                 <div className="mb-6">
-                  <h3 className="text-xl font-medium text-white">{album.title}</h3>
-                  <p className="font-mono text-xs uppercase tracking-widest text-white/30">{album.subtitle}</p>
+                  <h3 className="text-lg font-semibold text-csc-orange">{album.title}</h3>
+                  <p className="font-mono text-xs uppercase tracking-[0.05em] text-white/30">{album.subtitle}</p>
                 </div>
                 <Carousel
                   images={album.images}
