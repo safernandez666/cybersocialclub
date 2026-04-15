@@ -77,13 +77,19 @@ export async function GET(req: NextRequest) {
   }
 
   // Lookup member by email (case-insensitive to handle casing mismatches)
+  // Use limit(1) instead of single() — single() returns null if there are
+  // duplicate members (different casing), which causes unwanted re-registration.
+  // Order by status so "approved" members are found first.
   const normalizedEmail = email.toLowerCase().trim();
   const supabaseAdmin = getSupabaseAdmin();
-  const { data: member } = await supabaseAdmin
+  const { data: members } = await supabaseAdmin
     .from("members")
     .select("*")
     .ilike("email", normalizedEmail)
-    .single();
+    .order("status", { ascending: true })
+    .limit(1);
+
+  const member = members?.[0] ?? null;
 
   let redirectPath: string;
 
@@ -111,11 +117,13 @@ export async function GET(req: NextRequest) {
     await logAuthEvent("new_registration", null, provider, req);
 
     // Get the new member id for the complete-profile form
-    const { data: newMember } = await supabaseAdmin
+    const { data: newMembers } = await supabaseAdmin
       .from("members")
       .select("id")
       .eq("email", normalizedEmail)
-      .single();
+      .limit(1);
+
+    const newMember = newMembers?.[0] ?? null;
 
     // Admin notification will be sent AFTER user completes the profile form
     redirectPath = `/complete-profile?id=${newMember?.id || ""}&provider=${provider}`;
