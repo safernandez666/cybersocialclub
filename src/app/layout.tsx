@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Sora } from "next/font/google";
+import { Sora, JetBrains_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import { Navbar } from "@/components/navbar";
 import "./globals.css";
@@ -7,6 +7,12 @@ import "./globals.css";
 const sora = Sora({
   variable: "--font-sans",
   subsets: ["latin"],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-mono",
+  subsets: ["latin"],
+  weight: ["400", "500"],
 });
 
 const ethnocentric = localFont({
@@ -28,7 +34,7 @@ export default function RootLayout({
   return (
     <html lang="es" className="dark scroll-smooth">
       <body
-        className={`${sora.variable} ${ethnocentric.variable} antialiased`}
+        className={`${sora.variable} ${jetbrainsMono.variable} ${ethnocentric.variable} antialiased`}
       >
         <Navbar />
         {children}
