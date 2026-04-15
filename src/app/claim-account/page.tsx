@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Mail, Loader2, CheckCircle, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { CyberBackground } from "@/components/cyber-background";
 
 export default function ClaimAccountPage() {
   const [email, setEmail] = useState("");
@@ -39,11 +40,12 @@ export default function ClaimAccountPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A] px-4 pt-16">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0A0A0A] px-4 pt-16">
+      <CyberBackground intensity="hero" />
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-sm"
+        className="relative z-10 w-full max-w-sm"
       >
         <div className="mb-8">
           <Link href="/login" className="mb-6 inline-flex items-center gap-2 text-white/30 transition-colors hover:text-white">
@@ -73,7 +75,7 @@ export default function ClaimAccountPage() {
               )}
 
               <div className="space-y-1.5">
-                <label className="font-mono text-xs uppercase tracking-widest text-white/40">
+                <label className="font-mono text-xs uppercase tracking-widest text-white/50">
                   Email
                 </label>
                 <div className="relative">
@@ -83,7 +85,7 @@ export default function ClaimAccountPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="nombre@empresa.com"
-                    className="w-full rounded-xl border border-white/5 bg-white/[0.02] py-3 pl-10 pr-4 font-mono text-sm text-white placeholder:text-white/20 focus:border-csc-orange/30 focus:outline-none focus:ring-1 focus:ring-csc-orange/20"
+                    className="glass-input w-full rounded-xl py-3 pl-10 pr-4 font-mono text-sm text-white placeholder:text-white/20"
                   />
                 </div>
               </div>
@@ -91,7 +93,7 @@ export default function ClaimAccountPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-csc-orange px-4 py-3.5 font-mono text-sm text-white transition-all hover:bg-csc-amber disabled:opacity-50"
+                className="btn-glow flex w-full items-center justify-center gap-2 rounded-xl bg-csc-orange px-4 py-3.5 font-mono text-sm text-white transition-all hover:bg-csc-amber disabled:opacity-50"
               >
                 {loading ? (
                   <>
@@ -112,7 +114,7 @@ export default function ClaimAccountPage() {
               key="success"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="rounded-2xl border border-green-500/20 bg-green-500/5 p-6 text-center"
+              className="glass-card rounded-2xl border border-green-500/20 p-6 text-center"
             >
               <CheckCircle className="mx-auto mb-4 h-12 w-12 text-green-400" />
               <h2 className="mb-2 font-mono text-lg text-white">¡Revisá tu email!</h2>

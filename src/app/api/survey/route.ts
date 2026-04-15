@@ -8,8 +8,8 @@ const RATE_LIMIT = { maxRequests: 3, windowMs: 15 * 60 * 1000 };
 
 function getClientIp(req: NextRequest): string {
   return (
-    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
     req.headers.get("x-real-ip") ||
+    req.headers.get("x-forwarded-for")?.split(",")?.pop()?.trim() ||
     "unknown"
   );
 }

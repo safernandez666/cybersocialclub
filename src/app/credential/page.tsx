@@ -17,6 +17,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { Skeleton, SkeletonButton } from "@/components/ui/skeleton";
+import { CyberBackground } from "@/components/cyber-background";
 
 interface CredentialData {
   member_number: string;
@@ -173,13 +174,14 @@ function CredentialContent() {
 
   if (error || !data) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[#0A0A0A] px-4">
-        <ShieldCheck className="mb-4 h-10 w-10 text-red-400/50" />
-        <p className="mb-2 font-mono text-sm text-red-400">{error || "Credencial no encontrada"}</p>
-        <p className="mb-8 font-mono text-xs text-white/20">El link puede haber expirado o ser inválido</p>
+      <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#0A0A0A] px-4">
+        <CyberBackground intensity="minimal" />
+        <ShieldCheck className="relative z-10 mb-4 h-10 w-10 text-red-400/50" />
+        <p className="relative z-10 mb-2 font-mono text-sm text-red-400">{error || "Credencial no encontrada"}</p>
+        <p className="relative z-10 mb-8 font-mono text-xs text-white/30">El link puede haber expirado o ser inválido</p>
         <a
           href="https://socios.cybersocialclub.com.ar"
-          className="rounded-full border border-white/10 px-6 py-2 font-mono text-xs text-white/40 transition-all hover:text-white"
+          className="relative z-10 rounded-full border border-white/10 bg-white/[0.03] px-6 py-2 font-mono text-xs text-white/60 transition-all hover:border-white/20 hover:text-white"
         >
           Volver al inicio
         </a>
@@ -196,7 +198,8 @@ function CredentialContent() {
   const isExpiringSoon = expiration && expiration.daysLeft >= 0 && expiration.daysLeft <= 30;
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[#0A0A0A] px-4 pt-20 pb-12">
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#0A0A0A] px-4 pt-20 pb-12">
+      <CyberBackground intensity="subtle" />
       {/* Credential Card */}
       <motion.div
         initial={{ opacity: 0, scale: 0.96, y: 16 }}
@@ -206,7 +209,7 @@ function CredentialContent() {
       >
         {/* Gradient border wrapper */}
         <div className="rounded-[28px] p-[1px] bg-gradient-to-br from-csc-orange via-csc-amber to-csc-orange/60">
-          <div className="overflow-hidden rounded-[27px] border border-white/5 bg-[#141211]/90 backdrop-blur-xl">
+          <div className="overflow-hidden rounded-[27px] border border-white/8 bg-[#141211]/85 backdrop-blur-xl">
             {/* Card Header */}
             <div className="relative flex items-center justify-between border-b border-white/5 px-5 sm:px-6 py-5">
               <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-csc-orange/40 to-transparent" />
@@ -276,7 +279,7 @@ function CredentialContent() {
 
               {/* Expiration */}
               {expiration && (
-                <div className="mt-5 flex items-center gap-2 rounded-xl border border-white/5 bg-white/[0.02] px-3 py-2.5">
+                <div className="mt-5 flex items-center gap-2 rounded-xl glass-panel px-3 py-2.5">
                   <Clock
                     className={`h-4 w-4 shrink-0 ${
                       isExpired ? "text-red-400" : isExpiringSoon ? "text-csc-amber" : "text-white/30"
@@ -337,7 +340,7 @@ function CredentialContent() {
           <a
             href={`/api/credential/image?token=${token}`}
             download={`CSC-Credencial-${data.member_number}.png`}
-            className="group inline-flex items-center gap-2 rounded-full bg-csc-orange px-5 py-2.5 font-mono text-xs uppercase tracking-widest text-white transition-all hover:bg-csc-amber hover:shadow-xl hover:shadow-csc-orange/20"
+            className="btn-glow group inline-flex items-center gap-2 rounded-full bg-csc-orange px-5 py-2.5 font-mono text-xs uppercase tracking-widest text-white transition-all hover:bg-csc-amber"
           >
             <Download className="h-4 w-4" />
             PNG
@@ -346,7 +349,7 @@ function CredentialContent() {
           <a
             href={`/api/credential/pdf?token=${token}`}
             download={`CSC-Credencial-${data.member_number}.pdf`}
-            className="group inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 font-mono text-xs uppercase tracking-widest text-white/80 transition-all hover:border-csc-orange/40 hover:bg-white/10 hover:text-white"
+            className="group inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 font-mono text-xs uppercase tracking-widest text-white/80 transition-all hover:border-csc-orange/40 hover:bg-csc-orange/5 hover:text-white"
           >
             <FileText className="h-4 w-4" />
             PDF
@@ -355,7 +358,7 @@ function CredentialContent() {
           <button
             onClick={handleShare}
             disabled={shareLoading}
-            className="group inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 font-mono text-xs uppercase tracking-widest text-white/80 transition-all hover:border-csc-orange/40 hover:bg-white/10 hover:text-white disabled:opacity-60"
+            className="group inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 font-mono text-xs uppercase tracking-widest text-white/80 transition-all hover:border-csc-orange/40 hover:bg-csc-orange/5 hover:text-white disabled:opacity-60"
           >
             {shareDone ? <CheckCircle2 className="h-4 w-4 text-green-400" /> : <Share2 className="h-4 w-4" />}
             {shareDone ? "Copiado" : "Compartir"}

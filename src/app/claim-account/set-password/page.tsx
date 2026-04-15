@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Lock, Loader2, CheckCircle, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { CyberBackground } from "@/components/cyber-background";
 
 export default function SetPasswordPage() {
   return (
@@ -124,8 +125,9 @@ function SetPasswordContent() {
 
   if (loading || verifying) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A]">
-        <div className="flex items-center gap-3 font-mono text-sm text-white/30">
+      <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0A0A0A]">
+        <CyberBackground intensity="hero" />
+        <div className="relative z-10 flex items-center gap-3 font-mono text-sm text-white/30">
           <Loader2 className="h-5 w-5 animate-spin" />
           Verificando link...
         </div>
@@ -135,11 +137,12 @@ function SetPasswordContent() {
 
   if (error && !valid) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A] px-4 pt-16">
+      <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0A0A0A] px-4 pt-16">
+        <CyberBackground intensity="hero" />
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-sm text-center"
+          className="relative z-10 w-full max-w-sm text-center"
         >
           <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-red-500/20 bg-red-500/10">
             <AlertCircle className="h-8 w-8 text-red-400" />
@@ -158,11 +161,12 @@ function SetPasswordContent() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A] px-4 pt-16">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0A0A0A] px-4 pt-16">
+      <CyberBackground intensity="hero" />
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-sm"
+        className="relative z-10 w-full max-w-sm"
       >
         <AnimatePresence mode="wait">
           {!success ? (
@@ -201,8 +205,8 @@ function SetPasswordContent() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Mínimo 8 caracteres"
-                      className={`w-full rounded-xl border bg-white/[0.02] py-3 pl-10 pr-12 font-mono text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-1 ${
-                        passwordError ? "border-red-500/30 focus:ring-red-500/20" : "border-white/5 focus:border-csc-orange/30 focus:ring-csc-orange/20"
+                      className={`w-full rounded-xl py-3 pl-10 pr-12 font-mono text-sm text-white placeholder:text-white/20 transition-all ${
+                        passwordError ? "border border-red-500/30 bg-white/[0.02] focus:outline-none focus:ring-1 focus:ring-red-500/20" : "glass-input"
                       }`}
                     />
                     <button
@@ -229,8 +233,8 @@ function SetPasswordContent() {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Repetí la contraseña"
-                      className={`w-full rounded-xl border bg-white/[0.02] py-3 pl-10 pr-12 font-mono text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-1 ${
-                        confirmError ? "border-red-500/30 focus:ring-red-500/20" : "border-white/5 focus:border-csc-orange/30 focus:ring-csc-orange/20"
+                      className={`w-full rounded-xl py-3 pl-10 pr-12 font-mono text-sm text-white placeholder:text-white/20 transition-all ${
+                        confirmError ? "border border-red-500/30 bg-white/[0.02] focus:outline-none focus:ring-1 focus:ring-red-500/20" : "glass-input"
                       }`}
                     />
                     <button
@@ -249,7 +253,7 @@ function SetPasswordContent() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-csc-orange px-4 py-3.5 font-mono text-sm text-white transition-all hover:bg-csc-amber disabled:opacity-50"
+                  className="btn-glow flex w-full items-center justify-center gap-2 rounded-xl bg-csc-orange px-4 py-3.5 font-mono text-sm text-white transition-all hover:bg-csc-amber disabled:opacity-50"
                 >
                   {submitting ? (
                     <>
@@ -267,7 +271,7 @@ function SetPasswordContent() {
               key="success"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="rounded-2xl border border-green-500/20 bg-green-500/5 p-8 text-center"
+              className="glass-card rounded-2xl border border-green-500/20 p-8 text-center"
             >
               <CheckCircle className="mx-auto mb-4 h-16 w-16 text-green-400" />
               <h2 className="mb-2 font-mono text-xl text-white">¡Cuenta activada!</h2>

@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton, SkeletonCard, SkeletonStatCard } from "@/components/ui/skeleton";
+import { CyberBackground } from "@/components/cyber-background";
 
 interface Member {
   id: string;
@@ -215,8 +216,8 @@ export default function AdminPage() {
   };
 
   const StatCard = ({ label, value, icon: Icon, color, trend }: { label: string; value: number; icon: React.ElementType; color: string; trend?: string }) => (
-    <motion.div variants={itemVariants} className="relative overflow-hidden rounded-2xl border border-white/5 bg-[#141211] p-5">
-      <div className={`absolute right-0 top-0 h-24 w-24 opacity-10 ${color} blur-3xl`} />
+    <motion.div variants={itemVariants} className="glass-card relative overflow-hidden rounded-2xl p-5 card-lift">
+      <div className={`absolute right-0 top-0 h-24 w-24 opacity-15 ${color} blur-3xl`} />
       <div className="relative">
         <div className="mb-3 flex items-center justify-between">
           <div className={`flex h-10 w-10 items-center justify-center rounded-xl border ${color.replace("bg-", "border-").replace("/10", "/20")} ${color}`}><Icon className="h-5 w-5" /></div>
@@ -230,23 +231,25 @@ export default function AdminPage() {
 
   if (!authenticated) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A] px-4 pt-16">
-        <motion.form initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} onSubmit={handleLogin} className="w-full max-w-sm">
-          <h1 className="mb-2 font-mono text-xl text-white">Panel de Administración</h1>
-          <p className="mb-8 font-mono text-xs text-white/30">{needsTOTP ? "Ingresá el código de tu autenticador" : "Ingresá la clave de admin para continuar"}</p>
+      <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0A0A0A] px-4 pt-16">
+        <CyberBackground intensity="hero" />
+        <motion.form initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} onSubmit={handleLogin} className="relative z-10 w-full max-w-sm">
+          <h1 className="mb-2 font-mono text-xl text-white drop-shadow-[0_0_30px_rgba(232,123,30,0.25)]">Panel de Administración</h1>
+          <p className="mb-8 font-mono text-xs text-white/40">{needsTOTP ? "Ingresá el código de tu autenticador" : "Ingresá la clave de admin para continuar"}</p>
           {error && <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mb-4 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 font-mono text-xs text-red-400">{error}</motion.div>}
-          {!needsTOTP && <input type="password" value={adminKey} onChange={(e) => setAdminKey(e.target.value)} placeholder="Clave de administrador" className="mb-4 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 font-mono text-sm text-white placeholder:text-white/20 focus:border-csc-orange/50 focus:outline-none focus:ring-2 focus:ring-csc-orange/20" />}
-          {needsTOTP && <div className="mb-4"><div className="mb-3 flex items-center gap-2 rounded-xl border border-csc-orange/20 bg-csc-orange/5 px-4 py-3"><Shield className="h-4 w-4 text-csc-orange" /><span className="font-mono text-xs text-csc-orange">Verificación MFA requerida</span></div><input type="text" inputMode="numeric" pattern="[0-9]*" maxLength={6} value={totpCode} onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ""))} placeholder="Código de 6 dígitos" autoFocus className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-center font-mono text-2xl tracking-[0.5em] text-white placeholder:text-sm placeholder:tracking-normal placeholder:text-white/20 focus:border-csc-orange/50 focus:outline-none focus:ring-2 focus:ring-csc-orange/20" /></div>}
-          <button type="submit" disabled={(!adminKey && !needsTOTP) || (needsTOTP && totpCode.length !== 6) || loading} className="w-full rounded-full bg-csc-orange px-6 py-3 font-mono text-xs uppercase tracking-widest text-white transition-all hover:bg-csc-amber disabled:opacity-50">{loading ? "Verificando..." : needsTOTP ? "Verificar" : "Ingresar"}</button>
-          {needsTOTP && <button type="button" onClick={() => { setNeedsTOTP(false); setTotpCode(""); setError(null); }} className="mt-3 w-full font-mono text-xs text-white/30 transition-colors hover:text-white">Volver</button>}
+          {!needsTOTP && <input type="password" value={adminKey} onChange={(e) => setAdminKey(e.target.value)} placeholder="Clave de administrador" className="mb-4 w-full rounded-xl px-4 py-3 font-mono text-sm text-white placeholder:text-white/20 glass-input" />}
+          {needsTOTP && <div className="mb-4"><div className="mb-3 flex items-center gap-2 rounded-xl border border-csc-orange/20 bg-csc-orange/5 px-4 py-3"><Shield className="h-4 w-4 text-csc-orange" /><span className="font-mono text-xs text-csc-orange">Verificación MFA requerida</span></div><input type="text" inputMode="numeric" pattern="[0-9]*" maxLength={6} value={totpCode} onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ""))} placeholder="Código de 6 dígitos" autoFocus className="w-full rounded-xl px-4 py-3 text-center font-mono text-2xl tracking-[0.5em] text-white placeholder:text-sm placeholder:tracking-normal placeholder:text-white/20 glass-input" /></div>}
+          <button type="submit" disabled={(!adminKey && !needsTOTP) || (needsTOTP && totpCode.length !== 6) || loading} className="btn-glow w-full rounded-full bg-csc-orange px-6 py-3 font-mono text-xs uppercase tracking-widest text-white transition-all hover:bg-csc-amber disabled:opacity-50">{loading ? "Verificando..." : needsTOTP ? "Verificar" : "Ingresar"}</button>
+          {needsTOTP && <button type="button" onClick={() => { setNeedsTOTP(false); setTotpCode(""); setError(null); }} className="mt-3 w-full font-mono text-xs text-white/40 transition-colors hover:text-white">Volver</button>}
         </motion.form>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] px-4 pt-24 pb-8 sm:px-8">
-      <div className="mx-auto max-w-6xl">
+    <div className="relative min-h-screen overflow-hidden bg-[#0A0A0A] px-4 pt-24 pb-8 sm:px-8">
+      <CyberBackground intensity="subtle" />
+      <div className="relative z-10 mx-auto max-w-6xl">
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
             <Link href="/" className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 text-white/30 transition-colors hover:border-csc-orange/30 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-csc-orange/50" aria-label="Volver al inicio"><ArrowLeft className="h-5 w-5" aria-hidden="true" /></Link>
@@ -262,7 +265,7 @@ export default function AdminPage() {
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mb-6 space-y-4">
-          <div className="relative"><Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" /><input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Buscar por nombre, email, empresa o cargo..." className="w-full rounded-xl border border-white/10 bg-white/[0.03] py-3 pl-11 pr-4 font-mono text-sm text-white placeholder:text-white/20 focus:border-csc-orange/50 focus:outline-none focus:ring-2 focus:ring-csc-orange/20" /></div>
+          <div className="relative"><Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" /><input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Buscar por nombre, email, empresa o cargo..." className="w-full rounded-xl py-3 pl-11 pr-4 font-mono text-sm text-white placeholder:text-white/20 glass-input" /></div>
           <div className="flex flex-wrap gap-2">
             {[{ key: "pending_verification", label: "Sin Verificar", icon: MailQuestion, count: stats.pendingVerification }, { key: "pending", label: "Pendientes", icon: Clock, count: stats.pending }, { key: "approved", label: "Aprobados", icon: UserCheck, count: stats.total - stats.pending - stats.rejected - stats.pendingVerification }, { key: "rejected", label: "Rechazados", icon: UserX, count: stats.rejected }].map(({ key, label, icon: Icon, count }) => (
               <button key={key} onClick={() => setFilter(key)} className={`flex items-center gap-2 rounded-full px-4 py-2 font-mono text-xs uppercase tracking-widest transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-csc-orange/50 ${filter === key ? "bg-csc-orange text-white" : "border border-white/10 text-white/40 hover:border-white/20 hover:text-white"}`}><Icon className="h-3.5 w-3.5" />{label}{!statsLoading && count !== undefined && <span className={`ml-1 rounded-full px-2 py-0.5 text-[10px] ${filter === key ? "bg-white/20" : "bg-white/5"}`}>{count}</span>}</button>
@@ -277,13 +280,13 @@ export default function AdminPage() {
             </motion.div>
           ) : filteredMembers.length === 0 ? (
             <motion.div key="empty" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="py-20 text-center">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/5 bg-white/[0.03]"><Users className="h-8 w-8 text-white/10" /></div>
-              <p className="font-mono text-sm text-white/30">{searchQuery ? "No se encontraron miembros con ese criterio" : `No hay miembros ${filter === "pending" ? "pendientes" : filter === "approved" ? "aprobados" : "rechazados"}`}</p>
+              <div className="glass-panel mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl"><Users className="h-8 w-8 text-white/15" /></div>
+              <p className="font-mono text-sm text-white/40">{searchQuery ? "No se encontraron miembros con ese criterio" : `No hay miembros ${filter === "pending" ? "pendientes" : filter === "approved" ? "aprobados" : "rechazados"}`}</p>
             </motion.div>
           ) : (
             <motion.div key="list" variants={containerVariants} initial="hidden" animate="visible" className="space-y-3">
               {filteredMembers.map((member, index) => (
-                <motion.div key={member.id} variants={itemVariants} custom={index} className="group relative overflow-hidden rounded-2xl border border-white/5 bg-[#141211] transition-all hover:border-white/10 hover:shadow-lg hover:shadow-csc-orange/5">
+                <motion.div key={member.id} variants={itemVariants} custom={index} className="glass-card group relative overflow-hidden rounded-2xl transition-all hover:border-white/12 hover:shadow-lg hover:shadow-csc-orange/5 card-lift">
                   <div className={`absolute left-0 top-0 h-full w-1 ${member.status === "approved" ? "bg-green-500" : member.status === "pending" ? "bg-amber-500" : member.status === "rejected" ? "bg-red-500" : "bg-blue-500"}`} />
                   <div className="p-5 pl-6">
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -321,7 +324,7 @@ export default function AdminPage() {
       </div>
 
       <Dialog open={confirmDialog.open} onOpenChange={(open) => !open && setConfirmDialog({ open: false, member: null, action: null })}>
-        <DialogContent className="border-white/10 bg-[#141211] text-white">
+        <DialogContent className="glass-card border-white/10 text-white">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-mono text-lg">{confirmDialog.action === "approve" ? <><Check className="h-5 w-5 text-green-400" />Confirmar Aprobación</> : <><AlertTriangle className="h-5 w-5 text-red-400" />Confirmar Rechazo</>}</DialogTitle>
             <DialogDescription className="font-mono text-sm text-white/50">{confirmDialog.action === "approve" ? `¿Estás seguro de que querés aprobar a "${confirmDialog.member?.full_name}"? Se le asignará un número de socio y se enviará la credencial por email.` : `¿Estás seguro de que querés rechazar a "${confirmDialog.member?.full_name}"? Esta acción no se puede deshacer.`}</DialogDescription>

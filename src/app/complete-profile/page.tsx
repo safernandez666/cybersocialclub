@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CountrySelect } from "@/components/ui/country-select";
 import { FormError } from "@/components/ui/form-error";
+import { CyberBackground } from "@/components/cyber-background";
 
 interface ProfileForm {
   first_name: string;
@@ -113,18 +114,18 @@ function CompleteProfileContent() {
     }
   };
 
-  const inputClass = "border-white/5 bg-[#0A0A0A] text-white font-mono text-sm placeholder:text-white/20";
-  const labelClass = "font-mono text-xs uppercase tracking-widest text-white/40";
+  const labelClass = "font-mono text-xs uppercase tracking-widest text-white/50";
 
   if (!memberId) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A] px-4 pt-16">
-        <div className="w-full max-w-sm text-center">
-          <h1 className="mb-2 font-mono text-xl text-white">Link inválido</h1>
-          <p className="mb-6 font-mono text-xs text-white/30">
+      <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0A0A0A] px-4 pt-16">
+        <CyberBackground intensity="hero" />
+        <div className="relative z-10 w-full max-w-sm text-center">
+          <h1 className="mb-2 font-mono text-xl text-white drop-shadow-[0_0_30px_rgba(232,123,30,0.25)]">Link inválido</h1>
+          <p className="mb-6 font-mono text-xs text-white/40">
             Este link no es válido. Registrate desde el formulario.
           </p>
-          <Link href="/register" className="inline-flex items-center gap-2 rounded-full bg-csc-orange px-6 py-3 font-mono text-xs uppercase tracking-widest text-white transition-all hover:bg-csc-amber">
+          <Link href="/register" className="btn-glow inline-flex items-center gap-2 rounded-full bg-csc-orange px-6 py-3 font-mono text-xs uppercase tracking-widest text-white transition-all hover:bg-csc-amber">
             Ir a Registro
           </Link>
         </div>
@@ -134,21 +135,22 @@ function CompleteProfileContent() {
 
   if (submitted) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A] px-4 pt-16">
+      <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0A0A0A] px-4 pt-16">
+        <CyberBackground intensity="hero" />
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-sm text-center"
+          className="relative z-10 w-full max-w-sm text-center"
         >
           <CheckCircle className="mx-auto mb-4 h-12 w-12 text-green-400" />
-          <h1 className="mb-2 font-mono text-xl text-white">Registro completo</h1>
-          <p className="mb-6 font-mono text-xs text-white/30 leading-relaxed">
+          <h1 className="mb-2 font-mono text-xl text-white drop-shadow-[0_0_30px_rgba(232,123,30,0.25)]">Registro completo</h1>
+          <p className="mb-6 font-mono text-xs text-white/40 leading-relaxed">
             Tu solicitud está pendiente de aprobación.<br />
             Te notificaremos por email cuando sea revisada.
           </p>
           <a
             href="https://cybersocialclub.com.ar"
-            className="inline-flex items-center gap-2 rounded-full bg-csc-orange px-6 py-3 font-mono text-xs uppercase tracking-widest text-white transition-all hover:bg-csc-amber"
+            className="btn-glow inline-flex items-center gap-2 rounded-full bg-csc-orange px-6 py-3 font-mono text-xs uppercase tracking-widest text-white transition-all hover:bg-csc-amber"
           >
             Volver al inicio
           </a>
@@ -158,8 +160,9 @@ function CompleteProfileContent() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A] px-4 py-24">
-      <div className="w-full max-w-xl">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0A0A0A] px-4 py-24">
+      <CyberBackground intensity="hero" />
+      <div className="relative z-10 w-full max-w-xl">
         <div className="mb-10 flex justify-center">
           <Image
             src="/logos/logo-light.png"
@@ -171,7 +174,7 @@ function CompleteProfileContent() {
           />
         </div>
 
-        <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 sm:p-8">
+        <div className="glass-card rounded-2xl p-6 sm:p-8">
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
@@ -186,7 +189,7 @@ function CompleteProfileContent() {
               </span>
             </div>
 
-            <div className="rounded-xl border border-csc-orange/20 bg-csc-orange/5 px-4 py-3">
+            <div className="rounded-xl border border-csc-orange/20 bg-csc-orange/10 px-4 py-3">
               <p className="font-mono text-xs text-csc-orange font-medium">
                 Faltan datos para completar tu membresía
               </p>
@@ -213,7 +216,7 @@ function CompleteProfileContent() {
                   placeholder="Tu nombre"
                   value={form.first_name}
                   onChange={(e) => set("first_name", e.target.value)}
-                  className={inputClass}
+                  className="glass-input rounded-md font-mono text-sm text-white placeholder:text-white/20"
                 />
                 {errors.first_name && (
                   <FormError message={errors.first_name} />
@@ -229,7 +232,7 @@ function CompleteProfileContent() {
                   placeholder="Tu apellido"
                   value={form.last_name}
                   onChange={(e) => set("last_name", e.target.value)}
-                  className={inputClass}
+                  className="glass-input rounded-md font-mono text-sm text-white placeholder:text-white/20"
                 />
                 {errors.last_name && (
                   <FormError message={errors.last_name} />
@@ -247,7 +250,7 @@ function CompleteProfileContent() {
                 placeholder="https://linkedin.com/in/tu-perfil"
                 value={form.linkedin_url}
                 onChange={(e) => set("linkedin_url", e.target.value)}
-                className={inputClass}
+                className="glass-input rounded-md font-mono text-sm text-white placeholder:text-white/20"
               />
               {errors.linkedin_url && (
                 <FormError message={errors.linkedin_url} />
@@ -263,7 +266,7 @@ function CompleteProfileContent() {
                 placeholder="Tu empresa"
                 value={form.company}
                 onChange={(e) => set("company", e.target.value)}
-                className={inputClass}
+                className="glass-input rounded-md font-mono text-sm text-white placeholder:text-white/20"
               />
             </div>
 
@@ -276,7 +279,7 @@ function CompleteProfileContent() {
                 placeholder="Tu cargo actual"
                 value={form.job_title}
                 onChange={(e) => set("job_title", e.target.value)}
-                className={inputClass}
+                className="glass-input rounded-md font-mono text-sm text-white placeholder:text-white/20"
               />
             </div>
 
@@ -330,7 +333,7 @@ function CompleteProfileContent() {
                 placeholder="+54 11 ..."
                 value={form.phone}
                 onChange={(e) => set("phone", e.target.value)}
-                className={inputClass}
+                className="glass-input rounded-md font-mono text-sm text-white placeholder:text-white/20"
               />
             </div>
 
@@ -348,7 +351,7 @@ function CompleteProfileContent() {
             <button
               onClick={handleSubmit}
               disabled={loading}
-              className="group inline-flex items-center gap-2 rounded-full bg-csc-orange px-6 py-3 font-mono text-xs uppercase tracking-widest text-white transition-all hover:bg-csc-amber hover:shadow-lg hover:shadow-csc-orange/20 disabled:opacity-50"
+              className="btn-glow group inline-flex items-center gap-2 rounded-full bg-csc-orange px-6 py-3 font-mono text-xs uppercase tracking-widest text-white transition-all hover:bg-csc-amber disabled:opacity-50"
             >
               {loading ? "Enviando..." : "Completar registro"}
               {!loading && <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />}

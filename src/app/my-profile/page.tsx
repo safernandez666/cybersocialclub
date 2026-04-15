@@ -34,6 +34,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Skeleton, SkeletonAvatar, SkeletonText, SkeletonButton } from "@/components/ui/skeleton";
 import { CountrySelect } from "@/components/ui/country-select";
 import { FormError } from "@/components/ui/form-error";
+import { CyberBackground } from "@/components/cyber-background";
 
 interface MemberData {
   id: string;
@@ -226,8 +227,9 @@ export default function MyProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] px-4 py-16 pt-24">
-        <div className="mx-auto max-w-5xl">
+      <div className="relative min-h-screen overflow-hidden bg-[#0A0A0A] px-4 py-16 pt-24">
+        <CyberBackground intensity="subtle" />
+        <div className="relative z-10 mx-auto max-w-5xl">
           <div className="mb-8 flex items-center gap-4">
             <Skeleton width="40px" height="40px" shape="rounded" />
             <div className="flex-1">
@@ -237,7 +239,7 @@ export default function MyProfilePage() {
           </div>
           <div className="grid gap-6 lg:grid-cols-3">
             <div className="lg:col-span-2">
-              <div className="rounded-3xl border border-white/5 bg-[#141211] p-6 sm:p-8">
+              <div className="glass-card rounded-3xl p-6 sm:p-8">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-6 mb-8">
                   <SkeletonAvatar size="xl" />
                   <div className="flex-1 space-y-3">
@@ -255,7 +257,7 @@ export default function MyProfilePage() {
                 </div>
               </div>
             </div>
-            <div className="rounded-3xl border border-white/5 bg-[#141211] p-6">
+            <div className="glass-card rounded-3xl p-6">
               <div className="mb-6 text-center">
                 <Skeleton width="180px" height="16px" className="mx-auto mb-2" />
                 <Skeleton width="120px" height="10px" className="mx-auto" />
@@ -283,12 +285,13 @@ export default function MyProfilePage() {
 
   if (error || !member) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[#0A0A0A] px-4">
-        <ShieldCheck className="mb-4 h-10 w-10 text-red-400/50" />
-        <p className="mb-2 font-mono text-sm text-red-400">{error || "Error al cargar perfil"}</p>
+      <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#0A0A0A] px-4">
+        <CyberBackground intensity="minimal" />
+        <ShieldCheck className="relative z-10 mb-4 h-10 w-10 text-red-400/50" />
+        <p className="relative z-10 mb-2 font-mono text-sm text-red-400">{error || "Error al cargar perfil"}</p>
         <Link
           href="/"
-          className="mt-4 rounded-full border border-white/10 px-6 py-2 font-mono text-xs text-white/40 transition-all hover:text-white"
+          className="relative z-10 mt-4 rounded-full border border-white/10 bg-white/[0.03] px-6 py-2 font-mono text-xs text-white/60 transition-all hover:border-white/20 hover:text-white"
         >
           Volver al inicio
         </Link>
@@ -316,12 +319,12 @@ export default function MyProfilePage() {
       .slice(0, 2);
   };
 
-  const inputClass = "w-full rounded-xl border border-white/5 bg-white/[0.02] py-2.5 px-4 font-mono text-sm text-white placeholder:text-white/20 focus:border-csc-orange/30 focus:outline-none focus:ring-1 focus:ring-csc-orange/20";
-  const labelClass = "font-mono text-xs uppercase tracking-widest text-white/40";
+  const labelClass = "font-mono text-xs uppercase tracking-widest text-white/50";
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] px-4 py-16 pt-24">
-      <div className="mx-auto max-w-5xl">
+    <div className="relative min-h-screen overflow-hidden bg-[#0A0A0A] px-4 py-16 pt-24">
+      <CyberBackground intensity="subtle" />
+      <div className="relative z-10 mx-auto max-w-5xl">
         {/* Header */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
@@ -347,7 +350,7 @@ export default function MyProfilePage() {
             {!isEditing ? (
               <button
                 onClick={handleEdit}
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-csc-orange/20 bg-csc-orange/10 px-5 py-2.5 font-mono text-xs text-csc-orange transition-all hover:bg-csc-orange/20"
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-csc-orange/20 bg-csc-orange/10 px-5 py-2.5 font-mono text-xs text-csc-orange transition-all hover:bg-csc-orange/20 hover:shadow-[0_0_16px_rgba(232,123,30,0.15)]"
               >
                 <Pencil className="h-4 w-4" />
                 Editar perfil
@@ -365,7 +368,7 @@ export default function MyProfilePage() {
                 <button
                   onClick={handleSave}
                   disabled={saving}
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-csc-orange px-5 py-2.5 font-mono text-xs text-white transition-all hover:bg-csc-amber disabled:opacity-50"
+                  className="btn-glow inline-flex items-center justify-center gap-2 rounded-full bg-csc-orange px-5 py-2.5 font-mono text-xs text-white transition-all hover:bg-csc-amber disabled:opacity-50"
                 >
                   {saving ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -425,7 +428,7 @@ export default function MyProfilePage() {
             transition={{ delay: 0.1 }}
             className="lg:col-span-2"
           >
-            <div className="h-full rounded-3xl border border-white/5 bg-[#141211] p-6 sm:p-8">
+            <div className="glass-card h-full rounded-3xl p-6 sm:p-8">
               {/* Profile Header */}
               <div className="flex flex-col sm:flex-row sm:items-center gap-6 mb-8">
                 {/* Avatar */}
@@ -463,7 +466,7 @@ export default function MyProfilePage() {
                           value={editForm.first_name || ""}
                           onChange={(e) => setEditValue("first_name", e.target.value || null)}
                           placeholder="Tu nombre"
-                          className={inputClass}
+                          className="glass-input w-full rounded-xl py-2.5 px-3 font-mono text-sm text-white placeholder:text-white/20"
                         />
                       </div>
                       <div className="space-y-1.5">
@@ -473,7 +476,7 @@ export default function MyProfilePage() {
                           value={editForm.last_name || ""}
                           onChange={(e) => setEditValue("last_name", e.target.value || null)}
                           placeholder="Tu apellido"
-                          className={inputClass}
+                          className="glass-input w-full rounded-xl py-2.5 px-3 font-mono text-sm text-white placeholder:text-white/20"
                         />
                       </div>
                     </div>
@@ -499,7 +502,7 @@ export default function MyProfilePage() {
               {/* Details Grid */}
               <div className="grid gap-4 sm:grid-cols-2">
                 {/* Company */}
-                <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4">
+                <div className="glass-panel rounded-xl p-4 card-lift">
                   <div className="flex items-center gap-2 mb-2">
                     <Building2 className="h-3.5 w-3.5 text-csc-orange/60" />
                     <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
@@ -512,7 +515,7 @@ export default function MyProfilePage() {
                       value={editForm.company || ""}
                       onChange={(e) => setEditValue("company", e.target.value || null)}
                       placeholder="Tu empresa"
-                      className={inputClass}
+                      className="glass-input w-full rounded-xl py-2.5 px-3 font-mono text-sm text-white placeholder:text-white/20"
                     />
                   ) : (
                     <p className="text-white/80">{member.company || "—"}</p>
@@ -520,7 +523,7 @@ export default function MyProfilePage() {
                 </div>
 
                 {/* Job Title */}
-                <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4">
+                <div className="glass-panel rounded-xl p-4 card-lift">
                   <div className="flex items-center gap-2 mb-2">
                     <Briefcase className="h-3.5 w-3.5 text-csc-orange/60" />
                     <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
@@ -533,7 +536,7 @@ export default function MyProfilePage() {
                       value={editForm.job_title || ""}
                       onChange={(e) => setEditValue("job_title", e.target.value || null)}
                       placeholder="Tu cargo"
-                      className={inputClass}
+                      className="glass-input w-full rounded-xl py-2.5 px-3 font-mono text-sm text-white placeholder:text-white/20"
                     />
                   ) : (
                     <p className="text-white/80">{member.job_title || "—"}</p>
@@ -541,7 +544,7 @@ export default function MyProfilePage() {
                 </div>
 
                 {/* Role Type - Read Only */}
-                <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4">
+                <div className="glass-panel rounded-xl p-4 card-lift">
                   <div className="flex items-center gap-2 mb-2">
                     <UserCircle className="h-3.5 w-3.5 text-csc-orange/60" />
                     <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
@@ -552,7 +555,7 @@ export default function MyProfilePage() {
                 </div>
 
                 {/* Member Since - Read Only */}
-                <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4">
+                <div className="glass-panel rounded-xl p-4 card-lift">
                   <div className="flex items-center gap-2 mb-2">
                     <Calendar className="h-3.5 w-3.5 text-csc-orange/60" />
                     <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
@@ -563,7 +566,7 @@ export default function MyProfilePage() {
                 </div>
 
                 {/* Phone */}
-                <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4">
+                <div className="glass-panel rounded-xl p-4 card-lift">
                   <div className="flex items-center gap-2 mb-2">
                     <Phone className="h-3.5 w-3.5 text-csc-orange/60" />
                     <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
@@ -576,7 +579,7 @@ export default function MyProfilePage() {
                       value={editForm.phone || ""}
                       onChange={(e) => setEditValue("phone", e.target.value || null)}
                       placeholder="+54 11 ..."
-                      className={inputClass}
+                      className="glass-input w-full rounded-xl py-2.5 px-3 font-mono text-sm text-white placeholder:text-white/20"
                     />
                   ) : (
                     <p className="text-white/80">{member.phone || "—"}</p>
@@ -584,7 +587,7 @@ export default function MyProfilePage() {
                 </div>
 
                 {/* LinkedIn */}
-                <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4">
+                <div className="glass-panel rounded-xl p-4 card-lift">
                   <div className="flex items-center gap-2 mb-2">
                     <Linkedin className="h-3.5 w-3.5 text-csc-orange/60" />
                     <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
@@ -597,7 +600,7 @@ export default function MyProfilePage() {
                       value={editForm.linkedin_url || ""}
                       onChange={(e) => setEditValue("linkedin_url", e.target.value || null)}
                       placeholder="https://linkedin.com/in/..."
-                      className={inputClass}
+                      className="glass-input w-full rounded-xl py-2.5 px-3 font-mono text-sm text-white placeholder:text-white/20"
                     />
                   ) : (
                     member.linkedin_url ? (
@@ -616,7 +619,7 @@ export default function MyProfilePage() {
                 </div>
 
                 {/* Country */}
-                <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4">
+                <div className="glass-panel rounded-xl p-4 card-lift">
                   <div className="flex items-center gap-2 mb-2">
                     <Globe className="h-3.5 w-3.5 text-csc-orange/60" />
                     <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
@@ -635,7 +638,7 @@ export default function MyProfilePage() {
                 </div>
 
                 {/* Years Experience - Read Only */}
-                <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4">
+                <div className="glass-panel rounded-xl p-4 card-lift">
                   <div className="flex items-center gap-2 mb-2">
                     <Briefcase className="h-3.5 w-3.5 text-csc-orange/60" />
                     <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
@@ -724,7 +727,7 @@ export default function MyProfilePage() {
                     <a
                       href={`/api/credential/pdf?token=${member.credential_token}`}
                       download={`CSC-Credencial-${member.member_number}.pdf`}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-4 py-2 font-mono text-xs uppercase tracking-widest text-white/80 transition-all hover:border-csc-orange/40 hover:bg-white/10 hover:text-white"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-4 py-2 font-mono text-xs uppercase tracking-widest text-white/80 transition-all hover:border-csc-orange/40 hover:bg-csc-orange/5 hover:text-white"
                     >
                       <FileText className="h-4 w-4" />
                       PDF
@@ -735,7 +738,7 @@ export default function MyProfilePage() {
                     <button
                       onClick={handleShare}
                       disabled={shareLoading}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-4 py-2 font-mono text-xs uppercase tracking-widest text-white/80 transition-all hover:border-csc-orange/40 hover:bg-white/10 hover:text-white disabled:opacity-60"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-4 py-2 font-mono text-xs uppercase tracking-widest text-white/80 transition-all hover:border-csc-orange/40 hover:bg-csc-orange/5 hover:text-white disabled:opacity-60"
                     >
                       {shareDone ? <CheckCircle2 className="h-4 w-4 text-green-400" /> : <Share2 className="h-4 w-4" />}
                       {shareDone ? "Copiado" : "Compartir"}
@@ -749,7 +752,7 @@ export default function MyProfilePage() {
                     <button
                       onClick={handleGoogleWallet}
                       disabled={walletLoading}
-                      className="group relative inline-flex items-center gap-2 rounded-lg bg-black px-3 py-2 font-sans text-xs font-medium text-white transition-all hover:bg-black/80 disabled:opacity-60 sm:hidden"
+                      className="btn-glow group relative inline-flex items-center gap-2 rounded-lg bg-black px-3 py-2 font-sans text-xs font-medium text-white transition-all hover:bg-black/80 disabled:opacity-60 sm:hidden"
                       aria-label="Agregar a Google Wallet"
                     >
                       <Wallet className="h-4 w-4" />

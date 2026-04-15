@@ -19,6 +19,7 @@ import {
 import { CheckCircle, ArrowLeft, ArrowRight, Lock, Eye, EyeOff } from "lucide-react";
 import { CountrySelect } from "@/components/ui/country-select";
 import { FormError } from "@/components/ui/form-error";
+import { CyberBackground } from "@/components/cyber-background";
 
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
@@ -127,10 +128,10 @@ function PasswordInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className={`w-full rounded-md border bg-[#0A0A0A] py-2 pl-10 pr-10 font-mono text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-1 ${
+        className={`w-full rounded-md py-2 pl-10 pr-10 font-mono text-sm text-white placeholder:text-white/20 transition-all ${
           error
-            ? "border-red-500/30 focus:border-red-500/30 focus:ring-red-500/20"
-            : "border-white/5 focus:border-csc-orange/30 focus:ring-csc-orange/20"
+            ? "border border-red-500/30 bg-white/[0.02] focus:outline-none focus:ring-1 focus:ring-red-500/20"
+            : "glass-input"
         }`}
       />
       <button
@@ -261,39 +262,39 @@ export default function RegisterPage() {
     exit: { opacity: 0, x: -30 },
   };
 
-  const inputClass = "border-white/5 bg-[#0A0A0A] text-white font-mono text-sm placeholder:text-white/20";
-  const labelClass = "font-mono text-xs uppercase tracking-widest text-white/40";
+  const labelClass = "font-mono text-xs uppercase tracking-widest text-white/50";
 
   /* ---- Password Input: uses top-level component defined above ---- */
 
   /* ---- Success ---- */
   if (submitted) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A] px-4 pt-16">
+      <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0A0A0A] px-4 pt-16">
+        <CyberBackground intensity="hero" />
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="text-center"
+          className="relative z-10 text-center"
         >
-          <div className="mx-auto mb-8 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/5">
+          <div className="glass-card mx-auto mb-8 flex h-16 w-16 items-center justify-center rounded-2xl">
             <CheckCircle className="h-8 w-8 text-csc-orange" />
           </div>
-          <h1 className="mb-3 text-3xl font-light tracking-tight text-white">
+          <h1 className="mb-3 text-3xl font-light tracking-tight text-white drop-shadow-[0_0_40px_rgba(232,123,30,0.35)]">
             Verificá tu <span className="italic text-csc-orange">email</span>
           </h1>
-          <p className="mb-2 font-mono text-sm text-white/35">
+          <p className="mb-2 font-mono text-sm text-white/50">
             Te enviamos un email de verificación a:
           </p>
           <p className="mb-2 font-mono text-sm font-medium text-csc-orange">
             {form.email}
           </p>
-          <p className="mb-10 font-mono text-xs text-white/25">
+          <p className="mb-10 font-mono text-xs text-white/35">
             Revisá tu bandeja de entrada y hacé click en el link para continuar con tu solicitud.
           </p>
           <Link
             href="/"
-            className="inline-flex items-center gap-2 rounded-full bg-white/5 px-6 py-3 font-mono text-xs uppercase tracking-widest text-white/60 transition-all hover:bg-csc-orange hover:text-white"
+            className="btn-glow inline-flex items-center gap-2 rounded-full bg-white/5 px-6 py-3 font-mono text-xs uppercase tracking-widest text-white/70 transition-all hover:bg-csc-orange hover:text-white"
           >
             Volver al Inicio
           </Link>
@@ -304,11 +305,12 @@ export default function RegisterPage() {
 
   /* ---- Form ---- */
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A] px-4 py-24">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0A0A0A] px-4 py-24">
+      <CyberBackground intensity="hero" />
       {siteKey && (
         <Script src="https://js.hcaptcha.com/1/api.js?render=explicit" strategy="afterInteractive" />
       )}
-      <div className="w-full max-w-xl">
+      <div className="relative z-10 w-full max-w-xl">
         <div className="mb-10 flex justify-center">
           <Image
             src="/logos/logo-light.png"
@@ -321,8 +323,8 @@ export default function RegisterPage() {
         </div>
 
         {/* Social registration — quick register */}
-        <div className="mb-8 rounded-2xl border border-white/5 bg-white/[0.02] p-6 sm:p-8">
-          <p className="mb-5 text-center font-mono text-xs uppercase tracking-widest text-white/30">
+        <div className="glass-card mb-8 rounded-2xl p-6 sm:p-8">
+          <p className="mb-5 text-center font-mono text-xs uppercase tracking-widest text-white/40">
             Registro rápido
           </p>
           <div className="flex gap-3">
@@ -337,7 +339,7 @@ export default function RegisterPage() {
                 });
               }}
               disabled={googleLoading || linkedinLoading}
-              className="flex flex-1 items-center justify-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3.5 font-mono text-xs text-white transition-all hover:border-white/20 hover:bg-white/[0.06] disabled:opacity-50"
+              className="flex flex-1 items-center justify-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3.5 font-mono text-xs text-white transition-all hover:border-csc-orange/30 hover:bg-csc-orange/5 disabled:opacity-50"
             >
               {googleLoading ? (
                 <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
@@ -366,7 +368,7 @@ export default function RegisterPage() {
                 });
               }}
               disabled={linkedinLoading || googleLoading}
-              className="flex flex-1 items-center justify-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3.5 font-mono text-xs text-white transition-all hover:border-white/20 hover:bg-white/[0.06] disabled:opacity-50"
+              className="flex flex-1 items-center justify-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3.5 font-mono text-xs text-white transition-all hover:border-csc-orange/30 hover:bg-csc-orange/5 disabled:opacity-50"
             >
               {linkedinLoading ? (
                 <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
@@ -392,7 +394,7 @@ export default function RegisterPage() {
 
         <StepIndicator current={step} />
 
-        <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 sm:p-8">
+        <div className="glass-card rounded-2xl p-6 sm:p-8">
           <AnimatePresence mode="wait">
             {/* STEP 0 — Personal */}
             {step === 0 && (
@@ -423,7 +425,7 @@ export default function RegisterPage() {
                       placeholder="Juan"
                       value={form.firstName}
                       onChange={(e) => set("firstName", e.target.value)}
-                      className={inputClass}
+                      className="glass-input rounded-md font-mono text-sm text-white placeholder:text-white/20"
                     />
                     {errors.firstName && (
                       <FormError message={errors.firstName} />
@@ -438,7 +440,7 @@ export default function RegisterPage() {
                       placeholder="Pérez"
                       value={form.lastName}
                       onChange={(e) => set("lastName", e.target.value)}
-                      className={inputClass}
+                      className="glass-input rounded-md font-mono text-sm text-white placeholder:text-white/20"
                     />
                     {errors.lastName && (
                       <FormError message={errors.lastName} />
@@ -455,7 +457,7 @@ export default function RegisterPage() {
                     placeholder="nombre@empresa.com"
                     value={form.email}
                     onChange={(e) => set("email", e.target.value)}
-                    className={inputClass}
+                    className="glass-input rounded-md font-mono text-sm text-white placeholder:text-white/20"
                   />
                   {errors.email && (
                     <FormError message={errors.email} />
@@ -471,7 +473,7 @@ export default function RegisterPage() {
                     placeholder="+54 11 1234 5678"
                     value={form.phone}
                     onChange={(e) => set("phone", e.target.value)}
-                    className={inputClass}
+                    className="glass-input rounded-md font-mono text-sm text-white placeholder:text-white/20"
                   />
                 </div>
 
@@ -484,8 +486,8 @@ export default function RegisterPage() {
                 />
 
                 {/* Password Fields */}
-                <div className="rounded-xl border border-white/5 bg-white/[0.02] p-4 space-y-4">
-                  <p className="font-mono text-xs text-white/40">
+                <div className="glass-panel rounded-xl p-4 space-y-4">
+                  <p className="font-mono text-xs text-white/50">
                     <span className="text-csc-orange">Opcional:</span> Creá una contraseña para iniciar sesión sin Google/LinkedIn
                   </p>
                   
@@ -552,7 +554,7 @@ export default function RegisterPage() {
                     placeholder="Acme Corp"
                     value={form.company}
                     onChange={(e) => set("company", e.target.value)}
-                    className={inputClass}
+                    className="glass-input rounded-md font-mono text-sm text-white placeholder:text-white/20"
                   />
                   {errors.company && (
                     <FormError message={errors.company} />
@@ -567,7 +569,7 @@ export default function RegisterPage() {
                     placeholder="Security Engineer"
                     value={form.jobTitle}
                     onChange={(e) => set("jobTitle", e.target.value)}
-                    className={inputClass}
+                    className="glass-input rounded-md font-mono text-sm text-white placeholder:text-white/20"
                   />
                   {errors.jobTitle && (
                     <FormError message={errors.jobTitle} />
@@ -581,10 +583,10 @@ export default function RegisterPage() {
                     value={form.roleType}
                     onValueChange={(v) => set("roleType", v ?? "")}
                   >
-                    <SelectTrigger className={inputClass}>
+                    <SelectTrigger className="glass-input rounded-md font-mono text-sm text-white">
                       <SelectValue placeholder="Seleccioná un rol" />
                     </SelectTrigger>
-                    <SelectContent className="border-white/5 bg-[#141211] font-mono text-sm">
+                    <SelectContent className="glass-card border-white/8 font-mono text-sm">
                       {roleOptions.map((r) => (
                         <SelectItem key={r} value={r}>
                           {r}
@@ -605,7 +607,7 @@ export default function RegisterPage() {
                     placeholder="https://linkedin.com/in/..."
                     value={form.linkedIn}
                     onChange={(e) => set("linkedIn", e.target.value)}
-                    className={inputClass}
+                    className="glass-input rounded-md font-mono text-sm text-white placeholder:text-white/20"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -616,10 +618,10 @@ export default function RegisterPage() {
                     value={form.yearsExp}
                     onValueChange={(v) => set("yearsExp", v ?? "")}
                   >
-                    <SelectTrigger className={inputClass}>
+                    <SelectTrigger className="glass-input rounded-md font-mono text-sm text-white">
                       <SelectValue placeholder="Seleccioná un rango" />
                     </SelectTrigger>
-                    <SelectContent className="border-white/5 bg-[#141211] font-mono text-sm">
+                    <SelectContent className="glass-card border-white/8 font-mono text-sm">
                       {experienceOptions.map((o) => (
                         <SelectItem key={o} value={o}>
                           {o} años
@@ -650,7 +652,7 @@ export default function RegisterPage() {
                   </span>
                 </div>
 
-                <div className="space-y-3 rounded-xl border border-white/5 bg-[#0A0A0A] p-5">
+                <div className="space-y-3 rounded-xl glass-panel p-5">
                   {[
                     ["Nombre", form.firstName],
                     ["Apellido", form.lastName],
@@ -704,7 +706,7 @@ export default function RegisterPage() {
           </AnimatePresence>
 
           {apiError && (
-            <p className="mt-4 font-mono text-xs text-csc-wine">{apiError}</p>
+            <FormError message={apiError} />
           )}
 
           {/* Navigation */}
@@ -726,7 +728,7 @@ export default function RegisterPage() {
             {step < 2 ? (
               <button
                 onClick={next}
-                className="group inline-flex items-center gap-2 rounded-full bg-white/5 px-6 py-3 font-mono text-xs uppercase tracking-widest text-white/60 transition-all hover:bg-csc-orange hover:text-white"
+                className="btn-glow group inline-flex items-center gap-2 rounded-full bg-white/5 px-6 py-3 font-mono text-xs uppercase tracking-widest text-white/70 transition-all hover:bg-csc-orange hover:text-white"
               >
                 Siguiente
                 <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
@@ -735,7 +737,7 @@ export default function RegisterPage() {
               <button
                 onClick={submit}
                 disabled={loading}
-                className="group inline-flex items-center gap-2 rounded-full bg-csc-orange px-6 py-3 font-mono text-xs uppercase tracking-widest text-white transition-all hover:bg-csc-amber hover:shadow-lg hover:shadow-csc-orange/20 disabled:opacity-50"
+                className="btn-glow group inline-flex items-center gap-2 rounded-full bg-csc-orange px-6 py-3 font-mono text-xs uppercase tracking-widest text-white transition-all hover:bg-csc-amber disabled:opacity-50"
               >
                 {loading ? "Enviando..." : "Enviar Solicitud"}
                 {!loading && <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />}

@@ -17,6 +17,8 @@ const RATE_LIMITS: { pattern: RegExp; maxRequests: number; windowMs: number }[] 
   { pattern: /^\/api\/auth\/claim/, maxRequests: 3, windowMs: 15 * 60 * 1000 },
   // Complete profile — 10/15min
   { pattern: /^\/api\/members\/complete-profile/, maxRequests: 10, windowMs: 15 * 60 * 1000 },
+  // Newsletter — 5/min (also enforced in route handler)
+  { pattern: /^\/api\/newsletter\//, maxRequests: 5, windowMs: 60 * 1000 },
   // Member API
   { pattern: /^\/api\/me/, maxRequests: 30, windowMs: 60 * 1000 },
 ];
@@ -29,8 +31,8 @@ const PROTECTED_MEMBER_ROUTES = ["/complete-profile", "/pending-approval", "/my-
 
 function getClientIp(req: NextRequest): string {
   return (
-    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
     req.headers.get("x-real-ip") ||
+    req.headers.get("x-forwarded-for")?.split(",")?.pop()?.trim() ||
     "unknown"
   );
 }
@@ -129,6 +131,7 @@ export const config = {
     "/auth/callback",
     "/api/credential/:path*",
     "/api/members/complete-profile",
+    "/api/newsletter/:path*",
     "/complete-profile",
     "/pending-approval",
     "/my-profile",

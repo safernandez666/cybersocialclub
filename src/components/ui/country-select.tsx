@@ -88,9 +88,9 @@ export function CountrySelect({
         aria-haspopup="listbox"
         aria-controls="country-listbox"
         className={`flex w-full items-center justify-between rounded-xl border px-4 py-3 font-mono text-sm transition-all focus:outline-none focus:ring-2 focus:ring-csc-orange/20 ${
-          isOpen ? "border-csc-orange ring-1 ring-csc-orange/20" : "border-white/10 hover:border-white/20"
+          isOpen ? "border-csc-orange ring-1 ring-csc-orange/20" : "border-white/8 hover:border-white/16"
         } ${value ? "text-white" : "text-white/30"} ${
-          disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer bg-[#0A0A0A]"
+          disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer glass-input"
         } ${error ? "border-red-500/50 focus:ring-red-500/20" : ""}`}
       >
         <span>{value || placeholder}</span>
@@ -111,7 +111,7 @@ export function CountrySelect({
             id="country-listbox"
             role="listbox"
             aria-label="Países"
-            className="absolute z-50 mt-1 w-full overflow-hidden rounded-xl border border-white/10 bg-[#141211] shadow-2xl"
+            className="glass-card absolute z-50 mt-1 w-full overflow-hidden rounded-xl shadow-2xl"
           >
             <div className="border-b border-white/5 p-3">
               <div className="relative">
@@ -121,7 +121,7 @@ export function CountrySelect({
                   placeholder="Buscar país..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full rounded-lg bg-white/5 py-2 pl-9 pr-3 font-mono text-xs text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-csc-orange/30"
+                  className="w-full rounded-lg border border-white/8 bg-white/5 py-2 pl-9 pr-3 font-mono text-xs text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-csc-orange/30"
                   autoFocus
                   aria-label="Buscar país"
                 />

@@ -5,39 +5,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cyber Social Club — Where Cyber Minds Connect</title>
   <meta name="description" content="La comunidad de ciberseguridad que más crece en Latinoamérica">
-  
+
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  
+
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <!-- Skip Navigation -->
   <a href="#main-content" class="skip-link">Saltar al contenido</a>
-  
+
   <!-- Navbar -->
   <header class="navbar" id="navbar">
     <div class="navbar-container">
       <a href="#" class="navbar-logo">
         <img src="public/logos/logo-light.png" alt="Cyber Social Club" width="110" height="32">
       </a>
-      
+
       <nav class="navbar-nav">
         <a href="#historia" class="navbar-link">Historia</a>
         <a href="#evento" class="navbar-link">Próximo Evento</a>
         <a href="#fotos" class="navbar-link">Fotos</a>
         <a href="https://socios.cybersocialclub.com.ar/login" class="navbar-cta">Iniciar Sesión</a>
       </nav>
-      
+
       <button class="navbar-toggle" id="navbarToggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="navbarMobile">
         <span></span>
         <span></span>
         <span></span>
       </button>
     </div>
-    
+
     <!-- Mobile Menu -->
     <div class="navbar-mobile" id="navbarMobile">
       <a href="#historia" class="navbar-mobile-link">Historia</a>
@@ -49,21 +49,34 @@
 
   <!-- Main Content -->
   <main id="main-content">
-  
+
   <!-- Hero Section -->
   <section class="hero">
-    <div class="hero-glow"></div>
+    <div class="hero-glow hero-glow-1"></div>
+    <div class="hero-glow hero-glow-2"></div>
+    <div class="hero-glow hero-glow-3"></div>
+    <div class="hero-particles" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <div class="hero-grid" aria-hidden="true"></div>
     <div class="hero-content">
-      <div class="hero-logo reveal">
+      <div class="hero-logo reveal" data-reveal="scale">
         <img src="public/logos/logo-light.png" alt="Cyber Social Club" width="400" height="114">
       </div>
-      <h1 class="hero-title reveal" data-delay="100">
+      <h1 class="hero-title reveal" data-delay="100" data-reveal="up">
         Where <span class="text-accent">Cyber</span> Minds <span class="italic">Connect</span>
       </h1>
-      <p class="hero-subtitle reveal" data-delay="200">
+      <p class="hero-subtitle reveal" data-delay="200" data-reveal="up">
         La comunidad de ciberseguridad que más crece en Latinoamérica
       </p>
-      <div class="hero-cta reveal" data-delay="300">
+      <div class="hero-cta reveal" data-delay="300" data-reveal="up">
         <a href="https://socios.cybersocialclub.com.ar/login" class="btn-primary">
           Iniciar Sesión
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -75,7 +88,7 @@
         </a>
       </div>
     </div>
-    
+
     <div class="hero-scroll">
       <span class="hero-scroll-text">Scroll</span>
       <div class="hero-scroll-line"></div>
@@ -85,14 +98,14 @@
   <!-- Historia Section -->
   <section class="historia" id="historia">
     <div class="container">
-      <div class="section-label reveal">
+      <div class="section-label reveal" data-reveal="left">
         <span class="section-number">01</span>
         <div class="section-line"></div>
         <span class="section-text">Nuestra Historia</span>
       </div>
-      
+
       <div class="historia-grid">
-        <div class="historia-content reveal">
+        <div class="historia-content reveal" data-reveal="left">
           <h2 class="historia-title">
             De amigos a <span class="text-accent italic">comunidad</span>
           </h2>
@@ -100,33 +113,48 @@
             Somos un grupo de colegas que nos hicimos amigos. Nos juntábamos a comer, beber y charlar de ciberseguridad y de la vida. Hasta que se nos ocurrió la idea de compartir y sumar gente del gremio.
           </p>
         </div>
-        
+
         <div class="historia-stats">
-          <div class="stat-card reveal" data-delay="50">
+          <div class="stat-card reveal" data-delay="50" data-reveal="scale">
+            <div class="stat-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
             <div class="stat-number">
               <span class="counter" id="member-count" data-target="0">0</span>+
             </div>
             <div class="stat-label">miembros registrados</div>
           </div>
-          <div class="stat-card reveal" data-delay="100">
+          <div class="stat-card reveal" data-delay="100" data-reveal="scale">
+            <div class="stat-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            </div>
             <div class="stat-number">
               <span class="counter" data-target="1000">0</span>+
             </div>
             <div class="stat-label">seguidores en Instagram</div>
           </div>
-          <div class="stat-card reveal" data-delay="200">
+          <div class="stat-card reveal" data-delay="200" data-reveal="scale">
+            <div class="stat-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+            </div>
             <div class="stat-number">
               <span class="counter" data-target="800">0</span>+
             </div>
             <div class="stat-label">en LinkedIn</div>
           </div>
-          <div class="stat-card reveal" data-delay="300">
+          <div class="stat-card reveal" data-delay="300" data-reveal="scale">
+            <div class="stat-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
             <div class="stat-number">
               <span class="counter" data-target="40">0</span>+
             </div>
             <div class="stat-label">eventos generados</div>
           </div>
-          <div class="stat-card reveal" data-delay="400">
+          <div class="stat-card reveal" data-delay="400" data-reveal="scale">
+            <div class="stat-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
             <div class="stat-number">
               <span class="counter" data-target="300">0</span>+
             </div>
@@ -140,18 +168,18 @@
   <!-- Board Section (hidden — Santiago will define when/how to show it)
   <section class="board" id="board">
     <div class="container">
-      <div class="section-label reveal">
+      <div class="section-label reveal" data-reveal="left">
         <span class="section-number">02</span>
         <div class="section-line"></div>
         <span class="section-text">Junta Directiva</span>
       </div>
-      
-      <div class="board-header reveal">
+
+      <div class="board-header reveal" data-reveal="up">
         <h2 class="board-title">Conocé a los <span class="highlight">líderes</span> que impulsan nuestra comunidad</h2>
       </div>
 
       <div class="board-grid">
-        <div class="board-card reveal" data-delay="100">
+        <div class="board-card reveal" data-delay="100" data-reveal="scale">
           <div class="board-avatar">SF</div>
           <div class="board-info">
             <h3 class="board-name">Santiago Fernández</h3>
@@ -167,7 +195,7 @@
           </div>
         </div>
 
-        <div class="board-card reveal" data-delay="150">
+        <div class="board-card reveal" data-delay="150" data-reveal="scale">
           <div class="board-avatar">RC</div>
           <div class="board-info">
             <h3 class="board-name">Rodi Contino</h3>
@@ -183,7 +211,7 @@
           </div>
         </div>
 
-        <div class="board-card reveal" data-delay="200">
+        <div class="board-card reveal" data-delay="200" data-reveal="scale">
           <div class="board-avatar">CL</div>
           <div class="board-info">
             <h3 class="board-name">Claudio Lombardo</h3>
@@ -199,7 +227,7 @@
           </div>
         </div>
 
-        <div class="board-card reveal" data-delay="250">
+        <div class="board-card reveal" data-delay="250" data-reveal="scale">
           <div class="board-avatar">RR</div>
           <div class="board-info">
             <h3 class="board-name">Roberto Rubiano</h3>
@@ -215,7 +243,7 @@
           </div>
         </div>
 
-        <div class="board-card reveal" data-delay="300">
+        <div class="board-card reveal" data-delay="300" data-reveal="scale">
           <div class="board-avatar">SL</div>
           <div class="board-info">
             <h3 class="board-name">Sebastián López Galanes</h3>
@@ -231,7 +259,7 @@
           </div>
         </div>
 
-        <div class="board-card reveal" data-delay="350">
+        <div class="board-card reveal" data-delay="350" data-reveal="scale">
           <div class="board-avatar">PL</div>
           <div class="board-info">
             <h3 class="board-name">Pablo López Gutiérrez</h3>
@@ -247,7 +275,7 @@
           </div>
         </div>
 
-        <div class="board-card reveal" data-delay="400">
+        <div class="board-card reveal" data-delay="400" data-reveal="scale">
           <div class="board-avatar">GC</div>
           <div class="board-info">
             <h3 class="board-name">Gabriel Carrera</h3>
@@ -271,15 +299,27 @@
   <section class="evento" id="evento">
     <div class="evento-glow"></div>
     <div class="container">
-      <div class="section-label reveal">
+      <div class="section-label reveal" data-reveal="left">
         <span class="section-number">03</span>
         <div class="section-line"></div>
         <span class="section-text">Próximo Evento</span>
       </div>
-      
-      <div class="evento-card reveal">
-        <div class="evento-badge">PRÓXIMAMENTE</div>
+
+      <div class="evento-card reveal" data-reveal="scale">
+        <div class="evento-badge">
+          <span class="pulse-dot"></span>
+          PRÓXIMAMENTE
+        </div>
         <h2 class="evento-title">Cumpleaños del Club</h2>
+        <div class="evento-countdown" aria-hidden="true">
+          <div class="countdown-item"><span class="countdown-value">--</span><span class="countdown-label">días</span></div>
+          <div class="countdown-sep">:</div>
+          <div class="countdown-item"><span class="countdown-value">--</span><span class="countdown-label">horas</span></div>
+          <div class="countdown-sep">:</div>
+          <div class="countdown-item"><span class="countdown-value">--</span><span class="countdown-label">min</span></div>
+          <div class="countdown-sep">:</div>
+          <div class="countdown-item"><span class="countdown-value">--</span><span class="countdown-label">seg</span></div>
+        </div>
         <div class="evento-details">
           <div class="evento-detail">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -304,7 +344,7 @@
       </div>
 
       <!-- Sponsors Placeholder -->
-      <div class="sponsors reveal">
+      <div class="sponsors reveal" data-reveal="up">
         <p class="sponsors-label">Sponsors</p>
         <div class="sponsors-placeholder">
           <span>Próximamente</span>
@@ -316,16 +356,16 @@
   <!-- Galería Section -->
   <section class="carrusel" id="fotos">
     <div class="container">
-      <div class="section-label reveal">
+      <div class="section-label reveal" data-reveal="left">
         <span class="section-number">04</span>
         <div class="section-line"></div>
         <span class="section-text">Galería</span>
       </div>
 
-      <h2 class="section-heading reveal">Momentos que nos <span class="highlight">definen</span></h2>
+      <h2 class="section-heading reveal" data-reveal="up">Momentos que nos <span class="highlight">definen</span></h2>
 
       <!-- 5to Evento -->
-      <div class="event-album reveal">
+      <div class="event-album reveal" data-reveal="up">
         <h3 class="event-album-title">5to Evento Cyber Social Club</h3>
         <p class="event-album-subtitle">SAN FRANCISCO</p>
         <div class="carousel-container">
@@ -353,11 +393,12 @@
           </div>
           <button class="carousel-btn carousel-next" aria-label="Siguiente"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
         </div>
+        <div class="carousel-thumbs"></div>
         <div class="carousel-counter"><span class="carousel-current">1</span> / <span class="carousel-total">19</span></div>
       </div>
 
       <!-- 4to Evento Cyber Social Club -->
-      <div class="event-album reveal">
+      <div class="event-album reveal" data-reveal="up">
         <h3 class="event-album-title">4to Evento Cyber Social Club</h3>
         <p class="event-album-subtitle">BUENOS AIRES</p>
         <div class="carousel-container">
@@ -390,11 +431,12 @@
           </div>
           <button class="carousel-btn carousel-next" aria-label="Siguiente"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
         </div>
+        <div class="carousel-thumbs"></div>
         <div class="carousel-counter"><span class="carousel-current">1</span> / <span class="carousel-total">24</span></div>
       </div>
 
       <!-- 3er Evento Cyber Social Club -->
-      <div class="event-album reveal">
+      <div class="event-album reveal" data-reveal="up">
         <h3 class="event-album-title">3er Evento Cyber Social Club</h3>
         <p class="event-album-subtitle">BUENOS AIRES</p>
         <div class="carousel-container">
@@ -417,6 +459,7 @@
           </div>
           <button class="carousel-btn carousel-next" aria-label="Siguiente"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
         </div>
+        <div class="carousel-thumbs"></div>
         <div class="carousel-counter"><span class="carousel-current">1</span> / <span class="carousel-total">14</span></div>
       </div>
 
@@ -438,13 +481,26 @@
   <!-- Footer -->
   <footer class="footer">
     <div class="container">
-      <div class="footer-content">
-        <div class="footer-brand">
-          <img src="public/logos/logo-light.png" alt="CSC" width="120" height="34" class="footer-logo">
+      <div class="footer-top">
+        <div class="footer-brand reveal" data-reveal="up">
+          <img src="public/logos/logo-light.png" alt="Cyber Social Club" class="footer-logo">
           <p class="footer-tagline">Where Cyber Minds Connect</p>
         </div>
-        
-        <div class="footer-links">
+
+        <div class="footer-cta reveal" data-delay="100" data-reveal="up">
+          <h3 class="footer-cta-title">Sumate a la comunidad</h3>
+          <p class="footer-cta-text">Recibí las novedades de eventos, meetups y networking.</p>
+          <form class="footer-form" onsubmit="event.preventDefault();">
+            <input type="email" class="footer-input" placeholder="tu@email.com" aria-label="Email">
+            <button type="submit" class="footer-submit">Suscribirme</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="footer-separator"></div>
+
+      <div class="footer-content">
+        <div class="footer-links reveal" data-reveal="up">
           <a href="https://www.instagram.com/cybersocialclub/" target="_blank" rel="noopener" class="footer-link">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
@@ -471,13 +527,28 @@
           </a>
         </div>
       </div>
-      
+
       <div class="footer-bottom">
         <p>&copy; 2026 Cyber Social Club. Todos los derechos reservados.</p>
         <p>cybersocialclub.com.ar</p>
       </div>
     </div>
   </footer>
+
+  <!-- Lightbox Modal -->
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <button class="lightbox-close" aria-label="Cerrar">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <button class="lightbox-nav lightbox-prev" aria-label="Anterior">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <button class="lightbox-nav lightbox-next" aria-label="Siguiente">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+    <img src="" alt="" class="lightbox-img" id="lightboxImg">
+    <div class="lightbox-caption" id="lightboxCaption"></div>
+  </div>
 
   <script src="script.js"></script>
 </body>

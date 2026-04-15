@@ -6,6 +6,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { ArrowLeft, Loader2, Mail, Lock, AlertCircle } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 import { motion, AnimatePresence } from "framer-motion";
+import { CyberBackground } from "@/components/cyber-background";
 
 const ERROR_MESSAGES: Record<string, string> = {
   preview_disabled: "Social login no está disponible en entornos de preview.",
@@ -123,40 +124,7 @@ function LoginContent() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0A0A0A] px-4 pt-16">
-      {/* Ambient glow */}
-      <div className="pointer-events-none absolute inset-0">
-        <motion.div
-          className="absolute left-1/2 top-1/3 h-[500px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-csc-orange/[0.04] blur-[160px]"
-          animate={{ scale: [1, 1.1, 1], opacity: [0.4, 0.6, 0.4] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="absolute right-1/4 bottom-1/4 h-[300px] w-[300px] rounded-full bg-csc-orange/[0.02] blur-[120px]"
-          animate={{ scale: [1, 1.2, 1], x: [0, 30, 0] }}
-          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-        />
-      </div>
-
-      {/* Floating particles */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        {[...Array(6)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute h-1 w-1 rounded-full bg-csc-orange/20"
-            style={{ left: `${15 + i * 15}%`, top: `${20 + (i % 3) * 25}%` }}
-            animate={{
-              y: [0, -40, 0],
-              opacity: [0.2, 0.5, 0.2],
-            }}
-            transition={{
-              duration: 4 + i * 0.8,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: i * 0.6,
-            }}
-          />
-        ))}
-      </div>
+      <CyberBackground intensity="hero" />
 
       <motion.div
         initial={{ opacity: 0, y: 30 }}
@@ -217,7 +185,7 @@ function LoginContent() {
 
         {/* Card container */}
         <motion.div
-          className="rounded-2xl border border-white/[0.06] bg-[#141211]/80 p-6 backdrop-blur-xl"
+          className="glass-card rounded-2xl p-6"
           initial={{ opacity: 0, scale: 0.97 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
@@ -241,8 +209,10 @@ function LoginContent() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="nombre@empresa.com"
-                  className={`w-full rounded-xl border bg-white/[0.02] py-3 pl-10 pr-4 font-mono text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-1 transition-all ${
-                    emailError ? "border-red-500/30 focus:ring-red-500/20" : "border-white/5 focus:border-csc-orange/30 focus:ring-csc-orange/20"
+                  className={`w-full rounded-xl py-3 pl-10 pr-4 font-mono text-sm text-white placeholder:text-white/20 transition-all ${
+                    emailError
+                      ? "border border-red-500/30 bg-white/[0.02] focus:outline-none focus:ring-1 focus:ring-red-500/20"
+                      : "glass-input"
                   }`}
                 />
               </div>
@@ -268,8 +238,10 @@ function LoginContent() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className={`w-full rounded-xl border bg-white/[0.02] py-3 pl-10 pr-4 font-mono text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-1 transition-all ${
-                    passwordError ? "border-red-500/30 focus:ring-red-500/20" : "border-white/5 focus:border-csc-orange/30 focus:ring-csc-orange/20"
+                  className={`w-full rounded-xl py-3 pl-10 pr-4 font-mono text-sm text-white placeholder:text-white/20 transition-all ${
+                    passwordError
+                      ? "border border-red-500/30 bg-white/[0.02] focus:outline-none focus:ring-1 focus:ring-red-500/20"
+                      : "glass-input"
                   }`}
                 />
               </div>
@@ -281,7 +253,7 @@ function LoginContent() {
             <motion.button
               type="submit"
               disabled={emailLoading}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-csc-orange px-4 py-3.5 font-mono text-sm font-medium text-white transition-all hover:bg-csc-amber hover:shadow-lg hover:shadow-csc-orange/20 disabled:opacity-50"
+              className="btn-glow flex w-full items-center justify-center gap-2 rounded-xl bg-csc-orange px-4 py-3.5 font-mono text-sm font-medium text-white transition-all hover:bg-csc-amber disabled:opacity-50"
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.4 }}
@@ -333,7 +305,7 @@ function LoginContent() {
               <motion.button
                 onClick={() => handleSocialLogin("google")}
                 disabled={loading !== null}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3.5 font-mono text-sm text-white transition-all hover:border-white/20 hover:bg-white/[0.06] disabled:opacity-50"
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3.5 font-mono text-sm text-white transition-all hover:border-csc-orange/30 hover:bg-csc-orange/5 disabled:opacity-50"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -349,7 +321,7 @@ function LoginContent() {
               <motion.button
                 onClick={() => handleSocialLogin("linkedin_oidc")}
                 disabled={loading !== null}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3.5 font-mono text-sm text-white transition-all hover:border-white/20 hover:bg-white/[0.06] disabled:opacity-50"
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3.5 font-mono text-sm text-white transition-all hover:border-csc-orange/30 hover:bg-csc-orange/5 disabled:opacity-50"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >

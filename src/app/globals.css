@@ -167,3 +167,56 @@
     }
   }
 }
+
+/* Cyber grid animation */
+@keyframes gridMove {
+  0% { transform: perspective(800px) rotateX(12deg) translateY(0); }
+  100% { transform: perspective(800px) rotateX(12deg) translateY(50px); }
+}
+
+/* Glassmorphism utilities */
+.glass-card {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(20, 18, 17, 0.72);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.glass-panel {
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(20, 18, 17, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.glass-input {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  transition: all 0.2s ease;
+}
+.glass-input:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+}
+.glass-input:focus {
+  outline: none;
+  border-color: rgba(232, 123, 30, 0.4);
+  box-shadow: 0 0 0 3px rgba(232, 123, 30, 0.1);
+}
+
+/* Premium button glow */
+.btn-glow {
+  transition: all 0.2s ease;
+}
+.btn-glow:hover {
+  box-shadow: 0 0 24px rgba(232, 123, 30, 0.35);
+}
+
+/* Subtle card lift */
+.card-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}

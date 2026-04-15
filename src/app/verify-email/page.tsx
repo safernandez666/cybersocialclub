@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import { CyberBackground } from "@/components/cyber-background";
 
 export default function VerifyEmailPage() {
   return (
@@ -52,16 +53,17 @@ function VerifyEmailContent() {
   const Icon = state.icon;
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[#0A0A0A] px-4">
-      <div className="w-full max-w-sm text-center">
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#0A0A0A] px-4">
+      <CyberBackground intensity="hero" />
+      <div className="relative z-10 w-full max-w-sm text-center">
         <Icon className={`mx-auto mb-6 h-12 w-12 ${state.iconColor}`} />
-        <h1 className="mb-3 font-mono text-xl text-white">{state.title}</h1>
-        <p className="mb-8 font-mono text-sm leading-relaxed text-white/40">
+        <h1 className="mb-3 font-mono text-xl text-white drop-shadow-[0_0_30px_rgba(232,123,30,0.25)]">{state.title}</h1>
+        <p className="mb-8 font-mono text-sm leading-relaxed text-white/50">
           {state.description}
         </p>
         <Link
           href="/"
-          className="inline-flex rounded-full border border-white/10 px-8 py-3 font-mono text-xs uppercase tracking-widest text-white/50 transition-all hover:bg-white/5 hover:text-white"
+          className="inline-flex rounded-full border border-white/10 bg-white/[0.03] px-8 py-3 font-mono text-xs uppercase tracking-widest text-white/70 transition-all hover:border-white/20 hover:text-white"
         >
           Volver al inicio
         </Link>
