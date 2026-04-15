@@ -14,6 +14,7 @@ import {
   ArrowRight,
   ArrowUpRight,
 } from "lucide-react";
+import { CyberBackground } from "@/components/cyber-background";
 
 /* ------------------------------------------------------------------ */
 /* Animated counter                                                    */
@@ -123,10 +124,7 @@ export default function Home() {
         style={{ opacity: heroOpacity, scale: heroScale }}
         className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4"
       >
-        {/* Ambient glow */}
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/2 top-1/3 h-[500px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-csc-orange/[0.06] blur-[180px]" />
-        </div>
+        <CyberBackground intensity="hero" />
 
         <Reveal className="relative z-10 flex flex-col items-center text-center">
           <Image
@@ -157,7 +155,7 @@ export default function Home() {
             </Link>
             <Link
               href="/register"
-              className="inline-flex items-center gap-2 rounded-full border border-white/10 px-8 py-4 font-mono text-sm text-white/50 transition-all hover:border-csc-orange/30 hover:text-white"
+              className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-8 py-4 font-mono text-sm text-white/50 transition-all hover:border-csc-orange/30 hover:bg-csc-orange/5 hover:text-white"
             >
               Registrate
             </Link>
@@ -207,7 +205,7 @@ export default function Home() {
                   { value: 300, suffix: "+", label: "Personas de asistencia" },
                 ].map((stat, i) => (
                   <Reveal key={stat.label} delay={0.1 * i}>
-                    <div className="rounded-2xl border border-white/[0.06] bg-[#141211] p-6 transition-all duration-300 hover:border-csc-orange/30">
+                    <div className="glass-card rounded-2xl p-6 transition-all duration-300 hover:border-csc-orange/30 card-lift">
                       <div className="text-[1.75rem] sm:text-[2rem] font-semibold tracking-tight text-white">
                         <Counter target={stat.value} suffix={stat.suffix} />
                       </div>
@@ -300,12 +298,10 @@ export default function Home() {
 
       {/* ---- CTA ---- */}
       <section className="relative px-4 py-40 sm:px-8">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-csc-orange/[0.04] blur-[150px]" />
-        </div>
+        <CyberBackground intensity="subtle" />
 
         <Reveal className="relative z-10 mx-auto max-w-2xl text-center">
-          <div className="mx-auto mb-8 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/5">
+          <div className="glass-card mx-auto mb-8 flex h-16 w-16 items-center justify-center rounded-2xl">
             <Shield className="h-7 w-7 text-csc-orange" />
           </div>
           <h2 className="mb-5 text-3xl font-light tracking-tight text-white sm:text-4xl lg:text-5xl">
@@ -317,7 +313,7 @@ export default function Home() {
           <div className="flex flex-col items-center gap-4 sm:flex-row">
             <Link
               href="/login"
-              className="group inline-flex items-center gap-3 rounded-full bg-csc-orange px-10 py-4 font-mono text-sm font-medium text-white transition-all hover:bg-csc-amber hover:shadow-xl hover:shadow-csc-orange/20"
+              className="btn-glow group inline-flex items-center gap-3 rounded-full bg-csc-orange px-10 py-4 font-mono text-sm font-medium text-white transition-all hover:bg-csc-amber"
             >
               Iniciar Sesión
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
