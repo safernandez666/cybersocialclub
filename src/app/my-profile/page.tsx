@@ -239,17 +239,17 @@ export default function MyProfilePage() {
           </div>
           <div className="grid gap-6 lg:grid-cols-3">
             <div className="lg:col-span-2">
-              <div className="glass-card rounded-3xl p-6 sm:p-8">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-6 mb-8">
-                  <SkeletonAvatar size="xl" />
+              <div className="glass-card rounded-3xl p-5 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-5 mb-6">
+                  <SkeletonAvatar size="lg" />
                   <div className="flex-1 space-y-3">
                     <Skeleton width="60%" height="28px" />
                     <Skeleton width="40%" height="16px" />
                   </div>
                 </div>
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-3 sm:grid-cols-2">
                   {Array.from({ length: 8 }).map((_, i) => (
-                    <div key={i} className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
+                    <div key={i} className="rounded-xl border border-white/5 bg-white/[0.02] p-3">
                       <Skeleton width="80px" height="12px" className="mb-3" />
                       <Skeleton width="70%" height="20px" />
                     </div>
@@ -257,25 +257,25 @@ export default function MyProfilePage() {
                 </div>
               </div>
             </div>
-            <div className="glass-card rounded-3xl p-6">
-              <div className="mb-6 text-center">
+            <div className="glass-card rounded-3xl p-4 sm:p-5">
+              <div className="mb-4 text-center">
                 <Skeleton width="180px" height="16px" className="mx-auto mb-2" />
                 <Skeleton width="120px" height="10px" className="mx-auto" />
               </div>
-              <div className="flex justify-center mb-6">
-                <Skeleton width="160px" height="160px" shape="rounded" />
+              <div className="flex justify-center mb-4">
+                <Skeleton width="112px" height="112px" shape="rounded" />
               </div>
-              <div className="border-t border-white/5 pt-4 space-y-3">
+              <div className="border-t border-white/5 pt-3 space-y-2">
                 <div className="flex justify-between">
                   <Skeleton width="80px" height="14px" />
-                  <Skeleton width="60px" height="20px" />
+                  <Skeleton width="60px" height="18px" />
                 </div>
                 <div className="flex justify-between">
                   <Skeleton width="60px" height="14px" />
                   <Skeleton width="100px" height="16px" />
                 </div>
               </div>
-              <Skeleton width="100%" height="40px" shape="rounded" className="mt-6" />
+              <Skeleton width="100%" height="36px" shape="rounded" className="mt-4" />
             </div>
           </div>
         </div>
@@ -466,7 +466,7 @@ export default function MyProfilePage() {
                           value={editForm.first_name || ""}
                           onChange={(e) => setEditValue("first_name", e.target.value || null)}
                           placeholder="Tu nombre"
-                          className="glass-input w-full rounded-xl py-2.5 px-3 font-mono text-sm text-white placeholder:text-white/20"
+                          className="glass-input w-full rounded-xl py-2 px-3 font-mono text-sm text-white placeholder:text-white/20"
                         />
                       </div>
                       <div className="space-y-1.5">
@@ -476,7 +476,7 @@ export default function MyProfilePage() {
                           value={editForm.last_name || ""}
                           onChange={(e) => setEditValue("last_name", e.target.value || null)}
                           placeholder="Tu apellido"
-                          className="glass-input w-full rounded-xl py-2.5 px-3 font-mono text-sm text-white placeholder:text-white/20"
+                          className="glass-input w-full rounded-xl py-2 px-3 font-mono text-sm text-white placeholder:text-white/20"
                         />
                       </div>
                     </div>
@@ -500,10 +500,10 @@ export default function MyProfilePage() {
               </div>
 
               {/* Details Grid */}
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-3 sm:grid-cols-2">
                 {/* Company */}
-                <div className="glass-panel rounded-xl p-4 card-lift">
-                  <div className="flex items-center gap-2 mb-2">
+                <div className="glass-panel rounded-xl p-3 card-lift">
+                  <div className="flex items-center gap-2 mb-1.5">
                     <Building2 className="h-3.5 w-3.5 text-csc-orange/60" />
                     <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
                       Empresa
@@ -515,7 +515,7 @@ export default function MyProfilePage() {
                       value={editForm.company || ""}
                       onChange={(e) => setEditValue("company", e.target.value || null)}
                       placeholder="Tu empresa"
-                      className="glass-input w-full rounded-xl py-2.5 px-3 font-mono text-sm text-white placeholder:text-white/20"
+                      className="glass-input w-full rounded-xl py-2 px-3 font-mono text-sm text-white placeholder:text-white/20"
                     />
                   ) : (
                     <p className="text-white/80">{member.company || "—"}</p>
@@ -523,8 +523,8 @@ export default function MyProfilePage() {
                 </div>
 
                 {/* Job Title */}
-                <div className="glass-panel rounded-xl p-4 card-lift">
-                  <div className="flex items-center gap-2 mb-2">
+                <div className="glass-panel rounded-xl p-3 card-lift">
+                  <div className="flex items-center gap-2 mb-1.5">
                     <Briefcase className="h-3.5 w-3.5 text-csc-orange/60" />
                     <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
                       Cargo
@@ -536,7 +536,7 @@ export default function MyProfilePage() {
                       value={editForm.job_title || ""}
                       onChange={(e) => setEditValue("job_title", e.target.value || null)}
                       placeholder="Tu cargo"
-                      className="glass-input w-full rounded-xl py-2.5 px-3 font-mono text-sm text-white placeholder:text-white/20"
+                      className="glass-input w-full rounded-xl py-2 px-3 font-mono text-sm text-white placeholder:text-white/20"
                     />
                   ) : (
                     <p className="text-white/80">{member.job_title || "—"}</p>
@@ -544,8 +544,8 @@ export default function MyProfilePage() {
                 </div>
 
                 {/* Role Type - Read Only */}
-                <div className="glass-panel rounded-xl p-4 card-lift">
-                  <div className="flex items-center gap-2 mb-2">
+                <div className="glass-panel rounded-xl p-3 card-lift">
+                  <div className="flex items-center gap-2 mb-1.5">
                     <UserCircle className="h-3.5 w-3.5 text-csc-orange/60" />
                     <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
                       Rol
@@ -555,8 +555,8 @@ export default function MyProfilePage() {
                 </div>
 
                 {/* Member Since - Read Only */}
-                <div className="glass-panel rounded-xl p-4 card-lift">
-                  <div className="flex items-center gap-2 mb-2">
+                <div className="glass-panel rounded-xl p-3 card-lift">
+                  <div className="flex items-center gap-2 mb-1.5">
                     <Calendar className="h-3.5 w-3.5 text-csc-orange/60" />
                     <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
                       Miembro desde
@@ -566,8 +566,8 @@ export default function MyProfilePage() {
                 </div>
 
                 {/* Phone */}
-                <div className="glass-panel rounded-xl p-4 card-lift">
-                  <div className="flex items-center gap-2 mb-2">
+                <div className="glass-panel rounded-xl p-3 card-lift">
+                  <div className="flex items-center gap-2 mb-1.5">
                     <Phone className="h-3.5 w-3.5 text-csc-orange/60" />
                     <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
                       Teléfono
@@ -579,7 +579,7 @@ export default function MyProfilePage() {
                       value={editForm.phone || ""}
                       onChange={(e) => setEditValue("phone", e.target.value || null)}
                       placeholder="+54 11 ..."
-                      className="glass-input w-full rounded-xl py-2.5 px-3 font-mono text-sm text-white placeholder:text-white/20"
+                      className="glass-input w-full rounded-xl py-2 px-3 font-mono text-sm text-white placeholder:text-white/20"
                     />
                   ) : (
                     <p className="text-white/80">{member.phone || "—"}</p>
@@ -587,8 +587,8 @@ export default function MyProfilePage() {
                 </div>
 
                 {/* LinkedIn */}
-                <div className="glass-panel rounded-xl p-4 card-lift">
-                  <div className="flex items-center gap-2 mb-2">
+                <div className="glass-panel rounded-xl p-3 card-lift">
+                  <div className="flex items-center gap-2 mb-1.5">
                     <Linkedin className="h-3.5 w-3.5 text-csc-orange/60" />
                     <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
                       LinkedIn
@@ -600,7 +600,7 @@ export default function MyProfilePage() {
                       value={editForm.linkedin_url || ""}
                       onChange={(e) => setEditValue("linkedin_url", e.target.value || null)}
                       placeholder="https://linkedin.com/in/..."
-                      className="glass-input w-full rounded-xl py-2.5 px-3 font-mono text-sm text-white placeholder:text-white/20"
+                      className="glass-input w-full rounded-xl py-2 px-3 font-mono text-sm text-white placeholder:text-white/20"
                     />
                   ) : (
                     member.linkedin_url ? (
@@ -619,8 +619,8 @@ export default function MyProfilePage() {
                 </div>
 
                 {/* Country */}
-                <div className="glass-panel rounded-xl p-4 card-lift">
-                  <div className="flex items-center gap-2 mb-2">
+                <div className="glass-panel rounded-xl p-3 card-lift">
+                  <div className="flex items-center gap-2 mb-1.5">
                     <Globe className="h-3.5 w-3.5 text-csc-orange/60" />
                     <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
                       País
@@ -638,8 +638,8 @@ export default function MyProfilePage() {
                 </div>
 
                 {/* Years Experience - Read Only */}
-                <div className="glass-panel rounded-xl p-4 card-lift">
-                  <div className="flex items-center gap-2 mb-2">
+                <div className="glass-panel rounded-xl p-3 card-lift">
+                  <div className="flex items-center gap-2 mb-1.5">
                     <Briefcase className="h-3.5 w-3.5 text-csc-orange/60" />
                     <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
                       Experiencia
@@ -658,8 +658,8 @@ export default function MyProfilePage() {
             transition={{ delay: 0.2 }}
           >
             <div className="rounded-[28px] p-[1px] bg-gradient-to-br from-csc-orange via-csc-amber to-csc-orange/60">
-              <div className="h-full rounded-[27px] border border-white/5 bg-[#141211]/90 backdrop-blur-xl p-6">
-                <div className="mb-6 text-center">
+              <div className="h-full rounded-[27px] border border-white/5 bg-[#141211]/90 backdrop-blur-xl p-4 sm:p-5">
+                <div className="mb-4 text-center">
                   <h3 className="font-mono text-sm font-bold tracking-widest text-csc-orange mb-1">
                     CYBER SOCIAL CLUB
                   </h3>
@@ -669,22 +669,22 @@ export default function MyProfilePage() {
                 </div>
 
                 {/* QR Code */}
-                <div className="flex flex-col items-center mb-6">
+                <div className="flex flex-col items-center mb-4">
                   {member.qr ? (
                     <>
-                      <div className="rounded-2xl bg-[#0A0A0A] p-4 border border-white/5">
+                      <div className="rounded-xl bg-[#0A0A0A] p-3 border border-white/5">
                         <img
                           src={member.qr}
                           alt="QR de verificación"
-                          className="h-40 w-40"
+                          className="h-28 w-28"
                         />
                       </div>
-                      <p className="mt-3 font-mono text-[10px] uppercase tracking-widest text-white/30">
+                      <p className="mt-2 font-mono text-[10px] uppercase tracking-widest text-white/30">
                         Escaneá para verificar
                       </p>
                     </>
                   ) : (
-                    <div className="h-40 w-40 rounded-2xl bg-white/[0.02] border border-white/5 flex items-center justify-center">
+                    <div className="h-28 w-28 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-center">
                       <p className="font-mono text-xs text-white/20 text-center px-4">
                         QR no disponible
                       </p>
@@ -693,12 +693,12 @@ export default function MyProfilePage() {
                 </div>
 
                 {/* Member Info Summary */}
-                <div className="border-t border-white/5 pt-4 space-y-2">
+                <div className="border-t border-white/5 pt-3 space-y-1.5">
                   <div className="flex justify-between items-center">
                     <span className="font-mono text-[10px] text-white/40 uppercase tracking-wider">
                       Miembro
                     </span>
-                    <span className="font-mono text-lg font-bold text-csc-orange">
+                    <span className="font-mono text-base font-bold text-csc-orange">
                       #{member.member_number}
                     </span>
                   </div>
@@ -706,20 +706,20 @@ export default function MyProfilePage() {
                     <span className="font-mono text-[10px] text-white/40 uppercase tracking-wider">
                       Nombre
                     </span>
-                    <span className="text-sm text-white/80 truncate max-w-[150px]">
+                    <span className="text-sm text-white/80 truncate max-w-[140px]">
                       {member.full_name}
                     </span>
                   </div>
                 </div>
 
                 {/* Action Buttons */}
-                <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+                <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
                   <a
                     href={`/api/credential/download?memberId=${member.id}`}
                     download={`CSC-Credencial-${member.member_number}.png`}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-csc-orange px-4 py-2 font-mono text-xs uppercase tracking-widest text-white transition-all hover:bg-csc-amber hover:shadow-xl hover:shadow-csc-orange/20"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-csc-orange px-3 py-1.5 font-mono text-xs uppercase tracking-widest text-white transition-all hover:bg-csc-amber hover:shadow-xl hover:shadow-csc-orange/20"
                   >
-                    <Download className="h-4 w-4" />
+                    <Download className="h-3.5 w-3.5" />
                     PNG
                   </a>
 
@@ -727,9 +727,9 @@ export default function MyProfilePage() {
                     <a
                       href={`/api/credential/pdf?token=${member.credential_token}`}
                       download={`CSC-Credencial-${member.member_number}.pdf`}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-4 py-2 font-mono text-xs uppercase tracking-widest text-white/80 transition-all hover:border-csc-orange/40 hover:bg-csc-orange/5 hover:text-white"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 font-mono text-xs uppercase tracking-widest text-white/80 transition-all hover:border-csc-orange/40 hover:bg-csc-orange/5 hover:text-white"
                     >
-                      <FileText className="h-4 w-4" />
+                      <FileText className="h-3.5 w-3.5" />
                       PDF
                     </a>
                   )}
@@ -738,9 +738,9 @@ export default function MyProfilePage() {
                     <button
                       onClick={handleShare}
                       disabled={shareLoading}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-4 py-2 font-mono text-xs uppercase tracking-widest text-white/80 transition-all hover:border-csc-orange/40 hover:bg-csc-orange/5 hover:text-white disabled:opacity-60"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 font-mono text-xs uppercase tracking-widest text-white/80 transition-all hover:border-csc-orange/40 hover:bg-csc-orange/5 hover:text-white disabled:opacity-60"
                     >
-                      {shareDone ? <CheckCircle2 className="h-4 w-4 text-green-400" /> : <Share2 className="h-4 w-4" />}
+                      {shareDone ? <CheckCircle2 className="h-3.5 w-3.5 text-green-400" /> : <Share2 className="h-3.5 w-3.5" />}
                       {shareDone ? "Copiado" : "Compartir"}
                     </button>
                   )}
@@ -748,19 +748,19 @@ export default function MyProfilePage() {
 
                 {/* Google Wallet */}
                 {member.credential_token && (
-                  <div className="mt-3 flex justify-center">
+                  <div className="mt-2 flex justify-center">
                     <button
                       onClick={handleGoogleWallet}
                       disabled={walletLoading}
-                      className="btn-glow group relative inline-flex items-center gap-2 rounded-lg bg-black px-3 py-2 font-sans text-xs font-medium text-white transition-all hover:bg-black/80 disabled:opacity-60 sm:hidden"
+                      className="btn-glow group relative inline-flex items-center gap-2 rounded-lg bg-black px-3 py-1.5 font-sans text-xs font-medium text-white transition-all hover:bg-black/80 disabled:opacity-60 sm:hidden"
                       aria-label="Agregar a Google Wallet"
                     >
-                      <Wallet className="h-4 w-4" />
+                      <Wallet className="h-3.5 w-3.5" />
                       Add to Google Wallet
                     </button>
 
-                    <span className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] text-white/40">
-                      <Wallet className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1 text-[10px] text-white/40">
+                      <Wallet className="h-3 w-3" />
                       Google Wallet disponible en Android
                     </span>
                   </div>
