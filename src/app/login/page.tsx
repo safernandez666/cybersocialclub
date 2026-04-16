@@ -3,7 +3,7 @@
 import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
-import { ArrowLeft, Loader2, Mail, Lock, AlertCircle } from "lucide-react";
+import { ArrowLeft, Loader2, Mail, Lock, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 import { motion, AnimatePresence } from "framer-motion";
 import { CyberBackground } from "@/components/cyber-background";
@@ -40,6 +40,7 @@ function LoginContent() {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [loginError, setLoginError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   
   const searchParams = useSearchParams();
   const errorParam = searchParams.get("error");
@@ -233,17 +234,25 @@ function LoginContent() {
               <div className="relative group">
                 <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/20 transition-colors group-focus-within:text-csc-orange/60" />
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className={`w-full rounded-xl py-3 pl-10 pr-4 font-mono text-sm text-white placeholder:text-white/20 transition-all ${
+                  className={`w-full rounded-xl py-3 pl-10 pr-12 font-mono text-sm text-white placeholder:text-white/20 transition-all ${
                     passwordError
                       ? "border border-red-500/30 bg-white/[0.02] focus:outline-none focus:ring-1 focus:ring-red-500/20"
                       : "glass-input"
                   }`}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/20 transition-colors hover:text-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-csc-orange/50 rounded"
+                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
               </div>
               {passwordError && (
                 <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="font-mono text-xs text-red-400">{passwordError}</motion.p>
