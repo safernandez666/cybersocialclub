@@ -60,6 +60,12 @@ interface MemberData {
 
 
 
+const roleOptions = [
+  "CISO", "Security Engineer", "Pentester", "SOC Analyst", "Security Architect",
+  "GRC", "DevSecOps", "Account Manager", "Manager", "Analyst",
+  "Partner", "Sponsor", "Researcher", "Student", "Vendor", "Other",
+];
+
 export default function MyProfilePage() {
   const router = useRouter();
   const [member, setMember] = useState<MemberData | null>(null);
@@ -199,6 +205,7 @@ export default function MyProfilePage() {
           job_title: editForm.job_title,
           linkedin_url: editForm.linkedin_url,
           country: editForm.country,
+          role_type: editForm.role_type,
         }),
       });
 
@@ -543,7 +550,7 @@ export default function MyProfilePage() {
                   )}
                 </div>
 
-                {/* Role Type - Read Only */}
+                {/* Role Type */}
                 <div className="glass-panel rounded-xl p-3 card-lift">
                   <div className="flex items-center gap-2 mb-1.5">
                     <UserCircle className="h-3.5 w-3.5 text-csc-orange/60" />
@@ -551,7 +558,26 @@ export default function MyProfilePage() {
                       Rol
                     </span>
                   </div>
-                  <p className="text-csc-orange/70">{member.role_type || "—"}</p>
+                  {isEditing ? (
+                    <div className="flex flex-wrap gap-2">
+                      {roleOptions.map((role) => (
+                        <button
+                          key={role}
+                          type="button"
+                          onClick={() => setEditValue("role_type", role)}
+                          className={`rounded-full px-3 py-1.5 font-mono text-xs transition-all ${
+                            editForm.role_type === role
+                              ? "bg-csc-orange text-white"
+                              : "border border-white/10 bg-white/5 text-white/60 hover:border-white/20 hover:text-white"
+                          }`}
+                        >
+                          {role}
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-csc-orange/70">{member.role_type || "—"}</p>
+                  )}
                 </div>
 
                 {/* Member Since - Read Only */}

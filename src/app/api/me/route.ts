@@ -78,6 +78,7 @@ export async function PATCH(req: Request) {
     "linkedin_url",
     "years_experience",
     "country",
+    "role_type",
   ];
 
   const updates: Record<string, unknown> = {};
