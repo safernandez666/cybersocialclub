@@ -33,7 +33,7 @@ function getServiceAccountKey(): { key: ServiceAccountKey } | { error: string } 
   if (!parsed.private_key.includes("BEGIN PRIVATE KEY")) {
     return { error: "Service account private_key has invalid format (expected PEM)" };
   }
-  return { key: parsed as ServiceAccountKey };
+  return { key: parsed as unknown as ServiceAccountKey };
 }
 
 function base64url(input: string | Buffer): string {
