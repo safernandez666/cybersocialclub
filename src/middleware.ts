@@ -76,7 +76,6 @@ export async function middleware(req: NextRequest) {
     if (isRateLimited(key, MEMBERS_POST_LIMIT.maxRequests, MEMBERS_POST_LIMIT.windowMs)) {
       return NextResponse.json({ error: "Too many requests" }, { status: 429 });
     }
-    return NextResponse.next();
   }
 
   // Check pattern-based rate limits
@@ -90,40 +89,44 @@ export async function middleware(req: NextRequest) {
     }
   }
 
+  // Supabase SSR cookie handling — required for ALL routes so PKCE code verifier
+  // and session cookies are properly passed between browser, middleware, and route handlers.
+  // Without this, the OAuth callback can't find the PKCE verifier cookie.
+  let supabaseResponse = NextResponse.next({ request: req });
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return req.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => req.cookies.set(name, value));
+          supabaseResponse = NextResponse.next({ request: req });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          );
+        },
+      },
+    }
+  );
+
+  // Refresh session — this ensures cookies are up to date.
+  // For /auth/callback this returns no user (session not yet created), which is expected.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   // Protect member routes — require Supabase session
   if (PROTECTED_MEMBER_ROUTES.some((r) => pathname.startsWith(r))) {
-    const res = NextResponse.next();
-
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return req.cookies.getAll();
-          },
-          setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value, options }) => {
-              req.cookies.set(name, value);
-              res.cookies.set(name, value, options);
-            });
-          },
-        },
-      }
-    );
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
     if (!user) {
       return NextResponse.redirect(new URL("/login", req.url));
     }
-
-    return res;
   }
 
-  return NextResponse.next();
+  return supabaseResponse;
 }
 
 export const config = {
