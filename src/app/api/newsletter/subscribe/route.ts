@@ -1,5 +1,4 @@
-import { type NextRequest, NextResponse } from "next/server";
-import { withAxiom, AxiomRequest } from "next-axiom";
+import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 // ── CORS ──
@@ -63,13 +62,13 @@ function sanitizeEmail(raw: unknown): string | null {
 }
 
 // ── Preflight ──
-export const OPTIONS = withAxiom(async (req: AxiomRequest) => {
+export async function OPTIONS(req: NextRequest) {
   const origin = req.headers.get("origin");
   return new NextResponse(null, { status: 204, headers: getCorsHeaders(origin) });
-});
+}
 
 // ── Subscribe ──
-export const POST = withAxiom(async (req: AxiomRequest) => {
+export async function POST(req: NextRequest) {
   const origin = req.headers.get("origin");
   const cors = getCorsHeaders(origin);
   const ip = getClientIp(req);
@@ -112,7 +111,7 @@ export const POST = withAxiom(async (req: AxiomRequest) => {
     );
 
   if (error) {
-    req.log.error("[newsletter] Insert error:", { error: error.message });
+    console.error("[newsletter] Insert error:", error.message);
     return NextResponse.json(
       { error: "Error al suscribirse. Intentá de nuevo." },
       { status: 500, headers: cors }
@@ -123,4 +122,4 @@ export const POST = withAxiom(async (req: AxiomRequest) => {
     { success: true, message: "¡Gracias por suscribirte!" },
     { status: 201, headers: cors }
   );
-});
+}

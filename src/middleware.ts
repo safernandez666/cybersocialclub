@@ -1,6 +1,5 @@
-import { NextRequest, NextResponse, NextFetchEvent } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-import { Logger } from "next-axiom";
 
 const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
 
@@ -61,10 +60,7 @@ setInterval(() => {
   }
 }, 60 * 1000);
 
-export async function middleware(req: NextRequest, event: NextFetchEvent) {
-  const logger = new Logger({ source: "middleware" });
-  logger.middleware(req);
-  event.waitUntil(logger.flush());
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Serve static landing page at "/"

@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { withAxiom, AxiomRequest } from "next-axiom";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { getSecurityHeaders } from "@/lib/auth-utils";
@@ -14,7 +13,7 @@ function sanitizeName(name: string): string {
  * GET /api/me — Returns the authenticated socio's member data.
  * Requires a valid Supabase session (cookie-based).
  */
-export const GET = withAxiom(async () => {
+export async function GET() {
   const securityHeaders = getSecurityHeaders();
 
   const supabase = await createSupabaseServerClient();
@@ -46,13 +45,13 @@ export const GET = withAxiom(async () => {
   }
 
   return NextResponse.json(member, { headers: securityHeaders });
-});
+}
 
 /**
  * PATCH /api/me — Update the authenticated socio's profile.
  * Only allows updating specific fields (not status, member_number, etc.).
  */
-export const PATCH = withAxiom(async (req: AxiomRequest) => {
+export async function PATCH(req: Request) {
   const securityHeaders = getSecurityHeaders();
 
   const supabase = await createSupabaseServerClient();
@@ -214,4 +213,4 @@ export const PATCH = withAxiom(async (req: AxiomRequest) => {
   }
 
   return NextResponse.json({ success: true }, { headers: securityHeaders });
-});
+}

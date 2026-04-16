@@ -1,5 +1,4 @@
-import { NextResponse } from "next/server";
-import { withAxiom, AxiomRequest } from "next-axiom";
+import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import crypto from "crypto";
 
@@ -131,7 +130,7 @@ function buildPassObject(
 }
 
 // GET /api/credential/google-wallet?token=xxx — returns Google Wallet "Add" URL
-export const GET = withAxiom(async (req: AxiomRequest) => {
+export async function GET(req: NextRequest) {
   const token = req.nextUrl.searchParams.get("token");
 
   if (!token) {
@@ -141,22 +140,22 @@ export const GET = withAxiom(async (req: AxiomRequest) => {
   // Validate environment with detailed diagnostics
   const issuerId = process.env.GOOGLE_WALLET_ISSUER_ID;
   if (!issuerId) {
-    req.log.error("[google-wallet] GOOGLE_WALLET_ISSUER_ID not set");
+    console.error("[google-wallet] GOOGLE_WALLET_ISSUER_ID not set");
     return NextResponse.json({ error: "Google Wallet not configured" }, { status: 503 });
   }
   if (!/^\d+$/.test(issuerId)) {
-    req.log.error(`[google-wallet] GOOGLE_WALLET_ISSUER_ID has invalid format: "${issuerId}" (expected numeric)`);
+    console.error(`[google-wallet] GOOGLE_WALLET_ISSUER_ID has invalid format: "${issuerId}" (expected numeric)`);
     return NextResponse.json({ error: "Google Wallet misconfigured" }, { status: 503 });
   }
 
   const saResult = getServiceAccountKey();
   if ("error" in saResult) {
-    req.log.error(`[google-wallet] Service account validation failed: ${saResult.error}`);
+    console.error(`[google-wallet] Service account validation failed: ${saResult.error}`);
     return NextResponse.json({ error: "Google Wallet not configured" }, { status: 503 });
   }
   const serviceAccountKey = saResult.key;
 
-  req.log.info(`[google-wallet] Config OK — issuer: ${issuerId}, sa: ${serviceAccountKey.client_email}`);
+  console.info(`[google-wallet] Config OK — issuer: ${issuerId}, sa: ${serviceAccountKey.client_email}`);
 
   // Fetch member
   const { data: member, error } = await getSupabaseAdmin()
@@ -204,25 +203,25 @@ export const GET = withAxiom(async (req: AxiomRequest) => {
 
   // Log pass details for debugging
   const appUrl = getAppUrl();
-  req.log.info(`[google-wallet] Building pass — member: ${member.member_number}, class: ${issuerId}.csc-membership`);
-  req.log.info(`[google-wallet] Image URLs — logo: ${appUrl}/icon-192.png, hero: ${appUrl}/csc-banner.png`);
+  console.info(`[google-wallet] Building pass — member: ${member.member_number}, class: ${issuerId}.csc-membership`);
+  console.info(`[google-wallet] Image URLs — logo: ${appUrl}/icon-192.png, hero: ${appUrl}/csc-banner.png`);
 
   try {
     const signedJwt = signJwt(claims, serviceAccountKey.private_key);
     const jwtParts = signedJwt.split(".");
-    req.log.info(`[google-wallet] JWT signed OK — ${jwtParts.length} parts, length: ${signedJwt.length}`);
+    console.info(`[google-wallet] JWT signed OK — ${jwtParts.length} parts, length: ${signedJwt.length}`);
 
     const walletUrl = `https://pay.google.com/gp/v/save/${signedJwt}`;
     return NextResponse.json({ url: walletUrl });
   } catch (err) {
     const errMsg = err instanceof Error ? err.message : String(err);
     const errStack = err instanceof Error ? err.stack : undefined;
-    req.log.error(`[google-wallet] JWT signing failed: ${errMsg}`);
-    if (errStack) req.log.error(`[google-wallet] Stack: ${errStack}`);
-    req.log.error(`[google-wallet] SA email: ${serviceAccountKey.client_email}, key starts: ${serviceAccountKey.private_key.slice(0, 30)}...`);
+    console.error(`[google-wallet] JWT signing failed: ${errMsg}`);
+    if (errStack) console.error(`[google-wallet] Stack: ${errStack}`);
+    console.error(`[google-wallet] SA email: ${serviceAccountKey.client_email}, key starts: ${serviceAccountKey.private_key.slice(0, 30)}...`);
     return NextResponse.json(
       { error: "Failed to generate wallet pass" },
       { status: 500 }
     );
   }
-});
+}
