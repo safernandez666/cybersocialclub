@@ -772,22 +772,27 @@ export default function MyProfilePage() {
                   )}
                 </div>
 
-                {/* Google Wallet — temporarily disabled until business profile fully live */}
+                {/* Google Wallet */}
                 {member.credential_token && (
                   <div className="mt-2 flex justify-center">
                     <button
-                      disabled
-                      className="group relative inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 font-sans text-xs font-medium text-white/40 sm:hidden"
-                      aria-label="Google Wallet — Próximamente"
+                      onClick={handleGoogleWallet}
+                      disabled={walletLoading}
+                      className="group relative inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 font-sans text-xs font-medium text-white/80 transition-all hover:border-csc-orange/30 hover:bg-csc-orange/5 disabled:opacity-60 sm:hidden"
+                      aria-label="Agregar a Google Wallet"
                     >
                       <Wallet className="h-3.5 w-3.5" />
-                      Google Wallet — Próximamente
+                      {walletLoading ? "Cargando..." : "Google Wallet"}
                     </button>
 
-                    <span className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1 text-[10px] text-white/40">
+                    <button
+                      onClick={handleGoogleWallet}
+                      disabled={walletLoading}
+                      className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1 text-[10px] text-white/80 transition-all hover:border-csc-orange/30 hover:bg-csc-orange/5 disabled:opacity-60 cursor-pointer"
+                    >
                       <Wallet className="h-3 w-3" />
-                      Google Wallet — Próximamente
-                    </span>
+                      {walletLoading ? "Cargando..." : "Google Wallet"}
+                    </button>
                   </div>
                 )}
               </div>
