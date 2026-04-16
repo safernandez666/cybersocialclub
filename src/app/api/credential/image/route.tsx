@@ -2,6 +2,14 @@ import { NextRequest } from "next/server";
 import { ImageResponse } from "next/og";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
+function getAppUrl() {
+  return (
+    process.env.NEXT_PUBLIC_APP_URL ||
+    process.env.APP_URL ||
+    "https://socios.cybersocialclub.com.ar"
+  );
+}
+
 // Credit-card proportions: 85.6mm × 53.98mm ≈ 1.586 ratio
 // Using 1012 × 638 px (2x for retina)
 const WIDTH = 1012;
@@ -146,7 +154,7 @@ export async function GET(req: NextRequest) {
                 </div>
               </div>
 
-              {/* Right: Member number large */}
+              {/* Right: QR Code */}
               <div
                 style={{
                   display: "flex",
@@ -161,19 +169,23 @@ export async function GET(req: NextRequest) {
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    backgroundColor: "rgba(232,123,30,0.08)",
-                    border: "1px solid rgba(232,123,30,0.15)",
+                    backgroundColor: "#FFFFFF",
                     borderRadius: 16,
-                    padding: "20px 24px",
+                    padding: 12,
                   }}
                 >
-                  <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)", letterSpacing: 3 }}>
-                    CREDENCIAL
-                  </span>
-                  <span style={{ fontSize: 40, color: "#E87B1E", fontWeight: 700, marginTop: 4 }}>
-                    {member.member_number}
-                  </span>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(`${getAppUrl()}/api/verify?member=${member.member_number}`)}&margin=0`}
+                    width={180}
+                    height={180}
+                    alt="QR"
+                    style={{ borderRadius: 8 }}
+                  />
                 </div>
+                <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)", letterSpacing: 2, marginTop: 8 }}>
+                  VERIFICAR
+                </span>
               </div>
             </div>
 
