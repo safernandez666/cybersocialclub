@@ -746,22 +746,21 @@ export default function MyProfilePage() {
                   )}
                 </div>
 
-                {/* Google Wallet */}
+                {/* Google Wallet — temporarily disabled until business profile fully live */}
                 {member.credential_token && (
                   <div className="mt-2 flex justify-center">
                     <button
-                      onClick={handleGoogleWallet}
-                      disabled={walletLoading}
-                      className="btn-glow group relative inline-flex items-center gap-2 rounded-lg bg-black px-3 py-1.5 font-sans text-xs font-medium text-white transition-all hover:bg-black/80 disabled:opacity-60 sm:hidden"
-                      aria-label="Agregar a Google Wallet"
+                      disabled
+                      className="group relative inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 font-sans text-xs font-medium text-white/40 sm:hidden"
+                      aria-label="Google Wallet — Próximamente"
                     >
                       <Wallet className="h-3.5 w-3.5" />
-                      Add to Google Wallet
+                      Google Wallet — Próximamente
                     </button>
 
-                    <span className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1 text-[10px] text-white/40">
+                    <span className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1 text-[10px] text-white/40">
                       <Wallet className="h-3 w-3" />
-                      Google Wallet disponible en Android
+                      Google Wallet — Próximamente
                     </span>
                   </div>
                 )}
