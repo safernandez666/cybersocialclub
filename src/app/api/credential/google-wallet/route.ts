@@ -15,14 +15,25 @@ interface ServiceAccountKey {
   private_key: string;
 }
 
-function getServiceAccountKey(): ServiceAccountKey | null {
+function getServiceAccountKey(): { key: ServiceAccountKey } | { error: string } {
   const raw = process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_KEY;
-  if (!raw) return null;
+  if (!raw) return { error: "GOOGLE_WALLET_SERVICE_ACCOUNT_KEY not set" };
+  let parsed: Record<string, unknown>;
   try {
-    return JSON.parse(raw) as ServiceAccountKey;
+    parsed = JSON.parse(raw);
   } catch {
-    return null;
+    return { error: "GOOGLE_WALLET_SERVICE_ACCOUNT_KEY is not valid JSON" };
   }
+  if (!parsed.client_email || typeof parsed.client_email !== "string") {
+    return { error: "Service account key missing client_email" };
+  }
+  if (!parsed.private_key || typeof parsed.private_key !== "string") {
+    return { error: "Service account key missing private_key" };
+  }
+  if (!parsed.private_key.includes("BEGIN PRIVATE KEY")) {
+    return { error: "Service account private_key has invalid format (expected PEM)" };
+  }
+  return { key: parsed as ServiceAccountKey };
 }
 
 function base64url(input: string | Buffer): string {
@@ -126,17 +137,25 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Token requerido" }, { status: 400 });
   }
 
-  // Validate environment
+  // Validate environment with detailed diagnostics
   const issuerId = process.env.GOOGLE_WALLET_ISSUER_ID;
-  const serviceAccountKey = getServiceAccountKey();
-
-  if (!issuerId || !serviceAccountKey) {
-    console.error("[google-wallet] Missing GOOGLE_WALLET_ISSUER_ID or GOOGLE_WALLET_SERVICE_ACCOUNT_KEY");
-    return NextResponse.json(
-      { error: "Google Wallet not configured" },
-      { status: 503 }
-    );
+  if (!issuerId) {
+    console.error("[google-wallet] GOOGLE_WALLET_ISSUER_ID not set");
+    return NextResponse.json({ error: "Google Wallet not configured" }, { status: 503 });
   }
+  if (!/^\d+$/.test(issuerId)) {
+    console.error(`[google-wallet] GOOGLE_WALLET_ISSUER_ID has invalid format: "${issuerId}" (expected numeric)`);
+    return NextResponse.json({ error: "Google Wallet misconfigured" }, { status: 503 });
+  }
+
+  const saResult = getServiceAccountKey();
+  if ("error" in saResult) {
+    console.error(`[google-wallet] Service account validation failed: ${saResult.error}`);
+    return NextResponse.json({ error: "Google Wallet not configured" }, { status: 503 });
+  }
+  const serviceAccountKey = saResult.key;
+
+  console.info(`[google-wallet] Config OK — issuer: ${issuerId}, sa: ${serviceAccountKey.client_email}`);
 
   // Fetch member
   const { data: member, error } = await getSupabaseAdmin()
@@ -182,12 +201,24 @@ export async function GET(req: NextRequest) {
     },
   };
 
+  // Log pass details for debugging
+  const appUrl = getAppUrl();
+  console.info(`[google-wallet] Building pass — member: ${member.member_number}, class: ${issuerId}.csc-membership`);
+  console.info(`[google-wallet] Image URLs — logo: ${appUrl}/icon-192.png, hero: ${appUrl}/csc-banner.png`);
+
   try {
     const signedJwt = signJwt(claims, serviceAccountKey.private_key);
+    const jwtParts = signedJwt.split(".");
+    console.info(`[google-wallet] JWT signed OK — ${jwtParts.length} parts, length: ${signedJwt.length}`);
+
     const walletUrl = `https://pay.google.com/gp/v/save/${signedJwt}`;
     return NextResponse.json({ url: walletUrl });
   } catch (err) {
-    console.error("[google-wallet] JWT signing failed:", err);
+    const errMsg = err instanceof Error ? err.message : String(err);
+    const errStack = err instanceof Error ? err.stack : undefined;
+    console.error(`[google-wallet] JWT signing failed: ${errMsg}`);
+    if (errStack) console.error(`[google-wallet] Stack: ${errStack}`);
+    console.error(`[google-wallet] SA email: ${serviceAccountKey.client_email}, key starts: ${serviceAccountKey.private_key.slice(0, 30)}...`);
     return NextResponse.json(
       { error: "Failed to generate wallet pass" },
       { status: 500 }
