@@ -59,7 +59,7 @@ const initialForm: FormData = {
 
 
 const steps = ["Datos Personales", "Info Profesional", "Revisar y Enviar"];
-const roleOptions = ["CISO", "Manager", "Analyst", "Partner", "Sponsor"];
+const roleOptions = ["CISO", "Security Engineer", "Pentester", "SOC Analyst", "Security Architect", "GRC", "DevSecOps", "Account Manager", "Manager", "Analyst", "Partner", "Sponsor", "Researcher", "Student", "Vendor", "Other"];
 const experienceOptions = ["0-2", "3-5", "6-10", "10+"];
 
 /* ------------------------------------------------------------------ */

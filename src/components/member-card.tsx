@@ -8,7 +8,7 @@ import { CheckCircle } from "lucide-react";
 
 interface MemberCardProps {
   name: string;
-  role: "CISO" | "Manager" | "Analyst" | "Partner" | "Sponsor";
+  role: string;
   memberId: string;
   memberSince: string;
   verified?: boolean;

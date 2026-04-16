@@ -26,7 +26,7 @@ interface ProfileForm {
 
 
 
-const roleOptions = ["CISO", "Security Engineer", "Pentester", "SOC Analyst", "Security Architect", "GRC", "DevSecOps", "Researcher", "Student", "Other"];
+const roleOptions = ["CISO", "Security Engineer", "Pentester", "SOC Analyst", "Security Architect", "GRC", "DevSecOps", "Account Manager", "Manager", "Analyst", "Partner", "Sponsor", "Researcher", "Student", "Vendor", "Other"];
 const experienceOptions = ["0-2", "3-5", "6-10", "10+"];
 
 export default function CompleteProfilePage() {
