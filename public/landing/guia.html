@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guía de uso — Cyber Social Club</title>
+  <meta name="description" content="Guía paso a paso para registrarte, verificar tu cuenta y usar tu credencial en Cyber Social Club">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --color-bg: #0A0A0A;
+      --color-bg-elevated: #141211;
+      --color-accent: #E87B1E;
+      --color-amber: #F4A834;
+      --color-white: #FFFFFF;
+      --color-white-70: rgba(255, 255, 255, 0.7);
+      --color-white-50: rgba(255, 255, 255, 0.5);
+      --color-white-40: rgba(255, 255, 255, 0.4);
+      --color-white-30: rgba(255, 255, 255, 0.3);
+      --color-white-25: rgba(255, 255, 255, 0.25);
+      --color-white-20: rgba(255, 255, 255, 0.2);
+      --color-white-15: rgba(255, 255, 255, 0.15);
+      --color-white-10: rgba(255, 255, 255, 0.1);
+      --color-white-06: rgba(255, 255, 255, 0.06);
+      --color-white-05: rgba(255, 255, 255, 0.05);
+      --font-sora: 'Sora', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --transition-fast: 150ms ease;
+      --transition-base: 300ms ease;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-sora);
+      background-color: var(--color-bg);
+      color: var(--color-white);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; height: auto; display: block; }
+
+    .container { width: 100%; max-width: 1280px; margin: 0 auto; padding: 0 1rem; }
+    @media (min-width: 640px) { .container { padding: 0 2rem; } }
+
+    /* Navbar */
+    .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; transition: all var(--transition-base); }
+    .navbar.scrolled { background-color: rgba(10, 10, 10, 0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--color-white-05); }
+    .navbar-container { display: flex; align-items: center; justify-content: space-between; height: 4rem; max-width: 1280px; margin: 0 auto; padding: 0 1rem; }
+    @media (min-width: 640px) { .navbar-container { padding: 0 2rem; } }
+    .navbar-logo img { height: 1.75rem; width: auto; transition: transform var(--transition-base); }
+    .navbar-logo:hover img { transform: scale(1.03); }
+    .navbar-nav { display: none; align-items: center; gap: 2rem; }
+    @media (min-width: 768px) { .navbar-nav { display: flex; } }
+    .navbar-link { font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-white-30); transition: color var(--transition-fast); position: relative; }
+    .navbar-link::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 1px; background: var(--color-accent); transition: width var(--transition-base); }
+    .navbar-link:hover, .navbar-link.active { color: var(--color-white); }
+    .navbar-link:hover::after, .navbar-link.active::after { width: 100%; }
+    .navbar-cta { padding: 0.5rem 1.25rem; background-color: var(--color-white-05); color: rgba(255,255,255,0.6); font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; border-radius: 9999px; transition: all var(--transition-fast); position: relative; overflow: hidden; }
+    .navbar-cta:hover { background-color: var(--color-accent); color: var(--color-white); transform: translateY(-1px); box-shadow: 0 8px 24px -8px rgba(232, 123, 30, 0.4); }
+
+    .navbar-toggle { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; width: 44px; height: 44px; background: none; border: none; cursor: pointer; padding: 0; border-radius: 8px; }
+    @media (min-width: 768px) { .navbar-toggle { display: none; } }
+    .navbar-toggle span { display: block; width: 20px; height: 2px; background-color: var(--color-white-50); transition: all var(--transition-base); transform-origin: center; }
+    .navbar-toggle.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .navbar-toggle.active span:nth-child(2) { opacity: 0; }
+    .navbar-toggle.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .navbar-mobile { display: none; flex-direction: column; gap: 0.5rem; padding: 1rem; background-color: rgba(10, 10, 10, 0.98); backdrop-filter: blur(20px); border-top: 1px solid var(--color-white-05); }
+    .navbar-mobile.active { display: flex; }
+    .navbar-mobile-link { padding: 0.75rem 1rem; font-family: var(--font-mono); font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-white-50); border-radius: 0.75rem; transition: all var(--transition-fast); }
+    .navbar-mobile-link:hover { color: var(--color-white); background-color: var(--color-white-05); }
+    .navbar-mobile-cta { margin-top: 0.5rem; padding: 0.875rem; background-color: var(--color-accent); color: var(--color-white); font-family: var(--font-mono); font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.1em; text-align: center; border-radius: 9999px; transition: all var(--transition-fast); }
+    .navbar-mobile-cta:hover { background-color: var(--color-amber); }
+
+    /* Hero small */
+    .hero-small { position: relative; padding: 8rem 1rem 4rem; text-align: center; overflow: hidden; }
+    .hero-small-glow { position: absolute; top: 20%; left: 50%; transform: translate(-50%, -50%); width: 800px; height: 500px; background: radial-gradient(circle, rgba(232, 123, 30, 0.18) 0%, transparent 65%); border-radius: 50%; filter: blur(140px); pointer-events: none; }
+    .hero-small h1 { font-size: 2.25rem; font-weight: 300; line-height: 1.2; letter-spacing: -0.02em; margin-bottom: 0.75rem; position: relative; z-index: 1; }
+    .hero-small p { font-family: var(--font-mono); font-size: 0.875rem; color: var(--color-white-30); max-width: 480px; margin: 0 auto; position: relative; z-index: 1; }
+    @media (min-width: 640px) { .hero-small h1 { font-size: 3rem; } }
+
+    /* Guide */
+    .guide { padding: 2rem 0 6rem; }
+    .guide-grid { display: grid; gap: 1.5rem; }
+    @media (min-width: 768px) { .guide-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    .guide-card {
+      padding: 1.5rem;
+      background: rgba(20, 18, 17, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 1rem;
+      transition: all var(--transition-base);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .guide-card:hover { border-color: rgba(232, 123, 30, 0.35); box-shadow: 0 20px 50px -20px rgba(232, 123, 30, 0.18); transform: translateY(-4px); }
+
+    .guide-step {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 2rem; height: 2rem; border-radius: 0.5rem;
+      background: rgba(232, 123, 30, 0.1); color: var(--color-accent);
+      font-family: var(--font-mono); font-size: 0.75rem; font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    .guide-icon { width: 2.25rem; height: 2.25rem; color: var(--color-accent); margin-bottom: 1rem; }
+    .guide-title { font-size: 1.25rem; font-weight: 500; margin-bottom: 0.5rem; }
+    .guide-text { font-family: var(--font-mono); font-size: 0.8125rem; line-height: 1.7; color: var(--color-white-40); }
+    .guide-text strong { color: var(--color-white-70); font-weight: 500; }
+    .guide-list { margin-top: 0.75rem; padding-left: 1.25rem; }
+    .guide-list li { font-family: var(--font-mono); font-size: 0.8125rem; color: var(--color-white-40); margin-bottom: 0.35rem; }
+    .guide-list li::marker { color: var(--color-accent); }
+
+    .guide-card-wide { grid-column: 1 / -1; }
+
+    /* Buttons */
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 0.75rem; padding: 1rem 2rem;
+      background-color: var(--color-accent); color: var(--color-white);
+      font-family: var(--font-mono); font-size: 0.875rem; font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.1em; border-radius: 9999px;
+      transition: all var(--transition-base);
+    }
+    .btn-primary:hover { background-color: var(--color-amber); transform: translateY(-2px); box-shadow: 0 12px 48px -10px rgba(232, 123, 30, 0.55); }
+
+    /* Footer */
+    .footer { padding: 4rem 0 2rem; border-top: 1px solid var(--color-white-05); background: radial-gradient(ellipse at 50% 0%, rgba(232, 123, 30, 0.04) 0%, transparent 60%); }
+    .footer-top { display: grid; gap: 2.5rem; margin-bottom: 2.5rem; }
+    @media (min-width: 768px) { .footer-top { grid-template-columns: 1fr 1fr; align-items: center; gap: 4rem; } }
+    .footer-logo { height: 2.5rem; width: auto; margin-bottom: 0.75rem; }
+    .footer-tagline { font-family: var(--font-mono); font-size: 0.875rem; color: var(--color-white-25); }
+    .footer-cta-title { font-size: 1.25rem; font-weight: 600; color: var(--color-white); margin-bottom: 0.5rem; }
+    .footer-cta-text { font-family: var(--font-mono); font-size: 0.8125rem; color: var(--color-white-30); margin-bottom: 1rem; }
+    .footer-links { display: flex; flex-wrap: wrap; gap: 1rem; }
+    @media (min-width: 640px) { .footer-links { gap: 1.5rem; } }
+    .footer-link {
+      display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem;
+      font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-white-25);
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 9999px;
+      transition: all var(--transition-fast);
+    }
+    .footer-link:hover { color: var(--color-accent); border-color: rgba(232, 123, 30, 0.3); background: rgba(232, 123, 30, 0.06); transform: translateY(-2px); }
+    .footer-bottom { display: flex; flex-direction: column; gap: 0.5rem; padding-top: 1.5rem; border-top: 1px solid var(--color-white-05); text-align: center; }
+    @media (min-width: 640px) { .footer-bottom { flex-direction: row; justify-content: space-between; align-items: center; text-align: left; } }
+    .footer-bottom p { font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-white-15); }
+
+    .text-accent { color: var(--color-accent); }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar" id="navbar">
+    <div class="navbar-container">
+      <a href="/" class="navbar-logo">
+        <img src="/logos/logo-light.png" alt="Cyber Social Club" width="110" height="32">
+      </a>
+      <nav class="navbar-nav">
+        <a href="/" class="navbar-link">Inicio</a>
+        <a href="/landing/guia.html" class="navbar-link active">Guía de uso</a>
+        <a href="https://socios.cybersocialclub.com.ar/login" class="navbar-cta">Iniciar Sesión</a>
+      </nav>
+      <button class="navbar-toggle" id="navbarToggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="navbarMobile">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="navbar-mobile" id="navbarMobile">
+      <a href="/" class="navbar-mobile-link">Inicio</a>
+      <a href="/landing/guia.html" class="navbar-mobile-link">Guía de uso</a>
+      <a href="https://socios.cybersocialclub.com.ar/login" class="navbar-mobile-cta">Iniciar Sesión</a>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero-small">
+    <div class="hero-small-glow"></div>
+    <h1>Guía de <span class="text-accent">uso</span></h1>
+    <p>Todo lo que necesitás saber para registrarte, verificar tu cuenta y empezar a usar tu credencial digital.</p>
+  </section>
+
+  <!-- Guide Content -->
+  <main class="container guide">
+    <div class="guide-grid">
+
+      <!-- 1. Registro -->
+      <div class="guide-card">
+        <div class="guide-step">01</div>
+        <svg class="guide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        <h2 class="guide-title">Cómo registrarse</h2>
+        <p class="guide-text">
+          Completá el formulario de registro con tu nombre, email, empresa, cargo, país y una contraseña segura.
+        </p>
+        <ul class="guide-list">
+          <li>Los datos son <strong>obligatorios</strong> para generar tu credencial digital.</li>
+          <li>Usá un email real porque te llegará el link de verificación.</li>
+          <li>La contraseña debe tener al menos <strong>8 caracteres</strong>.</li>
+        </ul>
+      </div>
+
+      <!-- 2. Google -->
+      <div class="guide-card">
+        <div class="guide-step">02</div>
+        <svg class="guide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 6v6l4 2"/>
+        </svg>
+        <h2 class="guide-title">Registrarse con Google</h2>
+        <p class="guide-text">
+          En el login o registro, hacé click en el botón <strong>Google</strong>. Google verifica tu email automáticamente.
+        </p>
+        <ul class="guide-list">
+          <li>No necesitás crear contraseña.</li>
+          <li>Después de autorizar, completá tu perfil profesional.</li>
+          <li>Si tu email ya está registrado, te redirigirá al login.</li>
+        </ul>
+      </div>
+
+      <!-- 3. Verificación -->
+      <div class="guide-card">
+        <div class="guide-step">03</div>
+        <svg class="guide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+          <polyline points="22,6 12,13 2,6"/>
+        </svg>
+        <h2 class="guide-title">Verificación de email</h2>
+        <p class="guide-text">
+          Te enviamos un email con un link de verificación. Tenés <strong>24 horas</strong> para hacer click.
+        </p>
+        <ul class="guide-list">
+          <li>Revisá tu bandeja de entrada y spam.</li>
+          <li>Si el link expiró, contactá a un administrador.</li>
+          <li>Sin verificar el email, no podemos procesar tu solicitud.</li>
+        </ul>
+      </div>
+
+      <!-- 4. Aprobación -->
+      <div class="guide-card">
+        <div class="guide-step">04</div>
+        <svg class="guide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+        <h2 class="guide-title">Aprobación del admin</h2>
+        <p class="guide-text">
+          Después de verificar tu email, tu cuenta queda <strong>pendiente de aprobación</strong>.
+        </p>
+        <ul class="guide-list">
+          <li>El equipo de CSC revisa cada solicitud manualmente.</li>
+          <li>Te avisamos por email cuando seas aprobado.</li>
+          <li>Una vez aprobado, ya podés acceder a tu perfil y credencial.</li>
+        </ul>
+      </div>
+
+      <!-- 5. Login -->
+      <div class="guide-card">
+        <div class="guide-step">05</div>
+        <svg class="guide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <h2 class="guide-title">Cómo loguearse</h2>
+        <p class="guide-text">
+          Ingresá a <strong>/login</strong> y usá tu email + contraseña, o el botón de Google para entrar sin password.
+        </p>
+        <ul class="guide-list">
+          <li>Si olvidaste tu contraseña, contactá al equipo.</li>
+          <li>Podés usar el mismo email que registraste con Google.</li>
+          <li>Desde el login también podés ir al registro.</li>
+        </ul>
+      </div>
+
+      <!-- 6. Credencial -->
+      <div class="guide-card">
+        <div class="guide-step">06</div>
+        <svg class="guide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="4" width="18" height="16" rx="2"/>
+          <path d="M8 11l3 3 5-5"/>
+          <path d="M16 21v-2a4 4 0 0 0-4-4H8"/>
+        </svg>
+        <h2 class="guide-title">Tu credencial digital</h2>
+        <p class="guide-text">
+          Una vez aprobado, accedé a <strong>/my-profile</strong> para ver tu credencial con QR de verificación.
+        </p>
+        <ul class="guide-list">
+          <li>Descargala en formato <strong>PNG</strong> o <strong>PDF</strong>.</li>
+          <li>Compartí el link público con quien quieras.</li>
+          <li><strong>Google Wallet</strong> está próximamente.</li>
+        </ul>
+      </div>
+
+      <!-- 7. Editar perfil — wide card -->
+      <div class="guide-card guide-card-wide">
+        <div style="display: grid; gap: 1.5rem; align-items: start;">
+          <div>
+            <div class="guide-step">07</div>
+            <svg class="guide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            <h2 class="guide-title">Editar tu perfil</h2>
+            <p class="guide-text">
+              Desde <strong>/my-profile</strong> podés actualizar tus datos en cualquier momento haciendo click en <em>Editar perfil</em>.
+            </p>
+            <ul class="guide-list">
+              <li>Podés cambiar: empresa, cargo, teléfono, LinkedIn y país.</li>
+              <li>Los cambios se reflejan automáticamente en tu credencial.</li>
+              <li>Tu nombre y email principales los gestiona el administrador.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CTA -->
+    <div style="text-align: center; margin-top: 4rem;">
+      <a href="https://socios.cybersocialclub.com.ar/register" class="btn-primary">
+        Registrate ahora
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-top">
+        <div>
+          <img src="/logos/logo-light.png" alt="Cyber Social Club" class="footer-logo">
+          <p class="footer-tagline">Where Cyber Minds Connect</p>
+        </div>
+        <div>
+          <h3 class="footer-cta-title">¿Necesitás ayuda?</h3>
+          <p class="footer-cta-text">Contactanos por Instagram o LinkedIn si tenés dudas sobre el proceso.</p>
+        </div>
+      </div>
+      <div class="footer-links">
+        <a href="https://www.instagram.com/cybersocialclub/" target="_blank" rel="noopener" class="footer-link">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+          </svg>
+          Instagram
+        </a>
+        <a href="https://www.linkedin.com/company/cyber-social-club-ar/" target="_blank" rel="noopener" class="footer-link">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/>
+          </svg>
+          LinkedIn
+        </a>
+        <a href="/landing/guia.html" class="footer-link">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          Guía de uso
+        </a>
+        <a href="https://socios.cybersocialclub.com.ar" class="footer-link">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          Socios
+        </a>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Cyber Social Club. Todos los derechos reservados.</p>
+        <p>cybersocialclub.com.ar</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Mobile nav toggle + navbar scroll background
+    const toggle = document.getElementById('navbarToggle');
+    const mobileMenu = document.getElementById('navbarMobile');
+    const navbar = document.getElementById('navbar');
+
+    toggle.addEventListener('click', () => {
+      const expanded = toggle.getAttribute('aria-expanded') === 'true';
+      toggle.setAttribute('aria-expanded', String(!expanded));
+      toggle.classList.toggle('active');
+      mobileMenu.classList.toggle('active');
+    });
+
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 20) navbar.classList.add('scrolled');
+      else navbar.classList.remove('scrolled');
+    });
+  </script>
+</body>
+</html>
