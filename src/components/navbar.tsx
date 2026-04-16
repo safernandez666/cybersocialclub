@@ -9,6 +9,7 @@ const navLinks = [
   { href: "https://cybersocialclub.com.ar", label: "Inicio", external: true },
   { href: "/register", label: "Registrarse" },
   { href: "/survey", label: "Encuesta" },
+  { href: "/landing/guia.html", label: "Guía de uso" },
 ];
 
 export function Navbar() {
