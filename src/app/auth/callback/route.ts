@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { withAxiom, AxiomRequest } from "next-axiom";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { getSafeOrigin, isPreviewDeploy, getSecurityHeaders } from "@/lib/auth-utils";
@@ -14,7 +15,7 @@ import { sendAdminNotification } from "@/lib/email";
  * - Audit logging for auth events
  * - Social login disabled on preview deploys (S11 fix)
  */
-export async function GET(req: NextRequest) {
+export const GET = withAxiom(async (req: AxiomRequest) => {
   const safeOrigin = getSafeOrigin(req);
   const securityHeaders = getSecurityHeaders();
 
@@ -32,7 +33,7 @@ export async function GET(req: NextRequest) {
   const mode = searchParams.get("mode"); // "login" or "register"
 
   if (error) {
-    console.error("[auth/callback] OAuth error:", error, errorDescription);
+    req.log.error("[auth/callback] OAuth error", { error, errorDescription });
     const res = NextResponse.redirect(
       `${safeOrigin}/register?error=${encodeURIComponent(error)}`
     );
@@ -51,7 +52,7 @@ export async function GET(req: NextRequest) {
   const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
 
   if (exchangeError || !data.user) {
-    console.error("[auth/callback] Exchange error:", exchangeError?.message);
+    req.log.error("[auth/callback] Exchange error", { error: exchangeError?.message });
     const res = NextResponse.redirect(`${safeOrigin}/register?error=exchange_failed`);
     Object.entries(securityHeaders).forEach(([k, v]) => res.headers.set(k, v));
     return res;
@@ -63,7 +64,7 @@ export async function GET(req: NextRequest) {
 
   // S2: Strict email verification enforcement
   if (!user.user_metadata.email_verified) {
-    console.warn("[auth/callback] Unverified email rejected:", email, provider);
+    req.log.warn("[auth/callback] Unverified email rejected", { email, provider });
     await logAuthEvent("login_rejected_unverified", null, provider, req);
     const res = NextResponse.redirect(`${safeOrigin}/register?error=unverified_email`);
     Object.entries(securityHeaders).forEach(([k, v]) => res.headers.set(k, v));
@@ -108,7 +109,7 @@ export async function GET(req: NextRequest) {
     });
 
     if (insertError) {
-      console.error("[auth/callback] Insert error:", insertError.message);
+      req.log.error("[auth/callback] Insert error", { error: insertError.message });
       const res = NextResponse.redirect(`${safeOrigin}/register?error=registration_failed`);
       Object.entries(securityHeaders).forEach(([k, v]) => res.headers.set(k, v));
       return res;
@@ -163,7 +164,7 @@ export async function GET(req: NextRequest) {
   const res = NextResponse.redirect(`${safeOrigin}${redirectPath}`);
   Object.entries(securityHeaders).forEach(([k, v]) => res.headers.set(k, v));
   return res;
-}
+});
 
 /**
  * Log auth events for audit trail.
@@ -173,7 +174,7 @@ async function logAuthEvent(
   eventType: string,
   memberId: string | null,
   provider: string,
-  req: NextRequest,
+  req: AxiomRequest,
   extra?: Record<string, string>
 ) {
   try {
@@ -193,6 +194,6 @@ async function logAuthEvent(
     });
   } catch (err) {
     // Never let audit logging failure break auth flow
-    console.error("[auth/callback] Audit log error:", err);
+    req.log.error("[auth/callback] Audit log error", { error: String(err) });
   }
 }

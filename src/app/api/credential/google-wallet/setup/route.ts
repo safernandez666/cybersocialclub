@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { withAxiom, AxiomRequest } from "next-axiom";
 import crypto from "crypto";
 
 /**
@@ -83,7 +84,7 @@ async function getAccessToken(sa: ServiceAccountKey): Promise<string> {
   return data.access_token;
 }
 
-export async function POST(req: NextRequest) {
+export const POST = withAxiom(async (req: AxiomRequest) => {
   // Simple auth: require admin secret header
   const adminSecret = process.env.ADMIN_SECRET;
   const provided = req.headers.get("x-admin-secret");
@@ -157,12 +158,12 @@ export async function POST(req: NextRequest) {
 
   try {
     // Step 1: Get access token
-    console.info(`[wallet-setup] Getting access token for ${sa.client_email}...`);
+    req.log.info(`[wallet-setup] Getting access token for ${sa.client_email}...`);
     const accessToken = await getAccessToken(sa);
-    console.info("[wallet-setup] Access token obtained");
+    req.log.info("[wallet-setup] Access token obtained");
 
     // Step 2: Check if class already exists
-    console.info(`[wallet-setup] Checking if class ${classId} exists...`);
+    req.log.info(`[wallet-setup] Checking if class ${classId} exists...`);
     const getRes = await fetch(
       `https://walletobjects.googleapis.com/walletobjects/v1/genericClass/${classId}`,
       { headers: { Authorization: `Bearer ${accessToken}` } }
@@ -170,7 +171,7 @@ export async function POST(req: NextRequest) {
 
     if (getRes.ok) {
       const existing = await getRes.json();
-      console.info(`[wallet-setup] Class already exists: ${classId}`);
+      req.log.info(`[wallet-setup] Class already exists: ${classId}`);
       return NextResponse.json({
         status: "already_exists",
         classId,
@@ -180,7 +181,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Step 3: Create class
-    console.info(`[wallet-setup] Creating class ${classId}...`);
+    req.log.info(`[wallet-setup] Creating class ${classId}...`);
     const createRes = await fetch(
       "https://walletobjects.googleapis.com/walletobjects/v1/genericClass",
       {
@@ -196,7 +197,7 @@ export async function POST(req: NextRequest) {
     const createData = await createRes.json();
 
     if (!createRes.ok) {
-      console.error(`[wallet-setup] Class creation failed:`, JSON.stringify(createData));
+      req.log.error("[wallet-setup] Class creation failed", { details: createData });
       return NextResponse.json(
         {
           error: "Failed to create wallet class",
@@ -206,7 +207,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.info(`[wallet-setup] Class created successfully: ${classId}`);
+    req.log.info(`[wallet-setup] Class created successfully: ${classId}`);
     return NextResponse.json({
       status: "created",
       classId,
@@ -215,7 +216,7 @@ export async function POST(req: NextRequest) {
     });
   } catch (err) {
     const errMsg = err instanceof Error ? err.message : String(err);
-    console.error(`[wallet-setup] Error: ${errMsg}`);
+    req.log.error(`[wallet-setup] Error: ${errMsg}`);
     return NextResponse.json({ error: errMsg }, { status: 500 });
   }
-}
+});

@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { withAxiom, AxiomRequest } from "next-axiom";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 // ── CORS ──
@@ -62,13 +63,13 @@ function sanitizeEmail(raw: unknown): string | null {
 }
 
 // ── Preflight ──
-export async function OPTIONS(req: NextRequest) {
+export const OPTIONS = withAxiom(async (req: AxiomRequest) => {
   const origin = req.headers.get("origin");
   return new NextResponse(null, { status: 204, headers: getCorsHeaders(origin) });
-}
+});
 
 // ── Subscribe ──
-export async function POST(req: NextRequest) {
+export const POST = withAxiom(async (req: AxiomRequest) => {
   const origin = req.headers.get("origin");
   const cors = getCorsHeaders(origin);
   const ip = getClientIp(req);
@@ -111,7 +112,7 @@ export async function POST(req: NextRequest) {
     );
 
   if (error) {
-    console.error("[newsletter] Insert error:", error.message);
+    req.log.error("[newsletter] Insert error:", { error: error.message });
     return NextResponse.json(
       { error: "Error al suscribirse. Intentá de nuevo." },
       { status: 500, headers: cors }
@@ -122,4 +123,4 @@ export async function POST(req: NextRequest) {
     { success: true, message: "¡Gracias por suscribirte!" },
     { status: 201, headers: cors }
   );
-}
+});
