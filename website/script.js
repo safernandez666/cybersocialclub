@@ -413,4 +413,51 @@
   setInterval(updateCountdown, 500);
   updateCountdown();
 
+  // ==========================================================================
+  // Newsletter form submission
+  // ==========================================================================
+  var newsletterForm = document.getElementById('newsletter-form');
+  if (newsletterForm) {
+    newsletterForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      var emailInput = document.getElementById('newsletter-email');
+      var btn = document.getElementById('newsletter-btn');
+      var msg = document.getElementById('newsletter-msg');
+      var email = emailInput.value.trim();
+
+      if (!email) return;
+
+      btn.disabled = true;
+      btn.textContent = 'Enviando...';
+      msg.style.display = 'none';
+
+      fetch('https://socios.cybersocialclub.com.ar/api/newsletter/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email })
+      })
+        .then(function(res) { return res.json().then(function(data) { return { ok: res.ok, data: data }; }); })
+        .then(function(result) {
+          msg.style.display = 'block';
+          if (result.ok) {
+            msg.style.color = '#22c55e';
+            msg.textContent = result.data.message || '¡Gracias por suscribirte!';
+            emailInput.value = '';
+          } else {
+            msg.style.color = '#ef4444';
+            msg.textContent = result.data.error || 'Error al suscribirse.';
+          }
+        })
+        .catch(function() {
+          msg.style.display = 'block';
+          msg.style.color = '#ef4444';
+          msg.textContent = 'Error de conexión. Intentá de nuevo.';
+        })
+        .finally(function() {
+          btn.disabled = false;
+          btn.textContent = 'Suscribirme';
+        });
+    });
+  }
+
 })();

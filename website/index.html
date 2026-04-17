@@ -492,10 +492,11 @@
         <div class="footer-cta reveal" data-delay="100" data-reveal="up">
           <h3 class="footer-cta-title">Sumate a la comunidad</h3>
           <p class="footer-cta-text">Recibí las novedades de eventos, meetups y networking.</p>
-          <form class="footer-form" onsubmit="event.preventDefault();">
-            <input type="email" class="footer-input" placeholder="tu@email.com" aria-label="Email">
-            <button type="submit" class="footer-submit">Suscribirme</button>
+          <form class="footer-form" id="newsletter-form">
+            <input type="email" class="footer-input" id="newsletter-email" placeholder="tu@email.com" aria-label="Email" required>
+            <button type="submit" class="footer-submit" id="newsletter-btn">Suscribirme</button>
           </form>
+          <p id="newsletter-msg" style="display:none;font-size:13px;margin-top:8px;"></p>
         </div>
       </div>
 
