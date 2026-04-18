@@ -780,6 +780,8 @@ img {
 }
 
 .stat-card {
+  position: relative;
+  overflow: hidden;
   padding: 1.25rem;
   background: rgba(20, 18, 17, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -787,6 +789,16 @@ img {
   transition: all var(--transition-base);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+}
+
+.stat-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(to bottom, rgba(255,255,255,0.1), transparent 40%);
+  pointer-events: none;
 }
 
 .stat-card:hover {
@@ -863,6 +875,16 @@ img {
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   box-shadow: 0 40px 100px -40px rgba(0, 0, 0, 0.6);
+}
+
+.evento-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(to bottom, rgba(255,255,255,0.1), transparent 40%);
+  pointer-events: none;
 }
 
 .evento-card:hover {
@@ -1610,7 +1632,8 @@ img {
 }
 
 .footer-input:focus {
-  border-color: rgba(232, 123, 30, 0.5);
+  border-color: rgba(232, 123, 30, 0.4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 0 1px rgba(232, 123, 30, 0.15);
 }
 
 .footer-input::placeholder {
@@ -1747,6 +1770,17 @@ img {
 .reveal.revealed {
   opacity: 1;
   transform: translate(0) scale(1);
+}
+
+/* Premium animations */
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes borderGlow {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 /* Respect reduced motion preference */
