@@ -208,8 +208,8 @@ function CredentialContent() {
         className="w-full max-w-md mx-auto"
       >
         {/* Gradient border wrapper */}
-        <div className="rounded-[28px] p-[1px] bg-gradient-to-br from-csc-orange via-csc-amber to-csc-orange/60">
-          <div className="overflow-hidden rounded-[27px] border border-white/8 bg-[#141211]/85 backdrop-blur-xl">
+        <div className="rounded-[28px] p-[1px] bg-gradient-to-br from-csc-orange via-csc-amber to-csc-orange/60 bg-[length:200%_200%] animate-[borderGlow_6s_ease-in-out_infinite]">
+          <div className="relative overflow-hidden rounded-[27px] border border-white/8 bg-[#141211]/85 backdrop-blur-xl after:absolute after:inset-0 after:rounded-[27px] after:border after:border-white/8 after:bg-gradient-to-b after:from-white/10 after:via-transparent after:to-transparent after:pointer-events-none">
             {/* Card Header */}
             <div className="relative flex items-center justify-between border-b border-white/5 px-5 sm:px-6 py-5">
               <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-csc-orange/40 to-transparent" />

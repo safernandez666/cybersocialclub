@@ -145,7 +145,7 @@ function LoginContent() {
             <span className="font-mono text-xs">Volver</span>
           </Link>
           <motion.h1
-            className="mb-2 font-mono text-2xl font-bold text-white"
+            className="mb-2 font-mono text-lg font-semibold tracking-tight text-white"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}

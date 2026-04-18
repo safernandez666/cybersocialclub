@@ -435,7 +435,7 @@ export default function MyProfilePage() {
             transition={{ delay: 0.1 }}
             className="lg:col-span-2"
           >
-            <div className="glass-card h-full rounded-3xl p-6 sm:p-8">
+            <div className="glass-card relative h-full rounded-3xl p-6 sm:p-8 after:absolute after:inset-0 after:rounded-3xl after:border after:border-white/8 after:bg-gradient-to-b after:from-white/10 after:via-transparent after:to-transparent after:pointer-events-none">
               {/* Profile Header */}
               <div className="flex flex-col sm:flex-row sm:items-center gap-6 mb-8">
                 {/* Avatar */}
@@ -683,8 +683,8 @@ export default function MyProfilePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <div className="rounded-[28px] p-[1px] bg-gradient-to-br from-csc-orange via-csc-amber to-csc-orange/60">
-              <div className="h-full rounded-[27px] border border-white/5 bg-[#141211]/90 backdrop-blur-xl p-4 sm:p-5">
+            <div className="rounded-[28px] p-[1px] bg-gradient-to-br from-csc-orange via-csc-amber to-csc-orange/60 bg-[length:200%_200%] animate-[borderGlow_6s_ease-in-out_infinite]">
+              <div className="relative h-full rounded-[27px] border border-white/5 bg-[#141211]/90 backdrop-blur-xl p-4 sm:p-5 after:absolute after:inset-0 after:rounded-[27px] after:border after:border-white/8 after:bg-gradient-to-b after:from-white/10 after:via-transparent after:to-transparent after:pointer-events-none">
                 <div className="mb-4 text-center">
                   <h3 className="font-mono text-sm font-bold tracking-widest text-csc-orange mb-1">
                     CYBER SOCIAL CLUB

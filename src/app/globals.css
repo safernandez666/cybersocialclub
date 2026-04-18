@@ -175,6 +175,18 @@
   100% { transform: perspective(800px) rotateX(12deg) translateY(50px); }
 }
 
+/* Shimmer sweep for skeleton loaders */
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Animated gradient border glow */
+@keyframes borderGlow {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
 /* Glassmorphism utilities */
 .glass-card {
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -202,7 +214,7 @@
 .glass-input:focus {
   outline: none;
   border-color: rgba(232, 123, 30, 0.4);
-  box-shadow: 0 0 0 3px rgba(232, 123, 30, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 0 1px rgba(232, 123, 30, 0.15);
 }
 
 /* Premium button glow */

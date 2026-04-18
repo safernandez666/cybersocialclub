@@ -28,7 +28,7 @@ function Skeleton({
 
   const animationStyles = {
     pulse: "animate-pulse",
-    shimmer: "relative overflow-hidden before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_2s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent",
+    shimmer: "relative overflow-hidden bg-gradient-to-r from-white/[0.03] via-white/[0.08] to-white/[0.03] bg-[length:200%_100%] animate-[shimmer_0.8s_infinite_linear]",
     none: "",
   }
 
