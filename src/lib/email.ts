@@ -105,9 +105,15 @@ export async function sendClaimAccountEmail(to: string, fullName: string, claimJ
       <p style="color:rgba(255,255,255,0.5);font-size:14px;line-height:1.6;margin:0 0 24px;">
         Recibimos tu solicitud para activar tu cuenta de miembro en Cyber Social Club. Hacé click en el siguiente botón para crear tu contraseña y acceder a tu portal de miembro.
       </p>
-      <div style="text-align:center;margin-bottom:24px;">
+      <div style="text-align:center;margin-bottom:16px;">
         <a href="${claimUrl}" style="display:inline-block;background-color:#E87B1E;color:#FFFFFF;text-decoration:none;padding:14px 40px;border-radius:50px;font-size:14px;font-weight:600;">Activar Mi Cuenta</a>
       </div>
+      <p style="color:rgba(255,255,255,0.4);font-size:11px;line-height:1.5;margin:0 0 6px;">
+        Si el botón no funciona, mantené presionado y elegí "Copiar link", o pegá esta URL en tu navegador:
+      </p>
+      <p style="color:rgba(255,255,255,0.6);font-size:11px;font-family:monospace;word-break:break-all;margin:0 0 24px;">
+        ${claimUrl}
+      </p>
       <div style="background-color:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:12px 16px;margin-bottom:24px;">
         <p style="color:rgba(255,255,255,0.3);font-size:12px;margin:0;">
           Este link expira en 24 horas. Si no solicitaste esto, podés ignorar este email.
@@ -222,6 +228,12 @@ export async function sendAdminNotification(member: {
       <div style="margin-top:24px;text-align:center;">
         <a href="${approveUrl}" style="display:inline-block;background-color:#22c55e;color:#FFFFFF;text-decoration:none;padding:14px 40px;border-radius:50px;font-size:14px;font-weight:600;margin-bottom:12px;">✓ Revisar y Aprobar</a>
       </div>
+      <p style="color:rgba(255,255,255,0.4);font-size:11px;line-height:1.5;margin:12px 0 6px;">
+        Si el botón no funciona en tu cliente de mail, mantené presionado y elegí "Copiar link", o pegá esta URL en tu navegador:
+      </p>
+      <p style="color:rgba(255,255,255,0.6);font-size:11px;font-family:monospace;word-break:break-all;margin:0 0 16px;">
+        ${approveUrl}
+      </p>
       <div style="text-align:center;">
         <a href="${getAppUrl()}/admin" style="display:inline-block;color:#E87B1E;text-decoration:none;font-size:13px;font-weight:500;">Revisar en Panel de Admin →</a>
       </div>
@@ -277,6 +289,12 @@ export async function sendApprovalEmail(to: string, fullName: string, memberNumb
       <div style="text-align:center;margin-bottom:16px;">
         <a href="${credentialUrl}" style="display:inline-block;background-color:#E87B1E;color:#FFFFFF;text-decoration:none;padding:12px 32px;border-radius:50px;font-size:14px;font-weight:600;">Ver Mi Credencial</a>
       </div>
+      <p style="color:rgba(255,255,255,0.4);font-size:11px;line-height:1.5;margin:0 0 6px;">
+        Si el botón no funciona en tu cliente de mail, mantené presionado y elegí "Copiar link", o pegá esta URL en tu navegador:
+      </p>
+      <p style="color:rgba(255,255,255,0.6);font-size:11px;font-family:monospace;word-break:break-all;margin:0 0 16px;">
+        ${credentialUrl}
+      </p>
       <p style="color:rgba(255,255,255,0.3);font-size:12px;margin:0;line-height:1.6;">
         Este link es personal e intransferible. No lo compartas con nadie.
         <br>¡Bienvenido a la comunidad!
