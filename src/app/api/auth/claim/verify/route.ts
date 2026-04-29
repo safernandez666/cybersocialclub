@@ -1,62 +1,91 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { getSecurityHeaders } from "@/lib/auth-utils";
-import { timingSafeEqual } from "crypto";
+import { JwtError, verifyClaimJwt } from "@/lib/jwt";
 
 /**
- * GET /api/auth/claim/verify?token=XXX — Verify a claim token is valid.
- * Rate limited: 5/15min per IP (middleware.ts).
- * Uses timing-safe comparison (REC-1 from security review).
+ * GET /api/auth/claim/verify — deprecated. The old form took `?token=...`,
+ * which leaks via referrers/logs. Replaced by POST + JWT-in-fragment.
  */
-export async function GET(req: NextRequest) {
+export async function GET() {
+  return NextResponse.json(
+    { valid: false, error: "Este flujo fue actualizado. Pediles a info@cybersocialclub.com.ar un nuevo link de activación." },
+    { status: 410, headers: getSecurityHeaders() },
+  );
+}
+
+/**
+ * POST /api/auth/claim/verify — Verify a claim JWT before showing the
+ * password form. Returns the masked email so the page can display it.
+ * Rate limited: 5/15min per IP (middleware.ts).
+ */
+export async function POST(req: NextRequest) {
   const securityHeaders = getSecurityHeaders();
-  const { searchParams } = new URL(req.url);
-  const token = searchParams.get("token");
 
-  if (!token || token.length !== 64) {
+  let body: { token?: string };
+  try {
+    body = await req.json();
+  } catch {
     return NextResponse.json(
       { valid: false, error: "Token inválido o expirado" },
-      { status: 400, headers: securityHeaders }
+      { status: 400, headers: securityHeaders },
     );
   }
 
-  const supabaseAdmin = getSupabaseAdmin();
-
-  // Lookup all unclaimed, non-expired claims to do timing-safe comparison
-  const { data: claims } = await supabaseAdmin
-    .from("account_claims")
-    .select("token, email, expires_at")
-    .is("claimed_at", null)
-    .gt("expires_at", new Date().toISOString());
-
-  if (!claims || claims.length === 0) {
+  const token = body.token;
+  if (!token || typeof token !== "string") {
     return NextResponse.json(
       { valid: false, error: "Token inválido o expirado" },
-      { status: 400, headers: securityHeaders }
+      { status: 400, headers: securityHeaders },
     );
   }
 
-  // REC-1: Timing-safe comparison to prevent timing attacks
-  const matchedClaim = claims.find((claim) => {
-    try {
-      const storedBuffer = Buffer.from(claim.token, "hex");
-      const providedBuffer = Buffer.from(token, "hex");
-      if (storedBuffer.length !== providedBuffer.length) return false;
-      return timingSafeEqual(storedBuffer, providedBuffer);
-    } catch {
-      return false;
+  let payload;
+  try {
+    payload = verifyClaimJwt(token);
+  } catch (err) {
+    if (!(err instanceof JwtError)) {
+      // Log only the message string — the raw error may carry caller-supplied
+      // input on certain runtimes. Never log the full request or token.
+      console.error("[auth/claim/verify] Unexpected error:", err instanceof Error ? err.message : String(err));
     }
-  });
-
-  if (!matchedClaim) {
     return NextResponse.json(
       { valid: false, error: "Token inválido o expirado" },
-      { status: 400, headers: securityHeaders }
+      { status: 400, headers: securityHeaders },
+    );
+  }
+
+  // Confirm jti exists, hasn't been used, and hasn't expired in the DB row.
+  const supabaseAdmin = getSupabaseAdmin();
+  const { data: claim } = await supabaseAdmin
+    .from("account_claims")
+    .select("id, email, expires_at, claimed_at")
+    .eq("jti", payload.jti)
+    .single();
+
+  if (!claim) {
+    return NextResponse.json(
+      { valid: false, error: "Token inválido o expirado" },
+      { status: 400, headers: securityHeaders },
+    );
+  }
+
+  if (claim.claimed_at) {
+    return NextResponse.json(
+      { valid: false, error: "Este link ya fue usado." },
+      { status: 400, headers: securityHeaders },
+    );
+  }
+
+  if (new Date(claim.expires_at) < new Date()) {
+    return NextResponse.json(
+      { valid: false, error: "Token inválido o expirado" },
+      { status: 400, headers: securityHeaders },
     );
   }
 
   // Partially mask email for display
-  const [localPart, domain] = matchedClaim.email.split("@");
+  const [localPart, domain] = claim.email.split("@");
   const maskedLocal =
     localPart.length <= 2
       ? localPart[0] + "***"
@@ -65,6 +94,6 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json(
     { valid: true, email: maskedEmail },
-    { headers: securityHeaders }
+    { headers: securityHeaders },
   );
 }

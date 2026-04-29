@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Mi Credencial — Cyber Social Club",
-  description: "Credencial digital de miembro del Cyber Social Club",
+  title: "Aprobación Rápida — Cyber Social Club",
+  description: "Panel de aprobación rápida de miembros",
   other: {
     referrer: "no-referrer",
   },
 };
 
-export default function CredentialLayout({
+export default function QuickApproveLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;

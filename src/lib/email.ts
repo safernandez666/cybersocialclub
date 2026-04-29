@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import { createHmac } from "crypto";
+import { createHmac, randomInt } from "crypto";
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -22,9 +22,15 @@ function getFirstName(fullName: string, firstName?: string | null): string {
   return firstName || fullName.split(" ")[0];
 }
 
-export async function sendVerificationEmail(to: string, fullName: string, verificationToken: string, firstNameField?: string | null) {
+/** Generate a 6-digit zero-padded numeric code (cryptographically random). */
+export function generateVerificationCode(): string {
+  return String(randomInt(0, 1_000_000)).padStart(6, "0");
+}
+
+export async function sendVerificationEmail(to: string, fullName: string, verificationCode: string, firstNameField?: string | null) {
   const firstName = getFirstName(fullName, firstNameField);
-  const verifyUrl = `${getAppUrl()}/api/verify-email?token=${verificationToken}`;
+  // Email-prefilled URL is NOT a secret; the code is what authenticates.
+  const verifyUrl = `${getAppUrl()}/verify-email?email=${encodeURIComponent(to)}`;
 
   await transporter.sendMail({
     from: `"${FROM_NAME}" <${getFromEmail()}>`,
@@ -46,10 +52,15 @@ export async function sendVerificationEmail(to: string, fullName: string, verifi
     <div style="background-color:#141211;border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:32px;">
       <h2 style="color:#FFFFFF;font-size:20px;margin:0 0 8px;">¡Hola ${firstName}!</h2>
       <p style="color:rgba(255,255,255,0.5);font-size:14px;line-height:1.6;margin:0 0 24px;">
-        Gracias por registrarte en Cyber Social Club. Para continuar con tu solicitud, necesitamos verificar tu email.
+        Gracias por registrarte en Cyber Social Club. Para continuar, ingresá el siguiente código en la página de verificación:
       </p>
+      <div style="background-color:rgba(232,123,30,0.08);border:1px solid rgba(232,123,30,0.15);border-radius:12px;padding:20px;margin-bottom:24px;text-align:center;">
+        <p style="color:rgba(255,255,255,0.3);font-size:11px;text-transform:uppercase;letter-spacing:2px;margin:0 0 8px;">Tu código de verificación</p>
+        <p style="color:#E87B1E;font-size:36px;font-weight:700;margin:0;font-family:monospace;letter-spacing:8px;">${verificationCode}</p>
+        <p style="color:rgba(255,255,255,0.3);font-size:11px;margin:8px 0 0;">Vence en 24 horas</p>
+      </div>
       <div style="text-align:center;margin-bottom:24px;">
-        <a href="${verifyUrl}" style="display:inline-block;background-color:#E87B1E;color:#FFFFFF;text-decoration:none;padding:14px 40px;border-radius:50px;font-size:14px;font-weight:600;">Verificar Mi Email</a>
+        <a href="${verifyUrl}" style="display:inline-block;background-color:#E87B1E;color:#FFFFFF;text-decoration:none;padding:14px 40px;border-radius:50px;font-size:14px;font-weight:600;">Ir a Verificar</a>
       </div>
       <p style="color:rgba(255,255,255,0.3);font-size:12px;line-height:1.6;margin:0;">
         Si no te registraste en Cyber Social Club, ignorá este email.
@@ -66,9 +77,11 @@ export async function sendVerificationEmail(to: string, fullName: string, verifi
   });
 }
 
-export async function sendClaimAccountEmail(to: string, fullName: string, claimToken: string, firstNameField?: string | null) {
+export async function sendClaimAccountEmail(to: string, fullName: string, claimJwt: string, firstNameField?: string | null) {
   const firstName = getFirstName(fullName, firstNameField);
-  const claimUrl = `${getAppUrl()}/claim-account/set-password?token=${claimToken}`;
+  // Token in fragment (#) — not a query string. Fragments don't go to the server,
+  // don't appear in Referer headers, and don't show up in access logs.
+  const claimUrl = `${getAppUrl()}/claim-account/set-password#token=${claimJwt}`;
 
   await transporter.sendMail({
     from: `"${FROM_NAME}" <${getFromEmail()}>`,
@@ -175,7 +188,9 @@ export async function sendAdminNotification(member: {
   linkedin_url?: string;
 }) {
   const approveToken = generateApproveToken(member.id);
-  const approveUrl = `${getAppUrl()}/api/admin/quick-approve?id=${member.id}&token=${approveToken}`;
+  // Confirmation page reads id+token from fragment, then POSTs to the API.
+  // No GET-mutation, no leak via mail-client prefetch, no leak to access logs.
+  const approveUrl = `${getAppUrl()}/admin/quick-approve#id=${member.id}&token=${approveToken}`;
 
   await transporter.sendMail({
     from: `"${FROM_NAME}" <${getFromEmail()}>`,
@@ -205,14 +220,14 @@ export async function sendAdminNotification(member: {
         ${member.linkedin_url ? `<tr><td style="color:rgba(255,255,255,0.3);font-size:13px;padding:8px 0;">LinkedIn</td><td style="font-size:14px;padding:8px 0;text-align:right;"><a href="${member.linkedin_url}" style="color:#0A66C2;text-decoration:none;">Ver perfil →</a></td></tr>` : ""}
       </table>
       <div style="margin-top:24px;text-align:center;">
-        <a href="${approveUrl}" style="display:inline-block;background-color:#22c55e;color:#FFFFFF;text-decoration:none;padding:14px 40px;border-radius:50px;font-size:14px;font-weight:600;margin-bottom:12px;">✓ Aprobar Socio</a>
+        <a href="${approveUrl}" style="display:inline-block;background-color:#22c55e;color:#FFFFFF;text-decoration:none;padding:14px 40px;border-radius:50px;font-size:14px;font-weight:600;margin-bottom:12px;">✓ Revisar y Aprobar</a>
       </div>
       <div style="text-align:center;">
         <a href="${getAppUrl()}/admin" style="display:inline-block;color:#E87B1E;text-decoration:none;font-size:13px;font-weight:500;">Revisar en Panel de Admin →</a>
       </div>
     </div>
     <div style="text-align:center;margin-top:24px;">
-      <p style="color:rgba(255,255,255,0.15);font-size:11px;margin:0;">Este link es seguro y solo funciona para este miembro.</p>
+      <p style="color:rgba(255,255,255,0.15);font-size:11px;margin:0;">El link abre una página de confirmación. Tenés que confirmar manualmente para aprobar.</p>
     </div>
   </div>
 </body>
@@ -222,8 +237,10 @@ export async function sendAdminNotification(member: {
 
 export async function sendApprovalEmail(to: string, fullName: string, memberNumber: string, credentialToken: string, firstNameField?: string | null) {
   const firstName = getFirstName(fullName, firstNameField);
-  const credentialUrl = `${getAppUrl()}/credential?token=${credentialToken}`;
-  const imageUrl = `${getAppUrl()}/api/credential/image?token=${credentialToken}`;
+  // Token in fragment (#) so it never reaches the server, never gets logged,
+  // and never leaks via Referer when the user clicks an outbound link from
+  // the credential page. The page hydrates server data via POST.
+  const credentialUrl = `${getAppUrl()}/credential#token=${credentialToken}`;
 
   console.log("[sendApprovalEmail] Starting — to:", to, "member:", memberNumber);
   console.log("[sendApprovalEmail] SMTP config — host:", process.env.SMTP_HOST, "port:", process.env.SMTP_PORT, "user:", process.env.SMTP_USER, "from:", process.env.SMTP_FROM);
@@ -255,13 +272,10 @@ export async function sendApprovalEmail(to: string, fullName: string, memberNumb
         <p style="color:#E87B1E;font-size:32px;font-weight:700;margin:0;font-family:monospace;">${memberNumber}</p>
       </div>
       <p style="color:rgba(255,255,255,0.5);font-size:14px;line-height:1.6;margin:0 0 24px;">
-        Tu credencial digital con código QR verificable está lista. Podés verla online o descargar la imagen:
+        Tu credencial digital con código QR verificable está lista. Desde la página podés descargarla en PNG, PDF o agregarla a Google Wallet:
       </p>
       <div style="text-align:center;margin-bottom:16px;">
         <a href="${credentialUrl}" style="display:inline-block;background-color:#E87B1E;color:#FFFFFF;text-decoration:none;padding:12px 32px;border-radius:50px;font-size:14px;font-weight:600;">Ver Mi Credencial</a>
-      </div>
-      <div style="text-align:center;margin-bottom:24px;">
-        <a href="${imageUrl}" style="display:inline-block;color:#E87B1E;text-decoration:none;font-size:13px;font-weight:500;">Descargar Imagen →</a>
       </div>
       <p style="color:rgba(255,255,255,0.3);font-size:12px;margin:0;line-height:1.6;">
         Este link es personal e intransferible. No lo compartas con nadie.
@@ -278,5 +292,5 @@ export async function sendApprovalEmail(to: string, fullName: string, memberNumb
 </html>`,
   });
 
-  console.log("[sendApprovalEmail] SMTP response:", JSON.stringify(info));
+  console.log("[sendApprovalEmail] SMTP messageId:", info.messageId);
 }

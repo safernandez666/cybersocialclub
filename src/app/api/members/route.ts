@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 const supabase = getSupabaseAdmin();
-import { randomBytes } from "crypto";
-import { sendVerificationEmail } from "@/lib/email";
+import { generateVerificationCode, sendVerificationEmail } from "@/lib/email";
 
 const MIN_PASSWORD_LENGTH = 8;
 
@@ -117,7 +116,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Email inválido" }, { status: 400 });
   }
 
-  const verificationToken = randomBytes(32).toString("hex");
+  const verificationCode = generateVerificationCode();
 
   // Check if email already exists with a non-active status
   const { data: existing } = await supabase
@@ -176,7 +175,8 @@ export async function POST(req: NextRequest) {
       years_experience: years_experience ? parseInt(years_experience) : null,
       country,
       status: "pending_verification",
-      verification_token: verificationToken,
+      verification_code: verificationCode,
+      verification_code_attempts: 0,
       verification_token_expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
       ...(authUserId && { auth_provider_id: authUserId, auth_provider: "email" }),
     });
@@ -194,7 +194,7 @@ export async function POST(req: NextRequest) {
 
   // Send verification email
   try {
-    await sendVerificationEmail(normalizedEmail, resolvedFullName, verificationToken, resolvedFirstName);
+    await sendVerificationEmail(normalizedEmail, resolvedFullName, verificationCode, resolvedFirstName);
   } catch (emailError) {
     console.error("Failed to send verification email:", emailError);
   }

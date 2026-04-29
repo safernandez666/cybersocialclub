@@ -1,35 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import QRCode from "qrcode";
+import {
+  NO_REFERRER_HEADERS,
+  lookupCredentialByToken,
+  readCredentialTokenFromBody,
+} from "@/lib/credential-token";
 
-function getAppUrl() { return process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || "https://socios.cybersocialclub.com.ar"; }
+function getAppUrl() {
+  return process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || "https://socios.cybersocialclub.com.ar";
+}
 
-// GET /api/credential?token=xxx — returns member data for credential page
-export async function GET(req: NextRequest) {
-  const token = req.nextUrl.searchParams.get("token");
+/**
+ * GET /api/credential — deprecated. The old form took the credential token in
+ * a query string, which leaks via referrers and access logs (SEC-HIGH).
+ * Replaced by POST + token in JSON body, with the email link delivering the
+ * token in a URL fragment to /credential.
+ */
+export async function GET() {
+  return NextResponse.json(
+    { error: "Este flujo fue actualizado. Volvé a abrir el link desde el email." },
+    { status: 410, headers: NO_REFERRER_HEADERS },
+  );
+}
 
-  if (!token) {
-    return NextResponse.json({ error: "Token requerido" }, { status: 400 });
+/**
+ * POST /api/credential — return member data for the credential page.
+ * Token comes from request body; never appears in URL or logs.
+ */
+export async function POST(req: NextRequest) {
+  const token = await readCredentialTokenFromBody(req);
+  const lookup = await lookupCredentialByToken(token);
+
+  if (!lookup.ok) {
+    return NextResponse.json({ error: lookup.error }, { status: lookup.status, headers: NO_REFERRER_HEADERS });
   }
 
-  const { data: member, error } = await getSupabaseAdmin()
-    .from("members")
-    .select("member_number, full_name, company, job_title, role_type, status, created_at, credential_token_expires_at")
-    .eq("credential_token", token)
-    .eq("status", "approved")
-    .single();
-
-  if (error || !member) {
-    return NextResponse.json({ error: "Credencial no encontrada o inválida" }, { status: 404 });
-  }
-
-  // Check token expiration
-  if (member.credential_token_expires_at && new Date(member.credential_token_expires_at) < new Date()) {
-    return NextResponse.json(
-      { error: "Credential link expired. Contact admin." },
-      { status: 410 }
-    );
-  }
+  const { member } = lookup;
 
   // Generate QR code as SVG data URL (no canvas dependency needed)
   const verifyUrl = `${getAppUrl()}/api/verify?member=${member.member_number}`;
@@ -46,5 +52,8 @@ export async function GET(req: NextRequest) {
     console.error("QR generation failed:", qrError);
   }
 
-  return NextResponse.json({ ...member, qr: qrDataUrl, verify_url: verifyUrl });
+  return NextResponse.json(
+    { ...member, qr: qrDataUrl, verify_url: verifyUrl },
+    { headers: NO_REFERRER_HEADERS },
+  );
 }

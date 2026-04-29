@@ -82,7 +82,9 @@ export default function MyProfilePage() {
   const [shareLoading, setShareLoading] = useState(false);
   const [shareDone, setShareDone] = useState(false);
   const [walletLoading, setWalletLoading] = useState(false);
-  
+  const [pngLoading, setPngLoading] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
+
   useEffect(() => {
     fetchMemberData();
   }, []);
@@ -123,9 +125,49 @@ export default function MyProfilePage() {
     router.refresh();
   };
 
+  // Token in URL fragment so it never reaches server logs / referrers when
+  // shared. The /credential page reads it from `location.hash`.
   const credentialShareUrl = member?.credential_token
-    ? `${typeof window !== "undefined" ? window.location.origin : ""}/credential?token=${member.credential_token}`
+    ? `${typeof window !== "undefined" ? window.location.origin : ""}/credential#token=${member.credential_token}`
     : "";
+
+  // POST { token } → binary blob → download. Keeps credential_token out of
+  // the URL bar, browser history, and Vercel access logs.
+  const downloadBinary = async (
+    endpoint: string,
+    filename: string,
+    setBusy: (v: boolean) => void,
+  ) => {
+    if (!member?.credential_token) return;
+    setBusy(true);
+    try {
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: member.credential_token }),
+      });
+      if (!res.ok) return;
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch {
+      // ignore
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleDownloadPng = () =>
+    member && downloadBinary("/api/credential/image", `CSC-Credencial-${member.member_number}.png`, setPngLoading);
+
+  const handleDownloadPdf = () =>
+    member && downloadBinary("/api/credential/pdf", `CSC-Credencial-${member.member_number}.pdf`, setPdfLoading);
 
   const handleShare = async () => {
     if (!credentialShareUrl) return;
@@ -153,7 +195,11 @@ export default function MyProfilePage() {
     if (!member?.credential_token) return;
     setWalletLoading(true);
     try {
-      const res = await fetch(`/api/credential/google-wallet?token=${member.credential_token}`);
+      const res = await fetch(`/api/credential/google-wallet`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: member.credential_token }),
+      });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.error || "No disponible");
@@ -741,24 +787,26 @@ export default function MyProfilePage() {
 
                 {/* Action Buttons */}
                 <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-                  <a
-                    href={`/api/credential/download?memberId=${member.id}`}
-                    download={`CSC-Credencial-${member.member_number}.png`}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-csc-orange px-3 py-1.5 font-mono text-xs uppercase tracking-widest text-white transition-all hover:bg-csc-amber hover:shadow-xl hover:shadow-csc-orange/20"
+                  <button
+                    type="button"
+                    onClick={handleDownloadPng}
+                    disabled={pngLoading || !member.credential_token}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-csc-orange px-3 py-1.5 font-mono text-xs uppercase tracking-widest text-white transition-all hover:bg-csc-amber hover:shadow-xl hover:shadow-csc-orange/20 disabled:opacity-60"
                   >
-                    <Download className="h-3.5 w-3.5" />
+                    {pngLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
                     PNG
-                  </a>
+                  </button>
 
                   {member.credential_token && (
-                    <a
-                      href={`/api/credential/pdf?token=${member.credential_token}`}
-                      download={`CSC-Credencial-${member.member_number}.pdf`}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 font-mono text-xs uppercase tracking-widest text-white/80 transition-all hover:border-csc-orange/40 hover:bg-csc-orange/5 hover:text-white"
+                    <button
+                      type="button"
+                      onClick={handleDownloadPdf}
+                      disabled={pdfLoading}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 font-mono text-xs uppercase tracking-widest text-white/80 transition-all hover:border-csc-orange/40 hover:bg-csc-orange/5 hover:text-white disabled:opacity-60"
                     >
-                      <FileText className="h-3.5 w-3.5" />
+                      {pdfLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}
                       PDF
-                    </a>
+                    </button>
                   )}
 
                   {member.credential_token && (

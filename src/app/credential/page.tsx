@@ -1,7 +1,9 @@
 "use client";
-// Credential page v2 — premium design with PDF, Share, Google Wallet, custom assets
+// Credential page v3 — token in URL fragment + POST hydration (SEC-HIGH).
+// The token never reaches the server via the request URL; it stays in
+// `location.hash` until JS reads it, then we POST it to the API and clear
+// the hash from the address bar.
 import { Suspense, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   Download,
@@ -15,6 +17,7 @@ import {
   Clock,
   AlertCircle,
   CheckCircle2,
+  Loader2,
 } from "lucide-react";
 import { Skeleton, SkeletonButton } from "@/components/ui/skeleton";
 import { CyberBackground } from "@/components/cyber-background";
@@ -88,22 +91,52 @@ export default function CredentialPage() {
 }
 
 function CredentialContent() {
-  const searchParams = useSearchParams();
-  const token = searchParams.get("token");
+  const [token, setToken] = useState<string | null>(null);
   const [data, setData] = useState<CredentialData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [shareLoading, setShareLoading] = useState(false);
   const [shareDone, setShareDone] = useState(false);
+  const [pngLoading, setPngLoading] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [walletLoading, setWalletLoading] = useState(false);
 
   useEffect(() => {
-    if (!token) {
+    // Read token from URL fragment (`#token=...`). Fragments aren't sent to
+    // the server, so the token can't end up in access logs / proxies.
+    let parsed: string | null = null;
+    if (typeof window !== "undefined") {
+      const hash = window.location.hash.replace(/^#/, "");
+      const params = new URLSearchParams(hash);
+      parsed = params.get("token");
+      // Backwards-compat: emails sent before this deploy still use ?token=
+      // in the query string. Pull it out and immediately rewrite the URL to
+      // remove it from the address bar / browser history.
+      if (!parsed) {
+        const qs = new URLSearchParams(window.location.search);
+        const legacy = qs.get("token");
+        if (legacy) parsed = legacy;
+      }
+    }
+
+    if (!parsed) {
       setError("Token no proporcionado");
       setLoading(false);
       return;
     }
+    setToken(parsed);
 
-    fetch(`/api/credential?token=${token}`)
+    // Strip the token from the address bar before issuing the fetch — the
+    // user (or any subsequent navigation) shouldn't see it linger.
+    if (typeof window !== "undefined") {
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+
+    fetch("/api/credential", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: parsed }),
+    })
       .then(async (res) => {
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
@@ -114,12 +147,67 @@ function CredentialContent() {
       .then(setData)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
+  }, []);
+
+  // Sharing: build a clean fragment URL so recipients don't get the token in
+  // a URL the next click leaks via Referer.
+  const pageUrl = useMemo(() => {
+    if (typeof window === "undefined" || !token) return "";
+    return `${window.location.origin}/credential#token=${token}`;
   }, [token]);
 
-  const pageUrl = useMemo(() => {
-    if (typeof window === "undefined") return "";
-    return window.location.href;
-  }, []);
+  const downloadBinary = async (
+    endpoint: string,
+    filename: string,
+    setBusy: (v: boolean) => void,
+  ) => {
+    if (!token) return;
+    setBusy(true);
+    try {
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      });
+      if (!res.ok) return;
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleDownloadPng = () => {
+    if (!data) return;
+    return downloadBinary("/api/credential/image", `CSC-Credencial-${data.member_number}.png`, setPngLoading);
+  };
+  const handleDownloadPdf = () => {
+    if (!data) return;
+    return downloadBinary("/api/credential/pdf", `CSC-Credencial-${data.member_number}.pdf`, setPdfLoading);
+  };
+  const handleGoogleWallet = async () => {
+    if (!token) return;
+    setWalletLoading(true);
+    try {
+      const res = await fetch("/api/credential/google-wallet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      });
+      if (!res.ok) return;
+      const json = await res.json();
+      if (json.url) window.location.href = json.url;
+    } finally {
+      setWalletLoading(false);
+    }
+  };
 
   const expiration = useMemo(() => {
     if (!data?.credential_token_expires_at) return null;
@@ -337,23 +425,35 @@ function CredentialContent() {
 
         {/* Action Buttons */}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-          <a
-            href={`/api/credential/image?token=${token}`}
-            download={`CSC-Credencial-${data.member_number}.png`}
-            className="btn-glow group inline-flex items-center gap-2 rounded-full bg-csc-orange px-5 py-2.5 font-mono text-xs uppercase tracking-widest text-white transition-all hover:bg-csc-amber"
+          <button
+            type="button"
+            onClick={handleDownloadPng}
+            disabled={pngLoading}
+            className="btn-glow group inline-flex items-center gap-2 rounded-full bg-csc-orange px-5 py-2.5 font-mono text-xs uppercase tracking-widest text-white transition-all hover:bg-csc-amber disabled:opacity-60"
           >
-            <Download className="h-4 w-4" />
+            {pngLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
             PNG
-          </a>
+          </button>
 
-          <a
-            href={`/api/credential/pdf?token=${token}`}
-            download={`CSC-Credencial-${data.member_number}.pdf`}
-            className="group inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 font-mono text-xs uppercase tracking-widest text-white/80 transition-all hover:border-csc-orange/40 hover:bg-csc-orange/5 hover:text-white"
+          <button
+            type="button"
+            onClick={handleDownloadPdf}
+            disabled={pdfLoading}
+            className="group inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 font-mono text-xs uppercase tracking-widest text-white/80 transition-all hover:border-csc-orange/40 hover:bg-csc-orange/5 hover:text-white disabled:opacity-60"
           >
-            <FileText className="h-4 w-4" />
+            {pdfLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
             PDF
-          </a>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleGoogleWallet}
+            disabled={walletLoading}
+            className="group inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 font-mono text-xs uppercase tracking-widest text-white/80 transition-all hover:border-csc-orange/40 hover:bg-csc-orange/5 hover:text-white disabled:opacity-60"
+          >
+            {walletLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+            Wallet
+          </button>
 
           <button
             onClick={handleShare}

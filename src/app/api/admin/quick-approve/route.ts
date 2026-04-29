@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { after } from "next/server";
-import { createHmac } from "crypto";
-import { randomBytes } from "crypto";
+import { createHmac, randomBytes, timingSafeEqual } from "crypto";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { sendApprovalEmail } from "@/lib/email";
+import { getSecurityHeaders } from "@/lib/auth-utils";
+import { validateAdminAuth } from "@/lib/admin-session";
 
 function getSigningKey(): string {
   const key = process.env.ADMIN_SECRET_KEY;
@@ -11,30 +12,75 @@ function getSigningKey(): string {
   return key;
 }
 
-/** Verify HMAC token: sign(memberId) must match */
+/** Verify HMAC token (timing-safe). */
 function verifyApproveToken(memberId: string, token: string): boolean {
+  let providedBuf: Buffer;
+  try {
+    providedBuf = Buffer.from(token, "hex");
+  } catch {
+    return false;
+  }
   const expected = createHmac("sha256", getSigningKey())
     .update(`quick-approve:${memberId}`)
-    .digest("hex");
-  return token === expected;
+    .digest();
+  if (providedBuf.length !== expected.length) return false;
+  return timingSafeEqual(providedBuf, expected);
 }
 
-export async function GET(req: NextRequest) {
-  const memberId = req.nextUrl.searchParams.get("id");
-  const token = req.nextUrl.searchParams.get("token");
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || "https://socios.cybersocialclub.com.ar";
+/**
+ * GET /api/admin/quick-approve — deprecated. The old form took id+token in
+ * the query string and approved on GET, which: (1) leaks the HMAC token to
+ * server logs and email-client prefetchers, (2) violated CSRF/idempotency
+ * by mutating on GET. Replaced by /admin/quick-approve confirmation page +
+ * POST /api/admin/quick-approve.
+ */
+export async function GET() {
+  return NextResponse.json(
+    { error: "Este flujo fue actualizado. Volvé a abrir el link desde el email." },
+    { status: 410, headers: getSecurityHeaders() },
+  );
+}
 
-  if (!memberId || !token) {
-    return NextResponse.redirect(new URL("/admin?error=invalid_link", appUrl));
+/**
+ * POST /api/admin/quick-approve — approve a member identified by id + HMAC.
+ *
+ * Defense-in-depth: requires BOTH the HMAC token in the body (proves the
+ * email link is genuine) AND a valid MFA admin session (proves an
+ * authenticated admin clicked the confirm button on /admin/quick-approve).
+ * Either alone is insufficient.
+ *
+ * Token comes from the request body, not the URL. Idempotent: returns
+ * already_approved=true if member is already approved.
+ */
+export async function POST(req: NextRequest) {
+  const securityHeaders = getSecurityHeaders();
+
+  // Layer 1: admin must be logged in.
+  if (!validateAdminAuth(req.headers)) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401, headers: securityHeaders });
   }
 
+  let body: { id?: string; token?: string };
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Cuerpo inválido" }, { status: 400, headers: securityHeaders });
+  }
+
+  const memberId = body.id;
+  const token = body.token;
+
+  if (!memberId || !token || typeof memberId !== "string" || typeof token !== "string") {
+    return NextResponse.json({ error: "id y token son obligatorios" }, { status: 400, headers: securityHeaders });
+  }
+
+  // Layer 2: HMAC token from the email link must be valid.
   if (!verifyApproveToken(memberId, token)) {
-    return NextResponse.redirect(new URL("/admin?error=invalid_token", appUrl));
+    return NextResponse.json({ error: "Token inválido" }, { status: 401, headers: securityHeaders });
   }
 
   const supabase = getSupabaseAdmin();
 
-  // Get member
   const { data: member, error: fetchError } = await supabase
     .from("members")
     .select("*")
@@ -42,22 +88,25 @@ export async function GET(req: NextRequest) {
     .single();
 
   if (fetchError || !member) {
-    return NextResponse.redirect(new URL("/admin?error=member_not_found", appUrl));
+    return NextResponse.json({ error: "Miembro no encontrado" }, { status: 404, headers: securityHeaders });
   }
 
-  // Already approved
   if (member.status === "approved") {
-    return new NextResponse(
-      quickResponsePage("Ya aprobado", `${member.full_name} ya está aprobado como ${member.member_number}.`, appUrl),
-      { headers: { "Content-Type": "text/html" } }
+    return NextResponse.json(
+      {
+        success: true,
+        already_approved: true,
+        member_number: member.member_number,
+        message: `${member.full_name} ya está aprobado como ${member.member_number}.`,
+      },
+      { headers: securityHeaders },
     );
   }
 
-  // Only approve pending members
   if (member.status !== "pending") {
-    return new NextResponse(
-      quickResponsePage("No se puede aprobar", `${member.full_name} tiene estado "${member.status}". Solo se pueden aprobar miembros pendientes.`, appUrl),
-      { headers: { "Content-Type": "text/html" } }
+    return NextResponse.json(
+      { error: `Solo se pueden aprobar miembros pendientes (estado actual: "${member.status}").` },
+      { status: 409, headers: securityHeaders },
     );
   }
 
@@ -109,9 +158,9 @@ export async function GET(req: NextRequest) {
   }
 
   if (!approveSuccess) {
-    return new NextResponse(
-      quickResponsePage("Error", "No se pudo aprobar al miembro. Intentá desde el panel de admin.", appUrl),
-      { headers: { "Content-Type": "text/html" } }
+    return NextResponse.json(
+      { error: "No se pudo aprobar al miembro. Intentá desde el panel de admin." },
+      { status: 500, headers: securityHeaders },
     );
   }
 
@@ -128,28 +177,13 @@ export async function GET(req: NextRequest) {
     }
   });
 
-  return new NextResponse(
-    quickResponsePage(
-      "Aprobado",
-      `${member.full_name} fue aprobado como ${memberNumber}. Se le envió el email con su credencial.`,
-      appUrl
-    ),
-    { headers: { "Content-Type": "text/html" } }
+  return NextResponse.json(
+    {
+      success: true,
+      already_approved: false,
+      member_number: memberNumber,
+      message: `${member.full_name} fue aprobado como ${memberNumber}. Se le envió el email con su credencial.`,
+    },
+    { headers: securityHeaders },
   );
-}
-
-function quickResponsePage(title: string, message: string, appUrl: string): string {
-  return `<!DOCTYPE html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${title} — CSC Admin</title></head>
-<body style="margin:0;padding:0;background:#0A0A0A;font-family:'Helvetica Neue',Arial,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;">
-<div style="max-width:440px;margin:0 auto;padding:40px 24px;text-align:center;">
-  <h1 style="color:#E87B1E;font-size:24px;margin:0 0 8px;">Cyber Social Club</h1>
-  <p style="color:rgba(255,255,255,0.3);font-size:13px;margin:0 0 32px;">Panel de Administración</p>
-  <div style="background:#141211;border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:32px;">
-    <h2 style="color:#fff;font-size:20px;margin:0 0 12px;">${title}</h2>
-    <p style="color:rgba(255,255,255,0.5);font-size:14px;line-height:1.6;margin:0 0 24px;">${message}</p>
-    <a href="${appUrl}/admin" style="display:inline-block;background:#E87B1E;color:#fff;text-decoration:none;padding:12px 32px;border-radius:50px;font-size:14px;font-weight:600;">Ir al Panel</a>
-  </div>
-</div></body></html>`;
 }

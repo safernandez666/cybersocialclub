@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import crypto from "crypto";
+import { NO_REFERRER_HEADERS, readCredentialTokenFromBody } from "@/lib/credential-token";
 
 function getAppUrl() {
   return (
@@ -129,29 +130,39 @@ function buildPassObject(
   };
 }
 
-// GET /api/credential/google-wallet?token=xxx — returns Google Wallet "Add" URL
-export async function GET(req: NextRequest) {
-  const token = req.nextUrl.searchParams.get("token");
+/**
+ * GET /api/credential/google-wallet — deprecated. Old form took token in
+ * query string. Replaced by POST.
+ */
+export async function GET() {
+  return NextResponse.json(
+    { error: "Este flujo fue actualizado. Volvé a abrir el link desde el email." },
+    { status: 410, headers: NO_REFERRER_HEADERS },
+  );
+}
 
+// POST /api/credential/google-wallet — body { token } → { url }
+export async function POST(req: NextRequest) {
+  const token = await readCredentialTokenFromBody(req);
   if (!token) {
-    return NextResponse.json({ error: "Token requerido" }, { status: 400 });
+    return NextResponse.json({ error: "Token requerido" }, { status: 400, headers: NO_REFERRER_HEADERS });
   }
 
   // Validate environment with detailed diagnostics
   const issuerId = process.env.GOOGLE_WALLET_ISSUER_ID;
   if (!issuerId) {
     console.error("[google-wallet] GOOGLE_WALLET_ISSUER_ID not set");
-    return NextResponse.json({ error: "Google Wallet not configured" }, { status: 503 });
+    return NextResponse.json({ error: "Google Wallet not configured" }, { status: 503, headers: NO_REFERRER_HEADERS });
   }
   if (!/^\d+$/.test(issuerId)) {
     console.error(`[google-wallet] GOOGLE_WALLET_ISSUER_ID has invalid format: "${issuerId}" (expected numeric)`);
-    return NextResponse.json({ error: "Google Wallet misconfigured" }, { status: 503 });
+    return NextResponse.json({ error: "Google Wallet misconfigured" }, { status: 503, headers: NO_REFERRER_HEADERS });
   }
 
   const saResult = getServiceAccountKey();
   if ("error" in saResult) {
     console.error(`[google-wallet] Service account validation failed: ${saResult.error}`);
-    return NextResponse.json({ error: "Google Wallet not configured" }, { status: 503 });
+    return NextResponse.json({ error: "Google Wallet not configured" }, { status: 503, headers: NO_REFERRER_HEADERS });
   }
   const serviceAccountKey = saResult.key;
 
@@ -170,7 +181,7 @@ export async function GET(req: NextRequest) {
   if (error || !member) {
     return NextResponse.json(
       { error: "Credencial no encontrada o inválida" },
-      { status: 404 }
+      { status: 404, headers: NO_REFERRER_HEADERS }
     );
   }
 
@@ -181,7 +192,7 @@ export async function GET(req: NextRequest) {
   ) {
     return NextResponse.json(
       { error: "Credential link expired. Contact admin." },
-      { status: 410 }
+      { status: 410, headers: NO_REFERRER_HEADERS }
     );
   }
 
@@ -212,16 +223,16 @@ export async function GET(req: NextRequest) {
     console.info(`[google-wallet] JWT signed OK — ${jwtParts.length} parts, length: ${signedJwt.length}`);
 
     const walletUrl = `https://pay.google.com/gp/v/save/${signedJwt}`;
-    return NextResponse.json({ url: walletUrl });
+    return NextResponse.json({ url: walletUrl }, { headers: NO_REFERRER_HEADERS });
   } catch (err) {
     const errMsg = err instanceof Error ? err.message : String(err);
     const errStack = err instanceof Error ? err.stack : undefined;
     console.error(`[google-wallet] JWT signing failed: ${errMsg}`);
     if (errStack) console.error(`[google-wallet] Stack: ${errStack}`);
-    console.error(`[google-wallet] SA email: ${serviceAccountKey.client_email}, key starts: ${serviceAccountKey.private_key.slice(0, 30)}...`);
+    console.error(`[google-wallet] SA email: ${serviceAccountKey.client_email}`);
     return NextResponse.json(
       { error: "Failed to generate wallet pass" },
-      { status: 500 }
+      { status: 500, headers: NO_REFERRER_HEADERS }
     );
   }
 }

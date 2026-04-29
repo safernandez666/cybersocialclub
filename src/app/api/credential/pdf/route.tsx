@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import QRCode from "qrcode";
 import React from "react";
 import { renderToBuffer, Document, Page, View, Text, Image, StyleSheet } from "@react-pdf/renderer";
+import {
+  NO_REFERRER_HEADERS,
+  lookupCredentialByToken,
+  readCredentialTokenFromBody,
+} from "@/lib/credential-token";
 
 function getAppUrl() { return process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || "https://socios.cybersocialclub.com.ar"; }
 
@@ -144,32 +148,25 @@ const styles = StyleSheet.create({
   },
 });
 
-// GET /api/credential/pdf?token=xxx — returns PDF credential
-export async function GET(req: NextRequest) {
-  const token = req.nextUrl.searchParams.get("token");
+/**
+ * GET /api/credential/pdf — deprecated. Old form took token in query string,
+ * which leaked via referrers/access logs. Replaced by POST.
+ */
+export async function GET() {
+  return NextResponse.json(
+    { error: "Este flujo fue actualizado. Volvé a abrir el link desde el email." },
+    { status: 410, headers: NO_REFERRER_HEADERS },
+  );
+}
 
-  if (!token) {
-    return NextResponse.json({ error: "Token requerido" }, { status: 400 });
+// POST /api/credential/pdf — body { token } → application/pdf
+export async function POST(req: NextRequest) {
+  const token = await readCredentialTokenFromBody(req);
+  const lookup = await lookupCredentialByToken(token);
+  if (!lookup.ok) {
+    return NextResponse.json({ error: lookup.error }, { status: lookup.status, headers: NO_REFERRER_HEADERS });
   }
-
-  const { data: member, error } = await getSupabaseAdmin()
-    .from("members")
-    .select("member_number, full_name, company, job_title, role_type, status, created_at, credential_token_expires_at")
-    .eq("credential_token", token)
-    .eq("status", "approved")
-    .single();
-
-  if (error || !member) {
-    return NextResponse.json({ error: "Credencial no encontrada" }, { status: 404 });
-  }
-
-  // Check token expiration
-  if (member.credential_token_expires_at && new Date(member.credential_token_expires_at) < new Date()) {
-    return NextResponse.json(
-      { error: "Credential link expired. Contact admin." },
-      { status: 410 }
-    );
-  }
+  const { member } = lookup;
 
   const verifyUrl = `${getAppUrl()}/api/verify?member=${member.member_number}`;
   let qrDataUrl = "";
@@ -273,6 +270,7 @@ export async function GET(req: NextRequest) {
     headers: {
       "Content-Type": "application/pdf",
       "Content-Disposition": `inline; filename="CSC-Credential-${member.member_number}.pdf"`,
+      ...NO_REFERRER_HEADERS,
     },
   });
 }

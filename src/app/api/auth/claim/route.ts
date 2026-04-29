@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { getSecurityHeaders } from "@/lib/auth-utils";
-import { randomBytes } from "crypto";
+import { randomUUID } from "crypto";
 import { sendClaimAccountEmail } from "@/lib/email";
+import { signClaimJwt } from "@/lib/jwt";
 
 const CLAIM_EXPIRY_HOURS = 24;
 const MAX_ACTIVE_CLAIMS = 3;
@@ -67,19 +68,26 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(GENERIC_RESPONSE, { headers: securityHeaders });
   }
 
-  // Generate secure token (256 bits)
-  const token = randomBytes(32).toString("hex");
-  const expiresAt = new Date(
-    Date.now() + CLAIM_EXPIRY_HOURS * 60 * 60 * 1000
-  ).toISOString();
+  // Generate jti (single-use ID stored in DB) and a signed JWT carrying it.
+  const jti = randomUUID();
+  const ttlSeconds = CLAIM_EXPIRY_HOURS * 60 * 60;
+  const expiresAt = new Date(Date.now() + ttlSeconds * 1000).toISOString();
 
-  // Insert claim record
+  let jwt: string;
+  try {
+    jwt = signClaimJwt({ sub: member.id, jti, email: member.email }, ttlSeconds);
+  } catch (err) {
+    console.error("[auth/claim] JWT sign error:", err instanceof Error ? err.message : err);
+    return NextResponse.json(GENERIC_RESPONSE, { headers: securityHeaders });
+  }
+
+  // Insert claim record (jti is the source of truth; legacy `token` column ignored).
   const { error: insertError } = await supabaseAdmin
     .from("account_claims")
     .insert({
       member_id: member.id,
       email: member.email,
-      token,
+      jti,
       expires_at: expiresAt,
     });
 
@@ -88,9 +96,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(GENERIC_RESPONSE, { headers: securityHeaders });
   }
 
-  // Send claim email
+  // Send claim email (token in URL fragment, not query string)
   try {
-    await sendClaimAccountEmail(member.email, member.full_name, token, member.first_name);
+    await sendClaimAccountEmail(member.email, member.full_name, jwt, member.first_name);
   } catch (emailError) {
     console.error("[auth/claim] Email send error:", emailError);
   }

@@ -1,6 +1,10 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { ImageResponse } from "next/og";
-import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import {
+  NO_REFERRER_HEADERS,
+  lookupCredentialByToken,
+  readCredentialTokenFromBody,
+} from "@/lib/credential-token";
 
 function getAppUrl() {
   return (
@@ -14,28 +18,27 @@ function getAppUrl() {
 const WIDTH = 800;
 const HEIGHT = 1120;
 
-export async function GET(req: NextRequest) {
+/**
+ * GET /api/credential/image — deprecated. Old form leaked the credential
+ * token via query strings/referrers. Replaced by POST + token in body, with
+ * the credential page fetching this endpoint and rendering the response as
+ * a `blob:` URL.
+ */
+export async function GET() {
+  return NextResponse.json(
+    { error: "Este flujo fue actualizado. Volvé a abrir el link desde el email." },
+    { status: 410, headers: NO_REFERRER_HEADERS },
+  );
+}
+
+export async function POST(req: NextRequest) {
   try {
-    const token = req.nextUrl.searchParams.get("token");
-
-    if (!token) {
-      return new Response("Token requerido", { status: 400 });
+    const token = await readCredentialTokenFromBody(req);
+    const lookup = await lookupCredentialByToken(token);
+    if (!lookup.ok) {
+      return new Response(lookup.error, { status: lookup.status, headers: NO_REFERRER_HEADERS });
     }
-
-    const { data: member, error } = await getSupabaseAdmin()
-      .from("members")
-      .select("member_number, full_name, company, job_title, role_type, status, created_at, credential_token_expires_at")
-      .eq("credential_token", token)
-      .eq("status", "approved")
-      .single();
-
-    if (error || !member) {
-      return new Response("Credencial no encontrada", { status: 404 });
-    }
-
-    if (member.credential_token_expires_at && new Date(member.credential_token_expires_at) < new Date()) {
-      return new Response("Link expirado", { status: 410 });
-    }
+    const { member } = lookup;
 
     const memberSince = new Date(member.created_at).toLocaleDateString("es-AR", {
       month: "long",
@@ -242,10 +245,11 @@ export async function GET(req: NextRequest) {
       {
         width: WIDTH,
         height: HEIGHT,
+        headers: NO_REFERRER_HEADERS,
       }
     );
   } catch (err) {
     console.error("[credential/image] Error:", err instanceof Error ? `${err.message}\n${err.stack}` : err);
-    return new Response("Error generando credencial", { status: 500 });
+    return new Response("Error generando credencial", { status: 500, headers: NO_REFERRER_HEADERS });
   }
 }

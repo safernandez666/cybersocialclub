@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Mi Credencial — Cyber Social Club",
-  description: "Credencial digital de miembro del Cyber Social Club",
+  title: "Activar Cuenta — Cyber Social Club",
+  description: "Creá tu contraseña para activar tu cuenta de Cyber Social Club",
   other: {
     referrer: "no-referrer",
   },
 };
 
-export default function CredentialLayout({
+export default function SetPasswordLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;

@@ -2,11 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { getSecurityHeaders } from "@/lib/auth-utils";
-import { timingSafeEqual } from "crypto";
+import { JwtError, verifyClaimJwt } from "@/lib/jwt";
 
 /**
  * POST /api/auth/claim/complete — Complete account claim: set password + create auth user.
  * Rate limited: 5/15min per IP (middleware.ts).
+ *
+ * Token is a JWT (HS256) carried in the URL fragment of the email link.
+ * The DB row's `jti` is what gives us single-use semantics — once we mark
+ * `claimed_at`, the same JWT can't redeem twice.
  */
 export async function POST(req: NextRequest) {
   const securityHeaders = getSecurityHeaders();
@@ -23,7 +27,7 @@ export async function POST(req: NextRequest) {
 
   const { token, password } = body;
 
-  if (!token || token.length !== 64) {
+  if (!token || typeof token !== "string") {
     return NextResponse.json(
       { error: "Token inválido o expirado" },
       { status: 400, headers: securityHeaders }
@@ -37,32 +41,26 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const supabaseAdmin = getSupabaseAdmin();
-
-  // Find valid claim with timing-safe comparison (REC-1)
-  const { data: claims } = await supabaseAdmin
-    .from("account_claims")
-    .select("id, member_id, email, token, expires_at")
-    .is("claimed_at", null)
-    .gt("expires_at", new Date().toISOString());
-
-  if (!claims || claims.length === 0) {
+  let payload;
+  try {
+    payload = verifyClaimJwt(token);
+  } catch (err) {
+    if (!(err instanceof JwtError)) {
+      console.error("[auth/claim/complete] Unexpected JWT error:", err instanceof Error ? err.message : String(err));
+    }
     return NextResponse.json(
       { error: "Token inválido o expirado" },
       { status: 400, headers: securityHeaders }
     );
   }
 
-  const matchedClaim = claims.find((claim) => {
-    try {
-      const storedBuffer = Buffer.from(claim.token, "hex");
-      const providedBuffer = Buffer.from(token, "hex");
-      if (storedBuffer.length !== providedBuffer.length) return false;
-      return timingSafeEqual(storedBuffer, providedBuffer);
-    } catch {
-      return false;
-    }
-  });
+  const supabaseAdmin = getSupabaseAdmin();
+
+  const { data: matchedClaim } = await supabaseAdmin
+    .from("account_claims")
+    .select("id, member_id, email, expires_at, claimed_at")
+    .eq("jti", payload.jti)
+    .single();
 
   if (!matchedClaim) {
     return NextResponse.json(
@@ -70,6 +68,45 @@ export async function POST(req: NextRequest) {
       { status: 400, headers: securityHeaders }
     );
   }
+
+  if (matchedClaim.claimed_at) {
+    return NextResponse.json(
+      { error: "Este link ya fue usado." },
+      { status: 400, headers: securityHeaders }
+    );
+  }
+
+  if (new Date(matchedClaim.expires_at) < new Date()) {
+    return NextResponse.json(
+      { error: "Token inválido o expirado" },
+      { status: 400, headers: securityHeaders }
+    );
+  }
+
+  // Atomically claim the row first (single-use guard against concurrent retries).
+  const { data: claimedRow, error: claimErr } = await supabaseAdmin
+    .from("account_claims")
+    .update({ claimed_at: new Date().toISOString() })
+    .eq("id", matchedClaim.id)
+    .is("claimed_at", null)
+    .select("id")
+    .single();
+
+  if (claimErr || !claimedRow) {
+    return NextResponse.json(
+      { error: "Token inválido o expirado" },
+      { status: 400, headers: securityHeaders }
+    );
+  }
+
+  // From here, we own the claim. If anything below fails we revert claimed_at
+  // so the user can retry.
+  const revertClaim = async () => {
+    await supabaseAdmin
+      .from("account_claims")
+      .update({ claimed_at: null })
+      .eq("id", matchedClaim.id);
+  };
 
   // Check if member already has an auth account (e.g. Google/LinkedIn login)
   const { data: member, error: memberError } = await supabaseAdmin
@@ -82,6 +119,7 @@ export async function POST(req: NextRequest) {
 
   if (!member) {
     console.error("[auth/claim/complete] Member not found for claim:", matchedClaim.member_id);
+    await revertClaim();
     return NextResponse.json(
       { error: "Miembro no encontrado. Contactá a info@cybersocialclub.com.ar" },
       { status: 404, headers: securityHeaders }
@@ -99,6 +137,7 @@ export async function POST(req: NextRequest) {
 
     if (updateAuthError) {
       console.error("[auth/claim/complete] Update auth user error:", updateAuthError.message);
+      await revertClaim();
       return NextResponse.json(
         { error: "Error al configurar la contraseña. Intentá de nuevo." },
         { status: 500, headers: securityHeaders }
@@ -117,7 +156,7 @@ export async function POST(req: NextRequest) {
 
     if (createError) {
       console.error("[auth/claim/complete] Create user error:", createError.message);
-
+      await revertClaim();
       if (createError.message.includes("already been registered")) {
         return NextResponse.json(
           { error: "Ya existe una cuenta con este email. Intentá iniciar sesión." },
@@ -150,17 +189,12 @@ export async function POST(req: NextRequest) {
       // Rollback: only delete auth user if we created it
       await supabaseAdmin.auth.admin.deleteUser(authUserId);
     }
+    await revertClaim();
     return NextResponse.json(
       { error: "Error al vincular la cuenta. Intentá de nuevo." },
       { status: 500, headers: securityHeaders }
     );
   }
-
-  // Mark claim as used
-  await supabaseAdmin
-    .from("account_claims")
-    .update({ claimed_at: new Date().toISOString() })
-    .eq("id", matchedClaim.id);
 
   // Auto-login: sign in with the new credentials
   const supabase = await createSupabaseServerClient();
