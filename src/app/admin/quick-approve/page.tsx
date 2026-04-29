@@ -32,8 +32,13 @@ interface Member {
 export default function QuickApprovePage() {
   const [hashData, setHashData] = useState<{ id: string; token: string } | null>(null);
 
-  // Admin auth state (same pattern as /admin page)
-  const [sessionToken, setSessionToken] = useState("");
+  // Admin auth state (same pattern as /admin page) — hydrated from
+  // sessionStorage so navigating to this page after a prior admin login
+  // doesn't force a re-login while the server session is still valid.
+  const [sessionToken, setSessionToken] = useState<string>(() => {
+    if (typeof window === "undefined") return "";
+    return sessionStorage.getItem("admin_session_token") || "";
+  });
   const [authenticated, setAuthenticated] = useState(false);
   const [adminKey, setAdminKey] = useState("");
   const [totpCode, setTotpCode] = useState("");
@@ -62,6 +67,32 @@ export default function QuickApprovePage() {
     }
   }, []);
 
+  // Validate hydrated session token on mount. If still valid, skip the
+  // login form. If expired, clean storage and show the login form.
+  useEffect(() => {
+    if (!sessionToken || authenticated) return;
+    let cancelled = false;
+    fetch("/api/admin/session/check", { headers: { "x-admin-token": sessionToken } })
+      .then((res) => {
+        if (cancelled) return;
+        if (res.ok) {
+          setAuthenticated(true);
+        } else {
+          if (typeof window !== "undefined") sessionStorage.removeItem("admin_session_token");
+          setSessionToken("");
+        }
+      })
+      .catch(() => {
+        if (cancelled) return;
+        if (typeof window !== "undefined") sessionStorage.removeItem("admin_session_token");
+        setSessionToken("");
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const authHeaders = (): Record<string, string> => {
     return { "x-admin-token": sessionToken };
   };
@@ -85,6 +116,13 @@ export default function QuickApprovePage() {
           if (typeof window !== "undefined" && window.location.hash) {
             window.history.replaceState(null, "", window.location.pathname + window.location.search);
           }
+        } else if (res.status === 401) {
+          // Session expired server-side — drop the stored token and force
+          // the login form back on the page.
+          if (typeof window !== "undefined") sessionStorage.removeItem("admin_session_token");
+          setSessionToken("");
+          setAuthenticated(false);
+          setLoginError("Sesión expirada. Ingresá de nuevo.");
         } else {
           const data = await res.json().catch(() => ({}));
           setStatus("error");
@@ -122,6 +160,7 @@ export default function QuickApprovePage() {
         setLoginLoading(false);
         return;
       }
+      if (typeof window !== "undefined") sessionStorage.setItem("admin_session_token", data.token);
       setSessionToken(data.token);
       setAuthenticated(true);
     } catch {

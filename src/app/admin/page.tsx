@@ -59,7 +59,14 @@ export default function AdminPage() {
   const [adminKey, setAdminKey] = useState("");
   const [totpCode, setTotpCode] = useState("");
   const [needsTOTP, setNeedsTOTP] = useState(false);
-  const [sessionToken, setSessionToken] = useState("");
+  // Hydrate from sessionStorage on first render so the admin stays
+  // authenticated across navigation/back/refresh while the server-side
+  // 1h session is still valid. sessionStorage (vs localStorage) clears
+  // on tab close, which keeps XSS exposure window short.
+  const [sessionToken, setSessionToken] = useState<string>(() => {
+    if (typeof window === "undefined") return "";
+    return sessionStorage.getItem("admin_session_token") || "";
+  });
   const [authenticated, setAuthenticated] = useState(false);
   const [filter, setFilter] = useState<string>("pending");
   const [searchQuery, setSearchQuery] = useState("");
@@ -115,6 +122,7 @@ export default function AdminPage() {
       if (res.status === 401) {
         setAuthenticated(false);
         setSessionToken("");
+        if (typeof window !== "undefined") sessionStorage.removeItem("admin_session_token");
         setError("Sesión expirada. Ingresá de nuevo.");
         return;
       }
@@ -128,6 +136,35 @@ export default function AdminPage() {
       setAuthenticated(true);
     } catch { setError("Error de conexión"); } finally { setLoading(false); }
   };
+
+  // Validate a hydrated token once on mount. If still valid server-side,
+  // mark authenticated so the page renders the admin UI without a re-login.
+  // If expired, clean storage and fall through to the login form.
+  useEffect(() => {
+    if (!sessionToken || authenticated) return;
+    let cancelled = false;
+    fetch("/api/admin/session/check", { headers: { "x-admin-token": sessionToken } })
+      .then((res) => {
+        if (cancelled) return;
+        if (res.ok) {
+          setAuthenticated(true);
+        } else {
+          if (typeof window !== "undefined") sessionStorage.removeItem("admin_session_token");
+          setSessionToken("");
+        }
+      })
+      .catch(() => {
+        // Network error — leave the user on the login form rather than
+        // pretending they're authenticated.
+        if (cancelled) return;
+        if (typeof window !== "undefined") sessionStorage.removeItem("admin_session_token");
+        setSessionToken("");
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => { if (authenticated && sessionToken) { fetchMembers(); } }, [filter, authenticated, sessionToken]);
   useEffect(() => { if (authenticated && sessionToken) { fetchStats(); } }, [authenticated, sessionToken]);
@@ -146,6 +183,7 @@ export default function AdminPage() {
       }
       if (!res.ok) { setError(data.error || "Error de autenticación"); setLoading(false); return; }
       setStatsLoading(true);
+      if (typeof window !== "undefined") sessionStorage.setItem("admin_session_token", data.token);
       setSessionToken(data.token);
       setAuthenticated(true);
       // loading stays true — useEffect's fetchMembers will set it to false
