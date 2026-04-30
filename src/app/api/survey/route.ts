@@ -199,7 +199,7 @@ export async function POST(req: NextRequest) {
     });
   } catch (emailErr) {
     // Don't fail the survey submission if email fails
-    console.error("[survey] Email notification error:", emailErr);
+    console.error("[survey] Email notification error:", emailErr instanceof Error ? emailErr.message : String(emailErr));
   }
 
   return NextResponse.json(

@@ -196,7 +196,7 @@ export async function POST(req: NextRequest) {
   try {
     await sendVerificationEmail(normalizedEmail, resolvedFullName, verificationCode, resolvedFirstName);
   } catch (emailError) {
-    console.error("Failed to send verification email:", emailError);
+    console.error("[members] Failed to send verification email:", emailError instanceof Error ? emailError.message : String(emailError));
   }
 
   return NextResponse.json({ success: true, message: "Te enviamos un email para verificar tu correo" }, { status: 201 });

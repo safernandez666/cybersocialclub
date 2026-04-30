@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
 
   // S2: Strict email verification enforcement
   if (!user.user_metadata.email_verified) {
-    console.warn("[complete-login] Unverified email rejected:", email, provider);
+    console.warn("[complete-login] Unverified email rejected — userId:", user.id, "provider:", provider);
     await logAuthEvent("login_rejected_unverified", null, provider, req);
     return NextResponse.json(
       { redirect: "/register?error=unverified_email" },

@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
 
     if (pendingMember?.auth_provider_id) {
       // Member is approved — confirm their email and retry sign-in
-      console.log("[auth/login] Auto-confirming email for approved member:", email);
+      console.log("[auth/login] Auto-confirming email for approved member — memberId:", pendingMember.id);
       await supabaseAdmin.auth.admin.updateUserById(
         pendingMember.auth_provider_id,
         { email_confirm: true }
@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
   }
 
   const user = signInData.user;
-  console.log("[auth/login] STEP 1 OK - user:", user.id, "email:", user.email, "confirmed:", user.email_confirmed_at ? "yes" : "no");
+  console.log("[auth/login] STEP 1 OK - user:", user.id, "confirmed:", user.email_confirmed_at ? "yes" : "no");
 
   const supabaseAdmin = getSupabaseAdmin();
   const { data: member, error: memberError } = await supabaseAdmin

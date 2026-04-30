@@ -100,7 +100,7 @@ export async function POST(req: NextRequest) {
   try {
     await sendClaimAccountEmail(member.email, member.full_name, jwt, member.first_name);
   } catch (emailError) {
-    console.error("[auth/claim] Email send error:", emailError);
+    console.error("[auth/claim] Email send error — memberId:", member.id, "error:", emailError instanceof Error ? emailError.message : String(emailError));
   }
 
   await logAuthEvent("claim_requested", member.id, req, { email });

@@ -166,7 +166,7 @@ export async function POST(req: NextRequest) {
   }
   const serviceAccountKey = saResult.key;
 
-  console.info(`[google-wallet] Config OK — issuer: ${issuerId}, sa: ${serviceAccountKey.client_email}`);
+  console.info(`[google-wallet] Config OK — issuer: ${issuerId}`);
 
   // Fetch member
   const { data: member, error } = await getSupabaseAdmin()
@@ -229,7 +229,6 @@ export async function POST(req: NextRequest) {
     const errStack = err instanceof Error ? err.stack : undefined;
     console.error(`[google-wallet] JWT signing failed: ${errMsg}`);
     if (errStack) console.error(`[google-wallet] Stack: ${errStack}`);
-    console.error(`[google-wallet] SA email: ${serviceAccountKey.client_email}`);
     return NextResponse.json(
       { error: "Failed to generate wallet pass" },
       { status: 500, headers: NO_REFERRER_HEADERS }

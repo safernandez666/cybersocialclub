@@ -128,7 +128,7 @@ export async function PATCH(req: NextRequest) {
       });
     }
   } catch (emailErr) {
-    console.error("[complete-profile] Admin notification error:", emailErr);
+    console.error("[complete-profile] Admin notification error:", emailErr instanceof Error ? emailErr.message : String(emailErr));
   }
 
   return NextResponse.json({ success: true });

@@ -173,7 +173,7 @@ export async function POST(req: NextRequest) {
         .update({ credential_email_sent_at: new Date().toISOString() })
         .eq("id", memberId);
     } catch (emailError) {
-      console.error("[quick-approve] Failed to send approval email:", emailError);
+      console.error("[quick-approve] Failed to send approval email — memberId:", memberId, "error:", emailError instanceof Error ? emailError.message : String(emailError));
     }
   });
 
