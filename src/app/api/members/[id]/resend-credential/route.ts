@@ -32,9 +32,9 @@ export async function POST(
   }
 
   try {
-    console.log("[resend-credential] Sending to:", member.email, "member:", member.member_number);
+    console.log("[resend-credential] Sending — memberId:", id, "member_number:", member.member_number);
     await sendApprovalEmail(member.email, member.full_name, member.member_number, member.credential_token);
-    console.log("[resend-credential] Email sent successfully");
+    console.log("[resend-credential] Email sent successfully — memberId:", id);
 
     // Track email delivery timestamp
     await getSupabaseAdmin()
@@ -42,7 +42,7 @@ export async function POST(
       .update({ credential_email_sent_at: new Date().toISOString() })
       .eq("id", id);
   } catch (emailError) {
-    console.error("Failed to resend credential email:", emailError);
+    console.error("[resend-credential] Failed to resend credential email — memberId:", id, "error:", emailError instanceof Error ? emailError.message : emailError);
     return NextResponse.json({ error: "Error al enviar el email" }, { status: 500 });
   }
 

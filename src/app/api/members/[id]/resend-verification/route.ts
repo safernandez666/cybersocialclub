@@ -45,11 +45,11 @@ export async function POST(
   }
 
   try {
-    console.log("[resend-verification] Sending to:", member.email);
+    console.log("[resend-verification] Sending — memberId:", id);
     await sendVerificationEmail(member.email, member.full_name, verificationCode, member.first_name);
-    console.log("[resend-verification] Email sent successfully");
+    console.log("[resend-verification] Email sent successfully — memberId:", id);
   } catch (emailError) {
-    console.error("Failed to resend verification email:", emailError);
+    console.error("[resend-verification] Failed to resend verification email — memberId:", id, "error:", emailError instanceof Error ? emailError.message : emailError);
     return NextResponse.json({ error: "Error al enviar el email" }, { status: 500 });
   }
 

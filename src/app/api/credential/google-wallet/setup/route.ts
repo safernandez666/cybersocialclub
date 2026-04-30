@@ -157,7 +157,7 @@ export async function POST(req: NextRequest) {
 
   try {
     // Step 1: Get access token
-    console.info(`[wallet-setup] Getting access token for ${sa.client_email}...`);
+    console.info(`[wallet-setup] Getting access token...`);
     const accessToken = await getAccessToken(sa);
     console.info("[wallet-setup] Access token obtained");
 

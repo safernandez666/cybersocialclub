@@ -96,23 +96,23 @@ export async function PATCH(
         { email_confirm: true }
       );
       if (confirmError) {
-        console.error("[approve] Failed to confirm auth email:", confirmError.message);
+        console.error("[approve] Failed to confirm auth email — memberId:", id, "error:", confirmError.message);
       }
     }
 
     // Send approval email in background (after response) to avoid Vercel function timeout
     after(async () => {
       try {
-        console.log("[after] Sending approval email to:", member.email, "member:", memberNumber);
+        console.log("[after] Sending approval email — memberId:", id, "member_number:", memberNumber);
         await sendApprovalEmail(member.email, member.full_name, memberNumber, credentialToken, member.first_name);
-        console.log("[after] Approval email sent successfully to:", member.email);
+        console.log("[after] Approval email sent successfully — memberId:", id);
 
         await getSupabaseAdmin()
           .from("members")
           .update({ credential_email_sent_at: new Date().toISOString() })
           .eq("id", id);
       } catch (emailError) {
-        console.error("[after] Failed to send approval email:", emailError instanceof Error ? emailError.message : emailError);
+        console.error("[after] Failed to send approval email — memberId:", id, "error:", emailError instanceof Error ? emailError.message : emailError);
       }
     });
 

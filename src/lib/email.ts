@@ -254,7 +254,7 @@ export async function sendApprovalEmail(to: string, fullName: string, memberNumb
   // the credential page. The page hydrates server data via POST.
   const credentialUrl = `${getAppUrl()}/credential#token=${credentialToken}`;
 
-  console.log("[sendApprovalEmail] Starting — to:", to, "member:", memberNumber);
+  console.log("[sendApprovalEmail] Starting — member:", memberNumber);
   console.log("[sendApprovalEmail] SMTP config — host:", process.env.SMTP_HOST, "port:", process.env.SMTP_PORT, "user:", process.env.SMTP_USER, "from:", process.env.SMTP_FROM);
 
   const info = await transporter.sendMail({
