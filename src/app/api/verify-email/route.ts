@@ -128,7 +128,7 @@ export async function POST(req: NextRequest) {
       role_type: member.role_type || "N/A",
     });
   } catch (emailError) {
-    console.error("[verify-email] Failed to send admin notification:", emailError);
+    console.error("[verify-email] Failed to send admin notification:", emailError instanceof Error ? emailError.message : String(emailError));
   }
 
   return NextResponse.json({ success: true }, { headers: securityHeaders });
